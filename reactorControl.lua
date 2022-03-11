@@ -58,7 +58,7 @@ if not reactor then
     return
 end
 
-if not reactor.connected then
+if not reactor.connected() then
     print("Not a valid reactor!")
     return
 end
