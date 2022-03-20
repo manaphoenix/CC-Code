@@ -2,6 +2,7 @@ local mon = components.monitor
 local modem = components.modem
 local modChannel = 69
 local repChannel = 420
+mon.setTextScale(0.5)
 term.redirect(mon)
 term.clear()
 term.setCursorPos(1, 1)
