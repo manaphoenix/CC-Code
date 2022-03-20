@@ -101,4 +101,5 @@ local function runShell()
     shell.run("shell")
 end
 
-parallel.waitForAll(peripheralWatchDog, runShell)
+parallel.waitForAny(peripheralWatchDog, runShell)
+shell.exit()
