@@ -15,7 +15,7 @@ local function receiveEvents()
         local event, side, channel, replyChannel, message, distance =
             os.pullEvent("modem_message")
         if channel == modChannel and replyChannel == repChannel then
-            if type(message == table) then
+            if type(message) == "table" then
                 os.queueEvent(table.unpack(message))
             end
         end
