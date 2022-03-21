@@ -4,7 +4,6 @@ if not fs.exists("lib/log.lua") then
 end
 
 -- variable init
-local pretty = require("cc.pretty") -- debugging :)
 local history, cache, cfg = {}, {}, {}
 local wrap = peripheral.find("occultism:storage_controller")
 if not wrap then error("failed to find Storage interface", 0) end
@@ -13,7 +12,6 @@ local api = require("lib/log")
 local mons = {peripheral.find("monitor")}
 local logs = {}
 local list = {}
-local time = os.clock()
 local function log(str, type) for _, v in pairs(logs) do v(str, type) end end
 local lt = debug.getmetatable(api.create_log(term)).__index
 
