@@ -143,7 +143,7 @@ function linq:min(selector)
     return result
 end
 
-function linq:orderBy(selector)
+function linq:orderby(selector)
     local result = {}
     setmetatable(result, {__index = linq})
     for i, v in ipairs(self) do
@@ -155,7 +155,7 @@ function linq:orderBy(selector)
     return result
 end
 
-function linq:thenBy(selector)
+function linq:thenby(selector)
     local result = {}
     setmetatable(result, {__index = linq})
     for i, v in ipairs(self) do
@@ -193,6 +193,10 @@ end
 
 function linq:add(value)
     table.insert(self, value)
+end
+
+function linq:iter()
+    return ipairs(self)
 end
 
 function module.from(t)
