@@ -78,14 +78,23 @@ local pal = {
 
 components.updateComponents()
 
--- init custom libs
-local path = "lib/"
+-- Download Custom Libs
+local req = http.get("https://api.github.com/repos/manaphoenix/CC_OC-Code/git/trees/main?recursive=1")
+local gitTemplate = "https://raw.githubusercontent.com/manaphoenix/CC_OC-Code/main/"
+local files = textutils.unserialiseJSON(req.readAll())
+req.close()
 
-if fs.isDir(path) then
-    local list = fs.list(path)
-    for _, v in pairs(list) do shell.execute(path .. v) end
-else
-    fs.makeDir(path)
+for _,v in pairs(files.tree) do
+    if v.path:match("%.lua") then
+        if not fs.exists(v.path) then
+            req = http.get(gitTemplate .. v.path)
+            if req then
+                local file = fs.open(v.path, "w")
+                file.write(req.readAll())
+                file.close()
+            end
+        end
+    end
 end
 
 -- set colors
