@@ -1,34 +1,17 @@
-local icolor = {
-    ["0"] = colors.toBlit(colors.white),
-    ["1"] = colors.toBlit(colors.orange),
-    ["2"] = colors.toBlit(colors.magenta),
-    ["3"] = colors.toBlit(colors.lightBlue),
-    ["4"] = colors.toBlit(colors.yellow),
-    ["5"] = colors.toBlit(colors.lime),
-    ["6"] = colors.toBlit(colors.pink),
-    ["7"] = colors.toBlit(colors.gray),
-    ["8"] = colors.toBlit(colors.lightGray),
-    ["9"] = colors.toBlit(colors.cyan),
-    a = colors.toBlit(colors.purple),
-    b = colors.toBlit(colors.blue),
-    c = colors.toBlit(colors.brown),
-    d = colors.toBlit(colors.green),
-    e = colors.toBlit(colors.red),
-    f = colors.toBlit(colors.black)
-}
+local icolor = {}
+
+for _,v in pairs(colors) do
+    if type(v) == "number" then
+        local blitString = colors.toBlit(v)
+        icolor[blitString] = blitString
+    end
+end
 
 local pattern = "\\."
 local _, my = term.getSize()
-local first = true
 
 local function out(str, bg, newLine)
     local _,y = term.getCursorPos()
-    if (y+1 > my) and not first then
-        term.scroll(1)
-        term.setCursorPos(1, y)
-    else
-        first = false
-    end
     bg = bg and colors.toBlit(bg) or colors.toBlit(colors.black)
     str = tostring(str)
     repeat
@@ -49,6 +32,7 @@ local function out(str, bg, newLine)
     until str == ""
     if newLine then
         if (y+1) > my then
+            term.scroll(1)
             term.setCursorPos(1, y)
         else
             term.setCursorPos(1, y+1)
