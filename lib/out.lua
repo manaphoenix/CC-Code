@@ -40,4 +40,8 @@ local function out(str, bg, newLine)
     end
 end
 
-return out
+return setmetatable({}, {
+    __call = function(_, ...)
+        return out(...)
+    end
+})
