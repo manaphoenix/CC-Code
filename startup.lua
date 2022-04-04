@@ -85,7 +85,7 @@ local files = textutils.unserialiseJSON(req.readAll())
 req.close()
 
 for _,v in pairs(files.tree) do
-    if v.path:match("%.lua") then
+    if v.path:match("lib/.-%.lua") then
         if not fs.exists(v.path) then
             req = http.get(gitTemplate .. v.path)
             if req then
