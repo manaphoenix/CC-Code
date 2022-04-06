@@ -79,7 +79,7 @@ end
 
 function module.refuelFurnaces()
     local fuel = countFuel()
-    local maxSplit = fuel / #furnaces
+    local maxSplit = math.floor(fuel / #furnaces)
     local attemptFilled = 0
     for i,v in pairs(furnaces) do
         repeat
@@ -106,7 +106,11 @@ function module.fillFurnaces()
     end
 
     local items = countInput()
-    local maxSplit = items / #furnaces
+    if items < 8 then
+        return false, "Not enough items in input chest!"
+    end
+    local maxSplit = math.floor(items / #furnaces)
+    maxSplit = maxSplit > 8 or 8
     for i,v in pairs(furnaces) do
         local attemptFilled = 0
         repeat
