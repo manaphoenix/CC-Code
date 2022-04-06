@@ -27,14 +27,17 @@ end
 local function getFilledSlot(inventory)
     for i,v in pairs(inventory.list()) do
         if v.count > 0 then
-            return i, v.count
+            return i
         end
     end
     return nil
 end
 
-local function getName(peripheral)
-    return peripheral.getName(peripheral)
+local function getName(periph)
+    if periph then
+        return peripheral.getName(periph)
+    end
+    return nil
 end
 
 -- module functions
@@ -81,14 +84,15 @@ function module.refuelFurnaces()
     local fuel = countFuel()
     local maxSplit = math.floor(fuel / #furnaces)
     local attemptFilled = 0
+    print(maxSplit)
     for i,v in pairs(furnaces) do
         repeat
-            local slot, count = getFilledSlot(fuelChest)
+            local slot = getFilledSlot(fuelChest)
             local movedItems = v.pullItems(getName(fuelChest), slot, maxSplit, 2)
             if movedItems == 0 then
                 break;
             end
-            attemptFilled = attemptFilled + count
+            attemptFilled = attemptFilled + movedItems
         until attemptFilled >= maxSplit
     end
 end
@@ -114,15 +118,23 @@ function module.fillFurnaces()
     for i,v in pairs(furnaces) do
         local attemptFilled = 0
         repeat
-            local slot,count = getFilledSlot(inputChest)
+            local slot = getFilledSlot(inputChest)
             local movedItems = v.pullItems(getName(inputChest), slot, maxSplit, 1)
             if movedItems == 0 then
                 break;
             end
-            attemptFilled = attemptFilled + count
+            attemptFilled = attemptFilled + movedItems
         until attemptFilled >= maxSplit
     end
     return true
+end
+
+function module.dumpFurnaces()
+    for i,v in pairs(furnaces) do
+        v.pushItems(getName(outputChest), 3)
+        v.pushItems(getName(fuelChest), 2)
+        v.pushItems(getName(inputChest), 1)
+    end
 end
 
 return module
