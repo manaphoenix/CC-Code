@@ -4,6 +4,47 @@ local module = {}
 
 local linq = {}
 
+function linq:toString()
+    local result = "{"
+    for i, v in pairs(self) do
+        if type(v) == "table" then
+            result = result .. "{"
+            for k, v in pairs(v) do
+                result = result .. k .. "=" .. v .. ","
+            end
+            result = result .. "},"
+        else
+            result = result .. v .. ","
+        end
+    end
+    -- remove extra comma
+    result = result:sub(1, -2)
+    return result .. "}"
+end
+
+function linq:concat(other)
+    local result = {}
+    setmetatable(result, {__index = self})
+    for i, v in pairs(self) do
+        table.insert(result, v)
+    end
+    for i, v in pairs(other) do
+        table.insert(result, v)
+    end
+    return result
+end
+
+local linqmt = {
+    __index = linq,
+    __tostring = linq.toString,
+    __concat = function(str, mytable)
+        return str .. mytable:toString()
+    end,
+    __eq = function(str, mytable)
+        return str:toString() == mytable:toString()
+    end,
+}
+
 ---@param delegate string @"(params) => predicate"
 ---@return function
 function module.l(delegate)
@@ -16,7 +57,7 @@ end
 
 function linq:where(predicate)
     local result = {}
-    setmetatable(result, {__index = linq})
+    setmetatable(result, linqmt)
     for i, v in pairs(self) do
         if predicate(v) then
             table.insert(result, v)
@@ -27,7 +68,7 @@ end
 
 function linq:to_table()
     local result = {}
-    setmetatable(result, {__index = linq})
+    setmetatable(result, linqmt)
     for i, v in pairs(self) do
         table.insert(result, v)
     end
@@ -36,7 +77,7 @@ end
 
 function linq:select(selector)
     local result = {}
-    setmetatable(result, {__index = linq})
+    setmetatable(result, linqmt)
     for i, v in pairs(self) do
         table.insert(result, selector(v))
     end
@@ -51,7 +92,7 @@ end
 
 function linq:removeAll(predicate)
     local result = {}
-    setmetatable(result, {__index = linq})
+    setmetatable(result, linqmt)
     for i, v in pairs(self) do
         if not predicate(v) then
             table.insert(result, v)
@@ -88,7 +129,7 @@ end
 
 function linq:except(other)
     local result = {}
-    setmetatable(result, {__index = linq})
+    setmetatable(result, linqmt)
     for i, v in pairs(self) do
         local found = false
         for i2, v2 in pairs(other) do
@@ -145,24 +186,25 @@ end
 
 function linq:orderby(selector)
     local result = {}
-    setmetatable(result, {__index = linq})
+    setmetatable(result, linqmt)
     for i, v in pairs(self) do
         table.insert(result, v)
     end
     table.sort(result, function(a, b)
-        return selector(a) < selector(b)
+        return selector(a,b)
     end)
     return result
 end
+linq.orderBy = linq.orderby
 
 function linq:thenby(selector)
     local result = {}
-    setmetatable(result, {__index = linq})
+    setmetatable(result, linqmt)
     for i, v in pairs(self) do
         table.insert(result, v)
     end
     table.sort(result, function(a, b)
-        return selector(a) < selector(b)
+        return selector(a,b)
     end)
     return result
 end
@@ -170,7 +212,7 @@ end
 -- reverse does not work with tables
 function linq:reverse()
     local result = {}
-    setmetatable(result, {__index = linq})
+    setmetatable(result, linqmt)
     for i, v in ipairs(self) do
         table.insert(result, v)
     end
@@ -182,7 +224,7 @@ end
 
 function linq:skip(count)
     local result = {}
-    setmetatable(result, {__index = linq})
+    setmetatable(result, linqmt)
     for i = 1, count do
         table.remove(self, 1)
     end
@@ -202,7 +244,7 @@ end
 
 function linq:sort(selector)
     local result = {}
-    setmetatable(result, {__index = linq})
+    setmetatable(result, linqmt)
     for i, v in pairs(self) do
         table.insert(result, v)
     end
@@ -236,41 +278,13 @@ function linq:print()
     end
 end
 
-function linq:toString()
-    local result = "{"
-    for i, v in pairs(self) do
-        if type(v) == "table" then
-            result = result .. "{"
-            for k, v in pairs(v) do
-                result = result .. k .. "=" .. v .. ","
-            end
-            result = result .. "},"
-        else
-            result = result .. v .. ","
-        end
-    end
-    return result .. "}"
-end
-
-function linq:concat(other)
-    local result = {}
-    setmetatable(result, {__index = linq})
-    for i, v in pairs(self) do
-        table.insert(result, v)
-    end
-    for i, v in pairs(other) do
-        table.insert(result, v)
-    end
-    return result
-end
-
 function module.from(t)
     return setmetatable(t, {__index = linq})
 end
 
 function module.range(start, stop, step)
     local result = {}
-    setmetatable(result, {__index = linq})
+    setmetatable(result, linqmt)
     for i = start, stop, step do
         table.insert(result, i)
     end
@@ -279,7 +293,7 @@ end
 
 function module.empty()
     local result = {}
-    setmetatable(result, {__index = linq})
+    setmetatable(result, linqmt)
     return result
 end
 
@@ -289,12 +303,6 @@ function module.sort(t, func)
     end
     table.sort(t, func)
 end
-
-local linqmt = {
-    __index = linq,
-    __tostring = linq.toString,
-    __concat = linq.concat,
-}
 
 setmetatable(linq, {
     __call = function(self, t)
