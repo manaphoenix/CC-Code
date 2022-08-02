@@ -38,7 +38,7 @@ file = fs.exists(file) and file or file .. ".lua"
 local function runFile()
     parallel.waitForAll(
         function()
-            local f = loadfile(file)
+            local f = loadfile(file, nil, _ENV)
             if f then
                 f(table.unpack(targs))
             else
