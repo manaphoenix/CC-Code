@@ -4,6 +4,46 @@ settings.save()
 term.clear()
 term.setCursorPos(1, 1)
 
+--- RedRun - A very tiny background task runner using the native top-level coroutine
+-- By JackMacWindows
+-- Licensed under CC0, though I'd appreciate it if this notice was left in place.
+local redrun = {}
+local coroutines = {}
+
+--- Initializes the RedRun runtime. This is called automatically, but it's still available if desired.
+-- @param silent Set to any truthy value to inhibit the status message.
+function redrun.init(silent)
+    local env = getfenv(rednet.run)
+    if env.__redrun_coroutines then
+        -- RedRun was already initialized, so just grab the coroutine table and run
+        coroutines = env.__redrun_coroutines
+    else
+        -- For the actual code execution, we go through os.pullEventRaw which is the only function called unconditionally each loop
+        -- To avoid breaking real os, we set this through the environment of the function
+        -- We also use a metatable to avoid writing every other function out
+        env.os = setmetatable({
+            pullEventRaw = function()
+                local ev = table.pack(coroutine.yield())
+                local delete = {}
+                for k,v in pairs(coroutines) do
+                    if v.terminate or v.filter == nil or v.filter == ev[1] or ev[1] == "terminate" then
+                        local ok
+                        if v.terminate then ok, v.filter = coroutine.resume(v.coro, "terminate")
+                        else ok, v.filter = coroutine.resume(v.coro, table.unpack(ev, 1, ev.n)) end
+                        if not ok or coroutine.status(v.coro) ~= "suspended" or v.terminate then delete[#delete+1] = k end
+                    end
+                end
+                for _,v in ipairs(delete) do coroutines[v] = nil end
+                return table.unpack(ev, 1, ev.n)
+            end
+        }, {__index = os, __isredrun = true})
+        -- Add the coroutine table to the environment to be fetched by init later
+        env.__redrun_coroutines = coroutines
+        if not silent then print("Successfully registered RedRun.") end
+    end
+end
+redrun.init(true)
+
 -- utility functions
 local function reset()
     for i, v in pairs(components) do
@@ -80,22 +120,36 @@ components.updateComponents()
 
 -- Download Custom Libs
 local req = http.get("https://api.github.com/repos/manaphoenix/CC_OC-Code/git/trees/main?recursive=1")
-local gitTemplate = "https://raw.githubusercontent.com/manaphoenix/CC_OC-Code/main/"
-local files = textutils.unserialiseJSON(req.readAll())
-req.close()
+if req then
+    local gitTemplate = "https://raw.githubusercontent.com/manaphoenix/CC_OC-Code/main/"
+    local files = textutils.unserialiseJSON(req.readAll())
+    req.close()
 
-for _,v in pairs(files.tree) do
-    if v.path:match("lib/.-%.lua") then
-        if not fs.exists(v.path) then
-            req = http.get(gitTemplate .. v.path)
-            if req then
-                local file = fs.open(v.path, "w")
-                file.write(req.readAll())
-                file.close()
+    for _,v in pairs(files.tree) do
+        if v.path:match("%.lua") then
+            if not fs.exists(v.path) then
+                req = http.get(gitTemplate .. v.path)
+                if req then
+                    local file = fs.open(v.path, "w")
+                    file.write(req.readAll())
+                    file.close()
+                end
             end
         end
     end
 end
+
+-- cosu auto completion
+-- add completion if it does not exist
+local completions = shell.getCompletionInfo()
+if not completions["cosu.lua"] then
+    local completion = require("cc.shell.completion")
+    local complete = completion.build(
+    completion.file
+    )
+    shell.setCompletionFunction("cosu.lua", complete)
+end
+
 
 -- set colors
 for i, v in pairs(pal) do term.setPaletteColor(colors[i], v) end
@@ -106,9 +160,4 @@ if (components.monitor) then
     end
 end
 
-local function runShell()
-    shell.run("shell")
-end
-
-parallel.waitForAny(peripheralWatchDog, runShell)
-shell.exit()
+coroutines[1] = {coro = coroutine.create(peripheralWatchDog), name = "peripheralWatchDog"}
