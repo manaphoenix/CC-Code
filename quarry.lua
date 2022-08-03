@@ -1,3 +1,4 @@
+-- small update to check for sha change!
 local fuel = turtle.getFuelLevel()
 local size = {...}
 local fuelNeeded = size[1] * size[2] * size[3]
