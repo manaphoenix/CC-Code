@@ -75,6 +75,26 @@ function linq:to_table()
     return result
 end
 
+function linq:contains(value)
+    for i, v in pairs(self) do
+        if v == value then
+            return true
+        end
+    end
+    return false
+end
+
+function linq:intersect(other)
+    local result = {}
+    setmetatable(result, linqmt)
+    for i, v in pairs(self) do
+        if other:contains(v) then
+            table.insert(result, v)
+        end
+    end
+    return result
+end
+
 function linq:select(selector)
     local result = {}
     setmetatable(result, linqmt)
@@ -99,6 +119,10 @@ function linq:removeAll(predicate)
         end
     end
     return result
+end
+
+function linq:remove(value)
+    return self:removeAll(function(x) return x == value end)
 end
 
 function linq:count()
