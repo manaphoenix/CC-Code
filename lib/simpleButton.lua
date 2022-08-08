@@ -8,47 +8,39 @@ local SimpleButton = {}
 
 local buttonStorage = {}
 
-local sharedFunctions = {
+local IButton = {
     draw = function(self)
-        if self.toggled then
-            self.backgroundColor = self.backgroundColorOn
-        else
-            self.backgroundColor = self.backgroundColorOff
+        if self.isToggle then
+            self.backgroundColor = self.toggled and self.backgroundColorOn or self.backgroundColorOff
+            term.setBackgroundColor(self.backgroundColor)
         end
-        term.setBackgroundColor(self.backgroundColor)
-        term.setTextColor(self.textColor)
+        local bg = colors.toBlit(self.backgroundColor):rep(self.width)
+        local fg = colors.toBlit(self.textColor):rep(self.width)
+        local ypos = self.y + math.floor(self.height / 2)
+        local len = string.len(self.text)
         -- draw the borders
+        local t = string.rep(" ", self.width)
         for i = self.y, (self.y + self.height - 1) do
             term.setCursorPos(self.x, i)
-            term.write(string.rep(" ", self.width))
+            if i ~= ypos then
+                term.blit(t, fg, bg)
+            else
+                local txtLine = t:sub(1, (self.width/2)-(len/2)) .. self.text .. t:sub((self.width/2)+(len/2)+1, self.width)
+                term.blit(txtLine, fg, bg)
+            end
         end
-        -- draw the text
-        local xpos = self.x + math.floor(self.width / 2) - math.floor(string.len(self.text) / 2)
-        local ypos = self.y + math.floor(self.height / 2)
-        term.setCursorPos(xpos, ypos)
-        term.write(self.text)
     end,
     within = function(self, x, y)
-        if x >= self.x and x <= (self.x + self.width - 1) and y >= self.y and y <= (self.y + self.height - 1) then
-            return true
-        else
-            return false
-        end
+        return x >= self.x and x <= (self.x + self.width) and y >= self.y and y <= (self.y + self.height)
     end,
     fire = function(self)
         if self.isToggle then
+            self.toggled = not self.toggled
             self:onToggle()
-        else
-            self:onClick()
+            return
         end
-    end
-}
-
-local buttonClass = {
-    __index = sharedFunctions
-}
-
-local buttonTemplate = {
+        self:onClick()
+    end,
     x = 1,
     y = 1,
     width = 10,
@@ -64,22 +56,13 @@ local buttonTemplate = {
     onToggle = nil
 }
 
--- util function to clone a table
-local function clone(t)
-    local t2 = {}
-    for k, v in pairs(t) do
-        t2[k] = v
-    end
-    return t2
-end
+local buttonClass = {
+    __index = IButton
+}
 
 -- create a new button
 function SimpleButton.new(tbl)
-    local t = clone(buttonTemplate)
-    for k, v in pairs(tbl) do
-        t[k] = v
-    end
-    setmetatable(t, buttonClass)
+    local t = setmetatable(tbl or {}, buttonClass)
     table.insert(buttonStorage, t)
     return t
 end
@@ -92,7 +75,8 @@ function SimpleButton.drawAll()
 end
 
 -- event handler
-function SimpleButton.handleEvent(event, button, x, y)
+function SimpleButton.handleEvent(event, _, x, y)
+    if event ~= "mouse_click" and event ~= "monitor_touch" then return end
     for i = 1, #buttonStorage do
         if buttonStorage[i]:within(x, y) then
             buttonStorage[i]:fire()
