@@ -84,10 +84,10 @@ function module.refuelFurnaces()
     local fuel = countFuel()
     local maxSplit = math.floor(fuel / #furnaces)
     local attemptFilled = 0
+    print(maxSplit)
     for i,v in pairs(furnaces) do
         repeat
             local slot = getFilledSlot(fuelChest)
-            if slot == nil then return end
             local movedItems = v.pullItems(getName(fuelChest), slot, maxSplit, 2)
             if movedItems == 0 then
                 break;
@@ -119,7 +119,6 @@ function module.fillFurnaces()
         local attemptFilled = 0
         repeat
             local slot = getFilledSlot(inputChest)
-            if slot == nil then return end
             local movedItems = v.pullItems(getName(inputChest), slot, maxSplit, 1)
             if movedItems == 0 then
                 break;
