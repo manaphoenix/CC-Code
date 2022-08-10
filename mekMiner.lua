@@ -62,7 +62,6 @@ end
 local function checkFuel()
     local fuelLevel = turtle.getFuelLevel()
     if fuelLevel < config.stopFuelLevel then
-        out("Out of fuel! Stopping mining!")
         return false
     end
     return true
