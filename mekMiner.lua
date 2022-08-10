@@ -14,6 +14,7 @@ if fs.exists("mekminer.conf") then
     local file = fs.open("mekminer.conf", "rb")
     config = textutils.unserialise(file.readAll())
     file.close()
+    print(type(config.stopFuelLevel))
 else
     local file = fs.open("mekminer.conf", "wb")
     file.write(textutils.serialise(config))
@@ -270,7 +271,7 @@ end
 local function main()
     loadState()
     while true do
-        if checkFuel() < config.stopFuelLevel then
+        if not checkFuel() then
             out("Out of fuel! Stopping mining!")
             error("", 0)
         end
