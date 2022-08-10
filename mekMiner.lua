@@ -3,6 +3,7 @@
 -- License: CC0
 -- requires a diamond pickaxe, an ender chest, a digital miner, and a power block
 -- optional addons are an ender modem to connect to a pocket computer.
+-- setup inventory as such: miner, power block, ender chest
 
 local config = {
     modemChannel = 1337, -- what channel to open the modem on (if you gave it one)
