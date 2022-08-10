@@ -69,7 +69,7 @@ local function checkFuel()
 end
 
 local function emptyTurtle()
-    for i = 4, 16 do
+    for i = 5, 16 do
         turtle.select(i)
         turtle.dropUp()
     end
@@ -343,5 +343,4 @@ local function eventLoop()
     end
 end
 
-attemptToRefuel()
---parallel.waitForAll(main, eventLoop)
+parallel.waitForAll(main, eventLoop)
