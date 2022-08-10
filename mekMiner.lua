@@ -20,7 +20,7 @@ else
     file.write(textutils.serialise(config))
     file.close()
     print("Please setup mekminer.conf")
-    error("",0)
+    error("", 0)
 end
 
 term.clear()
@@ -53,7 +53,7 @@ end
 local function out(str)
     str = tostring(str)
     if modem then
-        modem.transmit(config.modemChannel,config.modemChannel,str)
+        modem.transmit(config.modemChannel, config.modemChannel, str)
     else
         print(str)
     end
@@ -268,12 +268,25 @@ local function digArea()
     turtle.down()
 end
 
+local function attemptToRefuel()
+    turtle.select(4)
+    turtle.placeUp()
+    turtle.select(5)
+    turtle.suckUp()
+    turtle.refuel()
+    turtle.select(4)
+    turtle.digUp()
+end
+
 local function main()
     loadState()
     while true do
         if not checkFuel() then
-            out("Out of fuel! Stopping mining!")
-            error("", 0)
+            attemptToRefuel()
+            if not checkFuel() then
+                out("Out of fuel! Stopping mining!")
+                error("", 0)
+            end
         end
         if curState == States.moving then
             out("Turtle stopped unexpectedly, please manually move to next location!")
@@ -298,11 +311,11 @@ local modemFuncs = {
             pickupMiner()
         end
         out("Miner stopped!")
-        error("",0)
+        error("", 0)
     end,
     ["status"] = function()
         local state = ""
-        for i,v in pairs(States) do
+        for i, v in pairs(States) do
             if v == curState then
                 state = i
                 break
@@ -325,9 +338,10 @@ end
 
 local function eventLoop()
     while true do
-        local ev = {os.pullEvent()}
+        local ev = { os.pullEvent() }
         eventHandler(ev)
     end
 end
 
-parallel.waitForAll(main, eventLoop)
+attemptToRefuel()
+--parallel.waitForAll(main, eventLoop)
