@@ -299,6 +299,7 @@ local function main()
         moveToNextLoc()
         curState = States.digging
         digArea()
+        curState = States.idle
     end
 end
 
