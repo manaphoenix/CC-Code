@@ -191,6 +191,10 @@ local function doCycle()
     if curState == States.moving or curState == States.digging then return end
     setupMiner()
     saveState()
+    if not miner then
+        out("Miner not found! Save data expected to be corrupted!")
+        error("",0)
+    end
     miner.start()
     wait()
     pickupMiner()
