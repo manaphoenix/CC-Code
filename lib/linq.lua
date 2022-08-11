@@ -5,21 +5,21 @@ local module = {}
 local linq = {}
 
 function linq:toString()
-    local result = "{"
+    local result = "{\n"
     for k, v in pairs(self) do
         if type(v) == "table" then
-            result = result .. "{"
+            result = result .. "{\n"
             for sk, sv in pairs(v) do
-                result = result .. sk .. "=" .. sv .. ","
+                result = result .. sk .. "=" .. sv .. ",\n"
             end
-            result = result .. "},"
+            result = result .. "},\n"
         else
-            result = result .. k .. " = " .. v .. ","
+            result = result .. k .. " = " .. v .. ",\n"
         end
     end
     -- remove extra comma
-    result = result:sub(1, -2)
-    return result .. "}"
+    result = result:sub(1, -3)
+    return result .. "\n}"
 end
 
 function linq:concat(other)
