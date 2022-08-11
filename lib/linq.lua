@@ -6,15 +6,15 @@ local linq = {}
 
 function linq:toString()
     local result = "{"
-    for i, v in pairs(self) do
+    for k, v in pairs(self) do
         if type(v) == "table" then
             result = result .. "{"
-            for k, v in pairs(v) do
-                result = result .. k .. "=" .. v .. ","
+            for sk, sv in pairs(v) do
+                result = result .. sk .. "=" .. sv .. ","
             end
             result = result .. "},"
         else
-            result = result .. v .. ","
+            result = result .. k .. " = " .. v .. ","
         end
     end
     -- remove extra comma
@@ -24,7 +24,7 @@ end
 
 function linq:concat(other)
     local result = {}
-    setmetatable(result, {__index = self})
+    setmetatable(result, { __index = self })
     for i, v in pairs(self) do
         table.insert(result, v)
     end
@@ -50,8 +50,8 @@ local linqmt = {
 function module.l(delegate)
     local params, predicate = delegate:gmatch("%(?(.-)%)? => (.*)")()
     local func = "return function(" .. params .. ") " ..
-                     (predicate:match("return") and predicate .. " end" or
-                         "return " .. predicate .. " end")
+        (predicate:match("return") and predicate .. " end" or
+            "return " .. predicate .. " end")
     return assert(load(func))()
 end
 
@@ -64,6 +64,10 @@ function linq:where(predicate)
         end
     end
     return result
+end
+
+function linq:push(value)
+    table.insert(self, value)
 end
 
 function linq:to_table()
@@ -215,10 +219,11 @@ function linq:orderby(selector)
         table.insert(result, v)
     end
     table.sort(result, function(a, b)
-        return selector(a,b)
+        return selector(a, b)
     end)
     return result
 end
+
 linq.orderBy = linq.orderby
 
 function linq:thenby(selector)
@@ -228,7 +233,7 @@ function linq:thenby(selector)
         table.insert(result, v)
     end
     table.sort(result, function(a, b)
-        return selector(a,b)
+        return selector(a, b)
     end)
     return result
 end
@@ -273,7 +278,7 @@ function linq:sort(selector)
         table.insert(result, v)
     end
     table.sort(result, function(a, b)
-        return selector(a,b)
+        return selector(a, b)
     end)
     return result
 end
@@ -281,6 +286,7 @@ end
 function linq:toList()
     return self
 end
+
 linq.tolist = linq.toList
 
 function linq:pairs()
@@ -293,7 +299,7 @@ function linq:print()
         if type(v) == "table" then
             print("{")
             for k, v in pairs(v) do
-                print("",k, v)
+                print("", k, v)
             end
             print("}")
         else
@@ -303,7 +309,7 @@ function linq:print()
 end
 
 function module.from(t)
-    return setmetatable(t, {__index = linq})
+    return setmetatable(t, { __index = linq })
 end
 
 function module.range(start, stop, step)
