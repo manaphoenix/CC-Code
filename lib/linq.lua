@@ -10,11 +10,11 @@ function linq:toString()
         if type(v) == "table" then
             result = result .. "{\n"
             for sk, sv in pairs(v) do
-                result = result .. sk .. "=" .. sv .. ",\n"
+                result = result .. "\t\t" .. sk .. "=" .. sv .. ",\n"
             end
             result = result .. "},\n"
         else
-            result = result .. k .. " = " .. v .. ",\n"
+            result = result .. "\t" ..  k .. " = " .. v .. ",\n"
         end
     end
     -- remove extra comma
