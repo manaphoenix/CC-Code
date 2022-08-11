@@ -3,51 +3,76 @@
 -- License: CC0
 -- requires a diamond pickaxe, an ender chest, a digital miner, and a power block
 -- optional addons are an ender modem to connect to a pocket computer.
--- setup inventory as such: miner, power block, ender chest
+-- setup inventory as such: miner, power block, ender chest for ore output, an optional ender chest for refueling
 
 local config = {
     modemChannel = 1337, -- what channel to open the modem on (if you gave it one)
     stopFuelLevel = 64, -- what fuel level to stop mining at
 }
 
-if fs.exists("mekminer.conf") then
-    local file = fs.open("mekminer.conf", "rb")
-    config = textutils.unserialise(file.readAll())
-    file.close()
-    print(type(config.stopFuelLevel))
-else
-    local file = fs.open("mekminer.conf", "wb")
-    file.write(textutils.serialise(config))
-    file.close()
-    print("Please setup mekminer.conf")
-    error("", 0)
-end
-
-term.clear()
-term.setCursorPos(1, 1)
-
+-- [[ INIT ]]
 local States = {
+    errored = -1,
     idle = 0,
     mining = 1,
     finished = 2,
-    errored = 3,
     moving = 4,
-    digging = 5
+    digging = 5,
+    refueling = 6
 }
 
-local curState = States.idle
+local data = {
+    lastKnownState = States.idle,
+    moveCounter = 0,
+    previousOreCount = 0
+}
 
-local previousCheck = 0
+local configFile = "mekConfig.conf"
+local datFile = "mekState.dat"
+local prefix = os.getComputerLabel() or os.getComputerID()
 local modem = peripheral.find("modem")
 local miner = peripheral.wrap("top")
-local waitingState = States.idle
-if modem == nil then
-    print("No modem found! Manual mode activated!")
-elseif modem and not modem.isWireless() then
-    print("Modem is not wireless! Manual mode activated!")
-else
-    modem.closeAll()
-    modem.open(config.modemChannel)
+
+-- [[Utility Functions]]
+
+local function loadF(fileName)
+    if not fs.exists(fileName) then return nil end
+    local f = fs.open(fileName, "r")
+    local dt = textutils.unserialise(f.readAll())
+    f.close()
+    return data
+end
+
+local function writeToScreen(str, skipNewLine)
+    str = tostring(str)
+    -- deal with word wrapping
+    if #str < mx then
+        term.write(str)
+    else
+        local words = {}
+        for word in str:gmatch("[^%s]+") do
+            table.insert(words, word)
+        end
+        local line = ""
+        for i, word in ipairs(words) do
+            if #line + #word + 1 > mx then
+                term.write(line)
+                term.setCursorPos(1, select(2, term.getCursorPos()) + 1)
+                line = ""
+            end
+            line = line .. word .. " "
+        end
+        term.write(line)
+    end
+
+    if not skipNewLine then
+        term.setCursorPos(1, select(2, term.getCursorPos()) + 1)
+    end
+end
+
+local function reset()
+    term.clear()
+    term.setCursorPos(1, 1)
 end
 
 local function out(str)
@@ -55,9 +80,44 @@ local function out(str)
     if modem then
         modem.transmit(config.modemChannel, config.modemChannel, str)
     else
-        print(str)
+        writeToScreen(str)
     end
 end
+
+local function saveState()
+    local f = fs.open(datFile, "wb")
+    f.write(textutils.serialise(data))
+    f.close()
+end
+
+local function smartMoveForward()
+    repeat
+        local f = turtle.forward()
+        if not f then
+            turtle.dig()
+        end
+    until f == true
+    turtle.digUp()
+    turtle.digDown()
+end
+
+-- [[ Load Config and Data ]]
+
+if loadF(configFile) then
+    config = loadF(configFile)
+else
+    local file = fs.open(configFile, "wb")
+    file.write(textutils.serialise(config))
+    file.close()
+    error("Please setup mekminer.conf", 0)
+end
+
+if loadF(datFile) then
+    data = loadF(datFile)
+end
+
+-- [[ Program functions ]]
+
 
 local function checkFuel()
     local fuelLevel = turtle.getFuelLevel()
@@ -74,11 +134,30 @@ local function emptyTurtle()
     end
 end
 
-local function setupMiner()
-    if curState ~= States.idle then
-        out("Already mining!")
-        return
+local function updateState(state)
+    if state then
+        data.lastKnownState = state
+    else
+        if data.lastKnownState == States.mining then
+            local blocks = miner.getToMine()
+            if blocks == 0 then
+                data.lastKnownState = States.finished
+            else
+                if blocks ~= data.previousOreCount then
+                    data.previousOreCount = blocks
+                    out("Mining " .. blocks .. " blocks")
+                else
+                    data.lastKnownState = States.errored
+                end
+            end
+        end
     end
+    saveState()
+end
+
+local function setupMiner()
+    if data.lastKnownState ~= States.idle then return end
+    out("Setting up miner")
     turtle.select(1) -- miner
     turtle.placeUp()
 
@@ -111,10 +190,11 @@ local function setupMiner()
         turtle.back()
     end
     miner = peripheral.wrap("top")
-    curState = States.mining
+    updateState(States.mining)
 end
 
 local function pickupMiner()
+    out("Mining done, picking up miner")
     miner = nil
     turtle.select(1) -- miner
     turtle.digUp()
@@ -146,70 +226,7 @@ local function pickupMiner()
     for i = 1, 2 do
         turtle.back()
     end
-    curState = States.idle
-end
-
-local function checkState()
-    local blocks = miner.getToMine()
-    if blocks > 0 and blocks ~= previousCheck then
-        previousCheck = blocks
-        return States.mining
-    elseif blocks > 0 and blocks == previousCheck then
-        return States.errored
-    else
-        return States.finished
-    end
-end
-
-local function saveState()
-    local f = fs.open("mekMinerState.dat", "wb")
-    f.write(textutils.serialise(curState))
-    f.close()
-end
-
-local function loadState()
-    if not fs.exists("mekMinerState.dat") then
-        return
-    end
-    local f = fs.open("mekMinerState.dat", "rb")
-    curState = f.read()
-    f.close()
-end
-
-local function wait()
-    repeat
-        waitingState = checkState()
-        if waitingState == States.errored then
-            out("Miner has hit an error, please check the miner!")
-        end
-        sleep(5)
-    until waitingState == States.finished
-    waitingState = States.idle
-end
-
-local function doCycle()
-    if curState == States.moving or curState == States.digging then return end
-    setupMiner()
-    saveState()
-    if not miner then
-        out("Miner not found! Save data expected to be corrupted!")
-        error("",0)
-    end
-    miner.start()
-    wait()
-    pickupMiner()
-    saveState()
-end
-
-local function smartMoveForward()
-    repeat
-        local f = turtle.forward()
-        if not f then
-            turtle.dig()
-        end
-    until f == true
-    turtle.digUp()
-    turtle.digDown()
+    updateState(States.idle)
 end
 
 local function moveToNextLoc()
@@ -217,23 +234,33 @@ local function moveToNextLoc()
         return
     end
 
-    turtle.up()
-    for i = 1, 32 do
-        smartMoveForward()
+    if data.moveCounter == 0 then
+        turtle.up()
     end
-    turtle.down()
+    if data.moveCounter ~= 32 then
+        for i = 1, (32-data.moveCounter) do
+            smartMoveForward()
+            data.moveCounter = i
+            saveState()
+        end
+    end
+    if data.moveCounter == 32 then
+        turtle.down()
+        data.moveCounter = 0
+    end
+    updateState(States.idle)
 end
 
 -- requires 4x4x4 space
 local function digArea()
-    if curState ~= States.digging then return end
+    if data.lastKnownState ~= States.digging then return end
 
+    out("Digging area")
     turtle.up()
     turtle.digUp()
     turtle.back()
     turtle.digUp()
     turtle.turnLeft()
-
 
     -- Left Wall
     smartMoveForward()
@@ -269,9 +296,11 @@ local function digArea()
     turtle.turnRight()
     turtle.back()
     turtle.down()
+    updateState(States.idle)
 end
 
 local function attemptToRefuel()
+    out("Attempting to refuel!")
     turtle.select(4)
     turtle.placeUp()
     turtle.select(5)
@@ -281,37 +310,88 @@ local function attemptToRefuel()
     turtle.digUp()
 end
 
+local function wait()
+    repeat
+        updateState()
+        if data.lastKnownState == States.errored then
+            out("Miner has hit an error, please check the miner!")
+        end
+        sleep(5)
+    until data.lastKnownState == States.finished
+end
+
+-- [[ Setup ]]
+
+reset()
+writeToScreen("Mekanism Digital Miner Automater v1.0")
+writeToScreen("By manaphoenix")
+writeToScreen("License: CC0")
+writeToScreen("")
+writeToScreen("Loading...")
+
+writeToScreen((modem and modem.isWireless() and "Modem Ready!") or "No Modem Found!")
+if modem then
+    modem.closeAll()
+    modem.open(config.modemChannel)
+end
+
+local function doCycle()
+    setupMiner()
+    if not miner then
+        out("Miner not found! Save data expected to be corrupted!")
+        error("", 0)
+    end
+    miner.start()
+    wait()
+    pickupMiner()
+end
+
+local function pickUpAtLastState()
+    if data.lastKnownState == States.idle then
+        return
+    elseif data.lastKnownState == States.digging then
+        out("Program cannot return in the midle of digging!")
+        error("", 0)
+    elseif data.lastKnownState == States.moving then
+        moveToNextLoc()
+    elseif data.lastKnownState == States.refueling then
+        attemptToRefuel()
+    elseif data.lastKnownState == States.mining then
+        wait()
+        pickupMiner()
+        updateState(States.moving)
+        moveToNextLoc()
+    elseif data.lastKnownState == States.finished then
+        out("Cannot return in the middle of picking up miner!")
+        error("", 0)
+    end
+end
+
 local function main()
-    loadState()
+    pickUpAtLastState()
     while true do
         if not checkFuel() then
+            updateState(States.refueling)
             attemptToRefuel()
             if not checkFuel() then
-                out("Out of fuel! Stopping mining!")
+                out("Out of fuel! Mining stopped!")
                 error("", 0)
             end
+            updateState(States.idle)
         end
-        if curState == States.moving then
-            out("Turtle stopped unexpectedly, please manually move to next location!")
-            curState = States.digging
-            saveState()
-            error("", 0)
-        end
-        doCycle()
-        curState = States.moving
-        saveState()
-        moveToNextLoc()
-        curState = States.digging
+        updateState(States.digging)
         digArea()
-        curState = States.idle
+        updateState(States.idle)
+        doCycle()
+        updateState(States.moving)
+        moveToNextLoc()
     end
 end
 
 local modemFuncs = {
     ["stop"] = function()
-        curState = States.idle
-        saveState()
-        if curState == States.mining then
+        data.lastKnownState = States.idle
+        if data.lastKnownState == States.mining then
             pickupMiner()
         end
         out("Miner stopped!")
@@ -320,7 +400,7 @@ local modemFuncs = {
     ["status"] = function()
         local state = ""
         for i, v in pairs(States) do
-            if v == curState then
+            if v == data.lastKnownState then
                 state = i
                 break
             end

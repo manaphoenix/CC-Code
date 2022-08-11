@@ -10,7 +10,7 @@ if data then
 end
 
 local arg = {...}
-
+local configFile = "mekConfig.conf"
 local mx,my = term.getSize()
 
 local function writeToScreen(str, skipNewLine)
@@ -72,7 +72,7 @@ if not fs.exists("mekminer.conf") then
     local modemChannel = tonumber(read())
     config.modemChannel = modemChannel or 1337
 
-    local file = fs.open("mekminer.conf", "wb")
+    local file = fs.open(configFile, "wb")
     file.write(textutils.serialise(config))
     file.close()
 end
@@ -87,6 +87,18 @@ if auto then
     local f = fs.open("startup.lua", "w")
     f.write("shell.run(\"mekMiner\")")
     f.close()
+end
+
+reset()
+writeToScreen("Do you want to name this turtle?")
+writeToScreen("(y/n)")
+writeToScreen("name: ", true)
+local name = read()
+if name == "y" then
+    reset()
+    writeToScreen("What name do you want to give this turtle?")
+    name = read()
+    os.setComputerLabel(name)
 end
 
 reset()
