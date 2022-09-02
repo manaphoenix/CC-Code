@@ -78,7 +78,12 @@ local buttonClass = {
 ---@param tbl? table
 ---@return SimpleButton
 function SimpleButton.new(tbl)
-    local t = setmetatable(tbl or {}, buttonClass)
+    local t = setmetatable({}, buttonClass)
+    if tbl then
+        for i,v in pairs(tbl) do
+            t[i] = v
+        end
+    end
     table.insert(buttonStorage, t)
     return t
 end
