@@ -5,6 +5,7 @@
 local module = {}
 
 ---@class linqTable
+---@operator concat:string
 local linq = {}
 
 local function stringMT()
@@ -42,6 +43,7 @@ local functionString = [[
     end
 ]]
 
+---returns a function, built using the delegate string.
 ---@param delegate string @"(params) => predicate"
 ---@return function
 function module.lambda(delegate)
@@ -288,12 +290,6 @@ end
 function module.from(t)
     return setmetatable(t, { __index = linq })
 end
-
-setmetatable(linq, {
-    __call = function(self, t)
-        return setmetatable(t, linqmt)
-    end
-})
 
 setmetatable(module, {
     __call = function(self, t)
