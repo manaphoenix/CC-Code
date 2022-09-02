@@ -8,7 +8,7 @@ local module = {}
 ---@operator concat:string
 local linq = {}
 
-local function stringMT()
+local function stringMT(self)
     local result = "{\n"
     for k, v in pairs(self) do
         if type(v) == "table" then
