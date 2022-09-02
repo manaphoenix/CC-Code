@@ -1,4 +1,4 @@
--- Unit Testing Library
+---@class UnitTester
 local module = {}
 
 local startTime = os.epoch("utc")
@@ -6,6 +6,7 @@ local strs = {
     start = "Testing: %s",
     time = "Took: %s"
 }
+local CCPC = ccemux == nil
 
 local function nanoToMs(n)
     local ms = n/1000000
@@ -13,36 +14,21 @@ local function nanoToMs(n)
     return ms
 end
 
-local function mark()
-    if ccemux then
-        startTime = os.epoch("nano")
-    else
-        startTime = os.epoch("utc")
-    end
-end
-
-local function getEndTime()
-    if ccemux then
-        return os.epoch("nano") - startTime
-    end
-    return os.epoch("utc") - startTime
-end
-
 local function errHandler(err)
     print("Unit test failed: " .. err)
 end
 
 local function calculate()
-    local endTime = getEndTime()
-    local calcTime = ccemux and endTime / 1000000000 or endTime/1000
+    local endTime = (CCPC and os.epoch("nano") or os.epoch("utc")) - startTime
+    local calcTime = CCPC and endTime / 1000000000 or endTime/1000
     calcTime = math.floor(calcTime)
     if calcTime > 0 then
         return os.date("!%X",calcTime) .. "s"
-    elseif endTime > 0 and not ccemux then
+    elseif endTime > 0 and not CCPC then
         return endTime .. "ms"
-    elseif nanoToMs(endTime) > 0 and ccemux then
+    elseif nanoToMs(endTime) > 0 and CCPC then
         return "~" .. nanoToMs(endTime).. "ms"
-    elseif endTime > 0 and ccemux then
+    elseif endTime > 0 and CCPC then
         return endTime .. "ns"
     else
         return "Too small to calculate"
@@ -55,7 +41,7 @@ end
 function module.test(func, name)
     name = name or "unitTest"
     print(strs.start:format(name))
-    mark()
+    startTime = CCPC and os.epoch("nano") or os.epoch("utc")
     xpcall(func, errHandler)
     local format = calculate()
     print(strs.time:format(format))
