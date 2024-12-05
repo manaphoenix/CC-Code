@@ -8,6 +8,9 @@ local module = {}
 ---@operator concat:string
 local linq = {}
 
+---Converts a table to a string representation.
+---@param self table @The table to convert.
+---@return string @The string representation of the table.
 local function stringMT(self)
     local result = "{\n"
     for k, v in pairs(self) do
@@ -43,9 +46,9 @@ local functionString = [[
     end
 ]]
 
----returns a function, built using the delegate string.
+---Creates a lambda function from a delegate string.
 ---@param delegate string @"(params) => predicate"
----@return function
+---@return function @The lambda function.
 function module.lambda(delegate)
     local params, predicate = delegate:match("%(?(.-)%)? => (.*)")
     predicate = predicate:gsub("return","")
@@ -247,15 +250,10 @@ end
 ---@param selector function
 ---@return linqTable
 function linq:orderBy(selector)
-    local result = {}
-    setmetatable(result, linqmt)
-    for i, v in pairs(self) do
-        table.insert(result, v)
-    end
-    table.sort(result, function(a, b)
+    table.sort(self, function(a, b)
         return selector(a, b)
     end)
-    return result
+    return self
 end
 
 linq.thenBy = linq.orderBy
@@ -263,24 +261,21 @@ linq.thenBy = linq.orderBy
 ---reverses the entries in the table (Note: only works with standard Lua tables)
 ---@return linqTable
 function linq:reverse()
-    local result = {}
-    setmetatable(result, linqmt)
-    for i, v in ipairs(self) do
-        table.insert(result, v)
+    local n = #self
+    for i = 1, math.floor(n / 2) do
+        self[i], self[n - i + 1] = self[n - i + 1], self[i]
     end
-    table.sort(result, function(a, b)
-        return a > b
-    end)
-    return result
+    return self
 end
 
 ---removes entries 1 through count
 ---@param count number
 function linq:skip(count)
-    local result = {}
-    setmetatable(result, linqmt)
-    for i = 1, count do
-        table.remove(self, 1)
+    for i = 1, #self - count do
+        self[i] = self[i + count]
+    end
+    for i = #self, #self - count + 1, -1 do
+        self[i] = nil
     end
 end
 

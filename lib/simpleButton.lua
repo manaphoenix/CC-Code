@@ -8,12 +8,25 @@ local SimpleButton = {}
 
 local buttonStorage = {}
 
+---@class IButton
+---@field x number The x position to draw the button at
+---@field y number The y position to draw the button at
+---@field width number How wide the button should be
+---@field height number How tall the button should be
+---@field text string What text does the button have?
+---@field textColor number What is the text color of the button?
+---@field backgroundColor number What is the background Color for the button? (Gets handled automatically for toggle buttons)
+---@field backgroundColorOn number The background color of the toggle button when it is toggled on
+---@field backgroundColorOff number The background color of the toggle button when it is toggled off
+---@field isToggle boolean Whether the button is a togglable button
+---@field toggled boolean The current toggle state of the toggle button, can be set to set a default state, or used to check state.
+---@field onClick function The function to run when the button is clicked (does not get called for toggle buttons)
+---@field onToggle function the function to run when the toggle button is clicked
 local IButton = {
+    --- Draws the button on the screen.
+    ---@param self IButton
     draw = function(self)
-        if self.isToggle then
-            self.backgroundColor = self.toggled and self.backgroundColorOn or self.backgroundColorOff
-        end
-        local bg = colors.toBlit(self.backgroundColor):rep(self.width)
+        local bg = colors.toBlit(self.isToggle and (self.toggled and self.backgroundColorOn or self.backgroundColorOff) or self.backgroundColor):rep(self.width)
         local fg = colors.toBlit(self.textColor):rep(self.width)
         local ypos = self.y + math.floor(self.height / 2)
         local len = string.len(self.text)
@@ -24,14 +37,21 @@ local IButton = {
             if i ~= ypos then
                 term.blit(t, fg, bg)
             else
-                local txtLine = t:sub(1, (self.width/2)-(len/2)) .. self.text .. t:sub((self.width/2)+(len/2)+1, self.width)
+                local txtLine = t:sub(1, (self.width / 2) - (len / 2)) .. self.text .. t:sub((self.width / 2) + (len / 2) + 1, self.width)
                 term.blit(txtLine, fg, bg)
             end
         end
     end,
+    --- Checks if a point is within the button's boundaries.
+    ---@param self IButton
+    ---@param x number
+    ---@param y number
+    ---@return boolean
     within = function(self, x, y)
         return x >= self.x and x <= (self.x + self.width) and y >= self.y and y <= (self.y + self.height)
     end,
+    --- Fires the button's action.
+    ---@param self IButton
     fire = function(self)
         if self.isToggle then
             self.toggled = not self.toggled
