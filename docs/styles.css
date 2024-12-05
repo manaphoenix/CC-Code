@@ -327,6 +327,15 @@ a:visited {
     color: var(--link-visited);
 }
 
+.command {
+    background-color: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
 .features ul {
     list-style-type: none;
     padding-left: 0;
