@@ -56,6 +56,13 @@ function module.lambda(delegate)
     return assert(load(func,"lambda","bt", _ENV))()
 end
 
+local function buildFunction(delegate)
+    local func = module.lambda(delegate)
+    return function(x)
+        return func(x)
+    end
+end
+
 ---combines two tables into one.
 ---@param other table
 ---@return linqTable
@@ -123,6 +130,7 @@ end
 ---@param predicate function
 ---@return linqTable
 function linq:removeAll(predicate)
+    predicate = type(predicate) == "function" and predicate or buildFunction(predicate)
     local result = {}
     setmetatable(result, linqmt)
     for i, v in pairs(self) do
@@ -154,6 +162,7 @@ end
 ---@param predicate function
 ---@return boolean
 function linq:all(predicate)
+    predicate = type(predicate) == "function" and predicate or buildFunction(predicate)
     for i, v in pairs(self) do
         if not predicate(v) then
             return false
@@ -166,6 +175,7 @@ end
 ---@param predicate function
 ---@return boolean
 function linq:any(predicate)
+    predicate = type(predicate) == "function" and predicate or buildFunction(predicate)
     for i, v in pairs(self) do
         if predicate(v) then
             return true
@@ -199,6 +209,7 @@ end
 ---@param predicate function
 ---@return any | nil
 function linq:first(predicate)
+    predicate = type(predicate) == "function" and predicate or buildFunction(predicate)
     for i, v in pairs(self) do
         if predicate(v) then
             return v
@@ -211,6 +222,7 @@ end
 ---@param predicate function
 ---@return unknown
 function linq:last(predicate)
+    predicate = type(predicate) == "function" and predicate or buildFunction(predicate)
     local result = nil
     for i, v in pairs(self) do
         if predicate(v) then
@@ -224,6 +236,7 @@ end
 ---@param selector function
 ---@return any | nil
 function linq:max(selector)
+    selector = type(selector) == "function" and selector or buildFunction(selector)
     local result = nil
     for i, v in pairs(self) do
         if not result or selector(v) > selector(result) then
@@ -237,6 +250,7 @@ end
 ---@param selector function
 ---@return any | nil
 function linq:min(selector)
+    selector = type(selector) == "function" and selector or buildFunction(selector)
     local result = nil
     for i, v in pairs(self) do
         if not result or selector(v) < selector(result) then
@@ -250,6 +264,7 @@ end
 ---@param selector function
 ---@return linqTable
 function linq:orderBy(selector)
+    selector = type(selector) == "function" and selector or buildFunction(selector)
     table.sort(self, function(a, b)
         return selector(a, b)
     end)
