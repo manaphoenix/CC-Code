@@ -1,4 +1,24 @@
 -- make a linq library
+--[[
+function linq:concat(other) end
+function linq:where(predicate) end
+function linq:contains(value) end
+function linq:intersect(other) end
+function linq:foreach(action) end
+function linq:removeAll(predicate) end
+function linq:remove(value) end
+function linq:count() end
+function linq:all(predicate) end
+function linq:any(predicate) end
+function linq:except(other) end
+function linq:first(predicate) end
+function linq:last(predicate) end
+function linq:max(selector) end
+function linq:min(selector) end
+function linq:orderBy(selector) end
+function linq:reverse() end
+function linq:skip(count) end
+--]]
 
 ---@class linqModule
 ---@operator call(table):linqTable

@@ -45,14 +45,19 @@
         <p>
           The Linq Library brings the power of .NET's LINQ (Language Integrated
           Query) to Lua. It provides a comprehensive set of methods for querying
-          and manipulating tables with a fluent, chainable interface.
+          and manipulating tables with a fluent, chainable interface. The
+          library also supports lambda expressions for concise and expressive
+          query logic.
         </p>
       </section>
 
       <section id="installation">
         <h2>Installation</h2>
         <div class="command">
-          <span>wget https://raw.githubusercontent.com/manaphoenix/CC_OC-Code/refs/heads/main/lib/linq.lua</span>
+          <span
+            >wget
+            https://raw.githubusercontent.com/manaphoenix/CC_OC-Code/refs/heads/main/lib/linq.lua</span
+          >
           <button class="copy-button" onclick="copyInstallationCode(this)">
             Copy
           </button>
@@ -67,7 +72,9 @@
             <span class="language">lua</span>
             <button class="copy-button" onclick="copyCode(this)">Copy</button>
           </div>
-          <pre><code class="language-lua">local numbers = linq({1, 2, 3, 4, 5})
+          <pre><code class="language-lua">local linq = require("linq")
+
+local numbers = linq({1, 2, 3, 4, 5})
 local evens = numbers:where("x => x % 2 == 0")
 local doubled = evens:select("x => x * 2")
 -- Result: {4, 8}</code></pre>
@@ -78,7 +85,7 @@ local doubled = evens:select("x => x * 2")
         <h2>Methods</h2>
         <div class="method">
           <h3>where(predicate)</h3>
-          <p>Filters elements based on a predicate function.</p>
+          <p>Filters elements based on a predicate.</p>
           <div class="code-block">
             <div class="code-header">
               <span class="language">lua</span>
@@ -102,7 +109,7 @@ local doubled = evens:select("x => x * 2")
 
         <div class="method">
           <h3>first([predicate])</h3>
-          <p>Returns the first element that satisfies the predicate.</p>
+          <p>Gets the first element meeting the predicate.</p>
           <div class="code-block">
             <div class="code-header">
               <span class="language">lua</span>
