@@ -73,6 +73,19 @@ local doubled = evens:select("x => x * 2")
 
     <section id="methods">
       <h2>Methods</h2>
+
+      <div class="method">
+        <h3>concat(other)</h3>
+        <p>Combines two tables into one.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">local allPeople = group1:concat(group2)</code></pre>
+        </div>
+      </div>
+
       <div class="method">
         <h3>where(predicate)</h3>
         <p>Filters elements based on a predicate.</p>
@@ -86,14 +99,110 @@ local doubled = evens:select("x => x * 2")
       </div>
 
       <div class="method">
-        <h3>select(selector)</h3>
-        <p>Projects each element into a new form.</p>
+        <h3>contains(value)</h3>
+        <p>Checks if a value is present in the collection.</p>
         <div class="code-block">
           <div class="code-header">
             <span class="language">lua</span>
             <button class="copy-button" onclick="copyCode(this)">Copy</button>
           </div>
-          <pre><code class="language-lua">local names = people:select("p => p.name")</code></pre>
+          <pre><code class="language-lua">local hasJohn = people:contains("John")</code></pre>
+        </div>
+      </div>
+
+      <div class="method">
+        <h3>intersect(other)</h3>
+        <p>Returns the common elements between two collections.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">local common = group1:intersect(group2)</code></pre>
+        </div>
+      </div>
+
+      <div class="method">
+        <h3>foreach(action)</h3>
+        <p>Executes an action for each element in the collection.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">people:foreach("p => print(p.name)")</code></pre>
+        </div>
+      </div>
+
+      <div class="method">
+        <h3>removeAll(predicate)</h3>
+        <p>Removes all elements that match the predicate.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">people:removeAll("p => p.age < 18")</code></pre>
+        </div>
+      </div>
+
+      <div class="method">
+        <h3>remove(value)</h3>
+        <p>Removes a specific value from the collection.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">people:remove("John")</code></pre>
+        </div>
+      </div>
+
+      <div class="method">
+        <h3>count()</h3>
+        <p>Returns the number of elements in the collection.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">local total = people:count()</code></pre>
+        </div>
+      </div>
+
+      <div class="method">
+        <h3>all(predicate)</h3>
+        <p>Checks if all elements satisfy the predicate.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">local allAdults = people:all("p => p.age >= 18")</code></pre>
+        </div>
+      </div>
+
+      <div class="method">
+        <h3>any(predicate)</h3>
+        <p>Checks if any element satisfies the predicate.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">local hasAdults = people:any("p => p.age >= 18")</code></pre>
+        </div>
+      </div>
+
+      <div class="method">
+        <h3>except(other)</h3>
+        <p>Returns elements that are not in the other collection.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">local unique = group1:except(group2)</code></pre>
         </div>
       </div>
 
@@ -110,14 +219,74 @@ local doubled = evens:select("x => x * 2")
       </div>
 
       <div class="method">
-        <h3>concat(other)</h3>
-        <p>Combines two tables into one.</p>
+        <h3>last([predicate])</h3>
+        <p>Gets the last element meeting the predicate.</p>
         <div class="code-block">
           <div class="code-header">
             <span class="language">lua</span>
             <button class="copy-button" onclick="copyCode(this)">Copy</button>
           </div>
-          <pre><code class="language-lua">local allPeople = group1:concat(group2)</code></pre>
+          <pre><code class="language-lua">local lastAdult = people:last("p => p.age >= 18")</code></pre>
+        </div>
+      </div>
+
+      <div class="method">
+        <h3>max(selector)</h3>
+        <p>Finds the maximum value according to a selector function.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">local oldest = people:max("p => p.age")</code></pre>
+        </div>
+      </div>
+
+      <div class="method">
+        <h3>min(selector)</h3>
+        <p>Finds the minimum value according to a selector function.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">local youngest = people:min("p => p.age")</code></pre>
+        </div>
+      </div>
+
+      <div class="method">
+        <h3>orderBy(selector)</h3>
+        <p>Orders elements based on a selector function.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">local sorted = people:orderBy("p => p.age")</code></pre>
+        </div>
+      </div>
+
+      <div class="method">
+        <h3>reverse()</h3>
+        <p>Reverses the order of elements in the collection.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">local reversed = people:reverse()</code></pre>
+        </div>
+      </div>
+
+      <div class="method">
+        <h3>skip(count)</h3>
+        <p>Skips a specified number of elements in the collection.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">local remaining = people:skip(2)</code></pre>
         </div>
       </div>
     </section>
