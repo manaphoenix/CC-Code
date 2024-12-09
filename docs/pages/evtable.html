@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>On Change Table Library Documentation</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+    <link rel="icon" type="image/x-icon" href="../Avatar128x.ico" />
+  </head>
+  <body>
+    <div id="overlay"></div>
+    <header>
+      <div class="menuToggle">
+        <i class="fas fa-bars"></i>
+      </div>
+      <h1>On Change Table Library Documentation</h1>
+    </header>
+
+    <aside id="sidebar">
+      <h2>Contents</h2>
+      <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#installation">Installation</a></li>
+        <li><a href="#basic-usage">Basic Usage</a></li>
+        <li><a href="#methods">Methods</a></li>
+        <li><a href="#examples">Examples</a></li>
+      </ul>
+      <div class="back-link">
+        <a href="../index.html">← Back to Libraries</a>
+      </div>
+    </aside>
+
+    <main class="documentation">
+      <section id="overview">
+        <h2>Overview</h2>
+        <p>
+          The On Change Table Library provides a mechanism to create tables that
+          trigger a callback function whenever a key in the table is changed.
+          Ideal for event-driven programming and maintaining data integrity.
+
+          The library supports both read-only and read-write tables, allowing
+          you to choose the appropriate behavior based on your requirements.
+
+          An example use is as a state machine for a turtle.
+        </p>
+      </section>
+
+      <section id="installation">
+        <h2>Installation</h2>
+        <div class="command">
+          <span
+            >wget
+            https://raw.githubusercontent.com/manaphoenix/CC_OC-Code/refs/heads/main/lib/evtable.lua</span
+          >
+          <button class="copy-button" onclick="copyInstallationCode(this)">
+            Copy
+          </button>
+        </div>
+      </section>
+
+      <section id="basic-usage">
+        <h2>Basic Usage</h2>
+        <p>Create a linq table and start using the collection methods:</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">local evtable = require("evtable")
+local function onChange(self, key, oldValue, newValue)
+    print("Key:", key, "Old Value:", oldValue, "New Value:", newValue)
+end
+
+local people = evtable.new(onChange, {
+    totalHealth = 100,
+    health = 100,
+    name = "John",
+    age = 25
+})
+
+people.totalHealth = 200
+
+-- Output:
+-- Key: totalHealth Old Value: 100 New Value: 200</code></pre>
+        </div>
+      </section>
+
+      <section id="methods">
+        <h2>Methods</h2>
+        <div class="method">
+          <h3>
+            new(onChangeCallback: function, initialTable: table, readOnly:
+            boolean)
+          </h3>
+          <p>Creates a new OnChangeTable instance.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local status = evtable.new(function(self, key, oldValue, newValue) print("Key Changed: " .. key) end, {}, false)</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="examples">
+        <h2>Examples</h2>
+        <div class="example">
+          <h3>Full Baisc Example</h3>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">term.clear()
+term.setCursorPos(1, 1)
+
+local OnChangeTable = require("lib.evtable")
+
+local function printChange(self, key, oldValue, newValue)
+    print("Change detected!")
+    print("Key: " .. key)
+    print("Old Value: " .. oldValue)
+    print("New Value: " .. newValue)
+end
+
+--- Creates a table that calls a callback when a key is changed
+--- params are the callback, the initial table, and whether the table is read-only
+--- initial table is optional, will default to an empty table
+--- readOnly is optional, will default to false
+local myTable = OnChangeTable.new(printChange, {a = 1, b = 2, c = 3, fun = function() end}, false)
+
+myTable.a = 3  -- This will trigger printChange
+myTable.b = 4  -- This will trigger printChange
+myTable.c = 5  -- This will trigger printChange
+myTable.d = 6  -- This will trigger printChange; because the table is not set to read-only
+-- note if read-only you can neither add or remove keys, nor will it trigger the onchange() callback
+
+local serialized = myTable() -- calling the table like a function will return the table as a serialized string
+
+-- does not support nested tables
+
+print(myTable) -- automatically converts the table to a readable string when printed, will not print functions, as they are not serializable</code></pre>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
+    <script src="../scripts.js"></script>
+    <script>
+      function copyCode(button) {
+        const codeBlock = button.parentElement.nextElementSibling;
+        const code = codeBlock.textContent;
+
+        navigator.clipboard.writeText(code).then(() => {
+          button.textContent = "Copied!";
+          setTimeout(() => {
+            button.textContent = "Copy";
+          }, 2000);
+        });
+      }
+
+      function copyInstallationCode(button) {
+        const commandElement = button.previousElementSibling;
+        const commandText = commandElement.textContent;
+
+        navigator.clipboard.writeText(commandText).then(() => {
+          button.textContent = "Copied!";
+          setTimeout(() => {
+            button.textContent = "Copy";
+          }, 2000);
+        });
+      }
+    </script>
+  </body>
+</html>
