@@ -1,0 +1,48 @@
+# Ignore documentation generation files
+docgen/
+
+# Ignore node modules
+node_modules/
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore log files
+*.log
+
+# Ignore compiled Lua files
+*.luac
+
+# Ignore temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Ignore environment files
+.env
+
+# Ignore backup files
+*~
+*.bak
+*.class
+*.pyc
+*.pyo
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.iml
+
+# Ignore build and distribution files
+dist/
+build/
+*.exe
+*.dll
+*.so
+*.dylib
+*.o
+*.out
+
+# Ignore Python cache files
+__pycache__/

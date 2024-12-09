@@ -21,7 +21,7 @@ local buttonStorage = {}
 ---@field isToggle boolean Whether the button is a togglable button
 ---@field toggled boolean The current toggle state of the toggle button, can be set to set a default state, or used to check state.
 ---@field onClick function The function to run when the button is clicked (does not get called for toggle buttons)
----@field onToggle function the function to run when the toggle button is clicked
+---@field onToggle function The function to run when the toggle button is clicked
 local IButton = {
     --- Draws the button on the screen.
     ---@param self IButton
@@ -30,7 +30,6 @@ local IButton = {
         local fg = colors.toBlit(self.textColor):rep(self.width)
         local ypos = self.y + math.floor(self.height / 2)
         local len = string.len(self.text)
-        -- draw the borders
         local t = string.rep(" ", self.width)
         for i = self.y, (self.y + self.height - 1) do
             term.setCursorPos(self.x, i)
@@ -92,15 +91,15 @@ local buttonClass = {
 ---@field isToggle boolean Whether the button is a togglable button
 ---@field toggled boolean The current toggle state of the toggle button, can be set to set a default state, or used to check state.
 ---@field onClick function The function to run when the button is clicked (does not get called for toggle buttons)
----@field onToggle function the function to run when the toggle button is clicked
+---@field onToggle function The function to run when the toggle button is clicked
 
--- create a new button
+--- Creates a new button
 ---@param tbl? table
 ---@return SimpleButton
 function SimpleButton.new(tbl)
     local t = setmetatable({}, buttonClass)
     if tbl then
-        for i,v in pairs(tbl) do
+        for i, v in pairs(tbl) do
             t[i] = v
         end
     end
@@ -108,14 +107,18 @@ function SimpleButton.new(tbl)
     return t
 end
 
--- draw all buttons
+--- Draws all buttons
 function SimpleButton.drawAll()
     for i = 1, #buttonStorage do
         buttonStorage[i]:draw()
     end
 end
 
--- event handler
+--- Handles events
+---@param event string The event type
+---@param _ any Unused parameter
+---@param x number The x position of the event
+---@param y number The y position of the event
 function SimpleButton.handleEvent(event, _, x, y)
     if event ~= "mouse_click" and event ~= "monitor_touch" then return end
     for i = 1, #buttonStorage do

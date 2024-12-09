@@ -2,7 +2,7 @@
 ---@class icolorModule
 local icolor = {}
 
-for _,v in pairs(colors) do
+for _, v in pairs(colors) do
     if type(v) == "number" then
         local blitString = colors.toBlit(v)
         icolor[blitString] = blitString
@@ -11,12 +11,13 @@ end
 
 local pattern = "\\."
 local _, my = term.getSize()
+local cache = {}
 
 --- Outputs a string with specified background color, handling new lines.
----@param str string @The string to output.
----@param bg number @The background color.
----@param newLine boolean @Whether to move to a new line after output.
-local cache = {}
+---@param str string The string to output.
+---@param bg number The background color.
+---@param newLine boolean Whether to move to a new line after output.
+---@return string The processed string
 local function out(str, bg, newLine)
     local key = str .. tostring(bg) .. tostring(newLine)
     if cache[key] then return cache[key] end

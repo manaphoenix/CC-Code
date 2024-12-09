@@ -4,7 +4,7 @@ local mathExt = {}
 --- @param x number The first number.
 --- @param y number The second number.
 --- @return number The greatest common divisor.
-function math.gcd(x, y)
+function mathExt.gcd(x, y)
     while y ~= 0 do
         x, y = y, x % y
     end
@@ -15,7 +15,7 @@ end
 --- @param a number The first number.
 --- @param b number The second number.
 --- @return number The least common multiple.
-function math.lcm(a, b)
+function mathExt.lcm(a, b)
     return (a * b) / math.gcd(a, b)
 end
 
@@ -23,7 +23,7 @@ end
 --- @param a number The first number.
 --- @param b number The second number.
 --- @return number The least common factor.
-function math.lcf(a, b)
+function mathExt.lcf(a, b)
     local min = math.min(a, b)
     for i = 2, min do
         if a % i == 0 and b % i == 0 then

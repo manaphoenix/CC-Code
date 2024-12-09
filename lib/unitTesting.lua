@@ -1,5 +1,4 @@
----@class UnitTester
-local module = {}
+local UnitTester = {}
 
 local startTime = os.epoch("utc")
 local strs = {
@@ -9,8 +8,8 @@ local strs = {
 local CCPC = ccemux == nil
 
 --- Converts nanoseconds to milliseconds, rounded to two decimal places.
----@param n number @Nanoseconds to convert.
----@return number @Milliseconds.
+-- @param n number: Nanoseconds to convert.
+-- @return number: Milliseconds.
 local function nanoToMs(n)
     local ms = n / 1000000
     ms = math.floor(ms * 100) / 100
@@ -18,13 +17,13 @@ local function nanoToMs(n)
 end
 
 --- Handles errors during unit tests.
----@param err string @The error message.
+-- @param err string: The error message.
 local function errHandler(err)
     print("Unit test failed: " .. err)
 end
 
 --- Calculates the time taken for a test.
----@return string @Formatted time string.
+-- @return string: Formatted time string.
 local function calculate()
     local endTime = (CCPC and os.epoch("nano") or os.epoch("utc")) - startTime
     local calcTime = CCPC and endTime / 1000000000 or endTime / 1000
@@ -43,9 +42,9 @@ local function calculate()
 end
 
 --- Tests how long a function takes to complete.
----@param func function @The function to test.
----@param name? string @Names the test (Default: unitTest).
-function module.test(func, name)
+-- @param func function: The function to test.
+-- @param name string: Names the test (Default: unitTest).
+function UnitTester.test(func, name)
     name = name or "unitTest"
     print(strs.start:format(name))
     startTime = CCPC and os.epoch("nano") or os.epoch("utc")
@@ -54,4 +53,4 @@ function module.test(func, name)
     print(strs.time:format(format))
 end
 
-return module
+return UnitTester
