@@ -24,24 +24,19 @@ function OnChangeTable.new(onchange, initialTable, readOnly)
             return original[key]
         end,
         __newindex = function(t, key, value)
-            if original[key] ~= nil then
-                if value == nil and readOnly then
-                    -- do nothing, table is read-only
-                    return
-                end
-                if value ~= original[key] then
-                    onchange(t, key, original[key], value)
-                    original[key] = value
-                else
-                    -- do nothing, value is the same
-                end
-            else
-                if readOnly then
-                    -- do nothing, table is read-only
-                    return
-                else
-                    original[key] = value
-                end
+            if original[key] == nil and readOnly then
+                -- do nothing, table is read-only
+                return
+            end
+
+            if value == nil and readOnly then
+                -- do nothing, table is read-only
+                return
+            end
+
+            if value ~= original[key] then
+                onchange(t, key, original[key], value)
+                original[key] = value
             end
         end,
         __pairs = function(_)
