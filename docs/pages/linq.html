@@ -1,306 +1,316 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Linq Library Documentation</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+    <link rel="icon" type="image/x-icon" href="../Avatar128x.ico" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Linq Library Documentation</title>
-  <link rel="stylesheet" href="../styles.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
-  <link rel="icon" type="image/x-icon" href="../Avatar128x.ico" />
-</head>
-
-<body>
-  <header>
-    <div class="menuToggle">
-      <i class="fas fa-bars"></i>
-    </div>
-    <h1>Linq Library Documentation</h1>
-  </header>
-
-  <aside id="sidebar" class="closed">
-    <h2>Contents</h2>
-    <ul>
-      <li><a href="#overview">Overview</a></li>
-      <li><a href="#installation">Installation</a></li>
-      <li><a href="#basic-usage">Basic Usage</a></li>
-      <li><a href="#methods">Methods</a></li>
-      <li><a href="#examples">Examples</a></li>
-      <li><a href="#advanced">Advanced Usage</a></li>
-    </ul>
-    <div class="back-link">
-      <a href="../index.html">← Back to Libraries</a>
-    </div>
-  </aside>
-
-  <main class="main-content">
-    <section id="overview">
-      <h2>Overview</h2>
-      <p>
-        The Linq Library brings the power of .NET's LINQ (Language Integrated
-        Query) to Lua. It provides a comprehensive set of methods for querying
-        and manipulating tables with a fluent, chainable interface. The
-        library also supports lambda expressions for concise and expressive
-        query logic.
-      </p>
-    </section>
-
-    <section id="installation">
-      <h2>Installation</h2>
-      <div class="command">
-        <span>wget https://raw.githubusercontent.com/manaphoenix/CC_OC-Code/refs/heads/main/lib/linq.lua</span>
-        <button class="copy-button" onclick="copyInstallationCode(this)">Copy</button>
+  <body>
+    <header>
+      <div class="menuToggle">
+        <i class="fas fa-bars"></i>
       </div>
-    </section>
+      <h1>Linq Library Documentation</h1>
+    </header>
 
-    <section id="basic-usage">
-      <h2>Basic Usage</h2>
-      <p>Create a linq table and start using the collection methods:</p>
-      <div class="code-block">
-        <div class="code-header">
-          <span class="language">lua</span>
-          <button class="copy-button" onclick="copyCode(this)">Copy</button>
+    <aside id="sidebar">
+      <h2>Contents</h2>
+      <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#installation">Installation</a></li>
+        <li><a href="#basic-usage">Basic Usage</a></li>
+        <li><a href="#methods">Methods</a></li>
+        <li><a href="#examples">Examples</a></li>
+        <li><a href="#advanced">Advanced Usage</a></li>
+      </ul>
+      <div class="back-link">
+        <a href="../index.html">← Back to Libraries</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section id="overview">
+        <h2>Overview</h2>
+        <p>
+          The Linq Library brings the power of .NET's LINQ (Language Integrated
+          Query) to Lua. It provides a comprehensive set of methods for querying
+          and manipulating tables with a fluent, chainable interface. The
+          library also supports lambda expressions for concise and expressive
+          query logic.
+        </p>
+      </section>
+
+      <section id="installation">
+        <h2>Installation</h2>
+        <div class="command">
+          <span
+            >wget
+            https://raw.githubusercontent.com/manaphoenix/CC_OC-Code/refs/heads/main/lib/linq.lua</span
+          >
+          <button class="copy-button" onclick="copyInstallationCode(this)">
+            Copy
+          </button>
         </div>
-        <pre><code class="language-lua">local linq = require("linq")
+      </section>
+
+      <section id="basic-usage">
+        <h2>Basic Usage</h2>
+        <p>Create a linq table and start using the collection methods:</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">local linq = require("linq")
 
 local numbers = linq({1, 2, 3, 4, 5})
 local evens = numbers:where("x => x % 2 == 0")
 local doubled = evens:select("x => x * 2")
 -- Result: {4, 8}</code></pre>
-      </div>
-    </section>
-
-    <section id="methods">
-      <h2>Methods</h2>
-
-      <div class="method">
-        <h3>concat(other)</h3>
-        <p>Combines two tables into one.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
-          </div>
-          <pre><code class="language-lua">local allPeople = group1:concat(group2)</code></pre>
         </div>
-      </div>
+      </section>
 
-      <div class="method">
-        <h3>where(predicate)</h3>
-        <p>Filters elements based on a predicate.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+      <section id="methods">
+        <h2>Methods</h2>
+
+        <div class="method">
+          <h3 id="concat">concat(other)</h3>
+          <p>Combines two tables into one.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local allPeople = group1:concat(group2)</code></pre>
           </div>
-          <pre><code class="language-lua">local adults = people:where("p => p.age >= 18")</code></pre>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>contains(value)</h3>
-        <p>Checks if a value is present in the collection.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="where">where(predicate)</h3>
+          <p>Filters elements based on a predicate.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local adults = people:where("p => p.age >= 18")</code></pre>
           </div>
-          <pre><code class="language-lua">local hasJohn = people:contains("John")</code></pre>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>intersect(other)</h3>
-        <p>Returns the common elements between two collections.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="select">select(selector)</h3>
+          <p>Transforms elements using a selector function.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local names = people:select("p => p.name")</code></pre>
           </div>
-          <pre><code class="language-lua">local common = group1:intersect(group2)</code></pre>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>foreach(action)</h3>
-        <p>Executes an action for each element in the collection.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="contains">contains(value)</h3>
+          <p>Checks if a value is present in the collection.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local hasJohn = people:contains("John")</code></pre>
           </div>
-          <pre><code class="language-lua">people:foreach("p => print(p.name)")</code></pre>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>removeAll(predicate)</h3>
-        <p>Removes all elements that match the predicate.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="intersect">intersect(other)</h3>
+          <p>Returns the common elements between two collections.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local common = group1:intersect(group2)</code></pre>
           </div>
-          <pre><code class="language-lua">people:removeAll("p => p.age < 18")</code></pre>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>remove(value)</h3>
-        <p>Removes a specific value from the collection.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="foreach">foreach(action)</h3>
+          <p>Executes an action for each element in the collection.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">people:foreach("p => print(p.name)")</code></pre>
           </div>
-          <pre><code class="language-lua">people:remove("John")</code></pre>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>count()</h3>
-        <p>Returns the number of elements in the collection.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="removeAll">removeAll(predicate)</h3>
+          <p>Removes all elements that match the predicate.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">people:removeAll("p => p.age < 18")</code></pre>
           </div>
-          <pre><code class="language-lua">local total = people:count()</code></pre>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>all(predicate)</h3>
-        <p>Checks if all elements satisfy the predicate.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="remove">remove(value)</h3>
+          <p>Removes a specific value from the collection.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">people:remove("John")</code></pre>
           </div>
-          <pre><code class="language-lua">local allAdults = people:all("p => p.age >= 18")</code></pre>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>any(predicate)</h3>
-        <p>Checks if any element satisfies the predicate.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="count">count()</h3>
+          <p>Returns the number of elements in the collection.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local total = people:count()</code></pre>
           </div>
-          <pre><code class="language-lua">local hasAdults = people:any("p => p.age >= 18")</code></pre>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>except(other)</h3>
-        <p>Returns elements that are not in the other collection.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="all">all(predicate)</h3>
+          <p>Checks if all elements satisfy the predicate.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local allAdults = people:all("p => p.age >= 18")</code></pre>
           </div>
-          <pre><code class="language-lua">local unique = group1:except(group2)</code></pre>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>first([predicate])</h3>
-        <p>Gets the first element meeting the predicate.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="any">any(predicate)</h3>
+          <p>Checks if any element satisfies the predicate.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local hasAdults = people:any("p => p.age >= 18")</code></pre>
           </div>
-          <pre><code class="language-lua">local firstAdult = people:first("p => p.age >= 18")</code></pre>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>last([predicate])</h3>
-        <p>Gets the last element meeting the predicate.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="except">except(other)</h3>
+          <p>Returns elements that are not in the other collection.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local unique = group1:except(group2)</code></pre>
           </div>
-          <pre><code class="language-lua">local lastAdult = people:last("p => p.age >= 18")</code></pre>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>max(selector)</h3>
-        <p>Finds the maximum value according to a selector function.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="last">last([predicate])</h3>
+          <p>Gets the last element meeting the predicate.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local lastAdult = people:last("p => p.age >= 18")</code></pre>
           </div>
-          <pre><code class="language-lua">local oldest = people:max("p => p.age")</code></pre>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>min(selector)</h3>
-        <p>Finds the minimum value according to a selector function.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="max">max(selector)</h3>
+          <p>Finds the maximum value according to a selector function.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local oldest = people:max("p => p.age")</code></pre>
           </div>
-          <pre><code class="language-lua">local youngest = people:min("p => p.age")</code></pre>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>orderBy(selector)</h3>
-        <p>Orders elements based on a selector function.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="min">min(selector)</h3>
+          <p>Finds the minimum value according to a selector function.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local youngest = people:min("p => p.age")</code></pre>
           </div>
-          <pre><code class="language-lua">local sorted = people:orderBy("p => p.age")</code></pre>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>reverse()</h3>
-        <p>Reverses the order of elements in the collection.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="orderBy">orderBy(selector)</h3>
+          <p>Orders elements based on a selector function.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local sorted = people:orderBy("p => p.age")</code></pre>
           </div>
-          <pre><code class="language-lua">local reversed = people:reverse()</code></pre>
         </div>
-      </div>
 
-      <div class="method">
-        <h3>skip(count)</h3>
-        <p>Skips a specified number of elements in the collection.</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="reverse">reverse()</h3>
+          <p>Reverses the order of elements in the collection.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local reversed = people:reverse()</code></pre>
           </div>
-          <pre><code class="language-lua">local remaining = people:skip(2)</code></pre>
         </div>
-      </div>
-    </section>
 
-    <section id="examples">
-      <h2>Examples</h2>
-      <div class="example">
-        <h3>Filtering and Transforming</h3>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+        <div class="method">
+          <h3 id="skip">skip(count)</h3>
+          <p>Skips a specified number of elements in the collection.</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local remaining = people:skip(2)</code></pre>
           </div>
-          <pre><code class="language-lua">local data = linq({
+        </div>
+      </section>
+
+      <section id="examples">
+        <h2>Examples</h2>
+        <div class="example">
+          <h3>Filtering and Transforming</h3>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local data = linq({
     {name = "John", age = 25},
     {name = "Jane", age = 17},
     {name = "Bob", age = 30}
@@ -310,57 +320,56 @@ local adultNames = data
     :where("p => p.age >= 18")
     :select("p => p.name")
 -- Result: {"John", "Bob"}</code></pre>
-        </div>
-      </div>
-    </section>
-
-    <section id="advanced">
-      <h2>Advanced Usage</h2>
-      <div class="example">
-        <h3>Complex Queries</h3>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">lua</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
           </div>
-          <pre><code class="language-lua">local result = data
+        </div>
+      </section>
+
+      <section id="advanced">
+        <h2>Advanced Usage</h2>
+        <div class="example">
+          <h3>Complex Queries</h3>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="language">lua</span>
+              <button class="copy-button" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code class="language-lua">local result = data
     :where("x => x.age > 20")
     :orderBy("x => x.name")
     :select("x => { name = x.name, isAdmin = x.role == 'admin' }")
     :take(5)</code></pre>
+          </div>
         </div>
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
-  <script src="../scripts.js"></script>
-  <script>
-    function copyCode(button) {
-      const codeBlock = button.parentElement.nextElementSibling;
-      const code = codeBlock.textContent;
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
+    <script src="../scripts.js"></script>
+    <script>
+      function copyCode(button) {
+        const codeBlock = button.parentElement.nextElementSibling;
+        const code = codeBlock.textContent;
 
-      navigator.clipboard.writeText(code).then(() => {
-        button.textContent = "Copied!";
-        setTimeout(() => {
-          button.textContent = "Copy";
-        }, 2000);
-      });
-    }
+        navigator.clipboard.writeText(code).then(() => {
+          button.textContent = "Copied!";
+          setTimeout(() => {
+            button.textContent = "Copy";
+          }, 2000);
+        });
+      }
 
-    function copyInstallationCode(button) {
-      const commandElement = button.previousElementSibling;
-      const commandText = commandElement.textContent;
+      function copyInstallationCode(button) {
+        const commandElement = button.previousElementSibling;
+        const commandText = commandElement.textContent;
 
-      navigator.clipboard.writeText(commandText).then(() => {
-        button.textContent = "Copied!";
-        setTimeout(() => {
-          button.textContent = "Copy";
-        }, 2000);
-      });
-    }
-  </script>
-</body>
-
+        navigator.clipboard.writeText(commandText).then(() => {
+          button.textContent = "Copied!";
+          setTimeout(() => {
+            button.textContent = "Copy";
+          }, 2000);
+        });
+      }
+    </script>
+  </body>
 </html>
