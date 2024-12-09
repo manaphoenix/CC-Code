@@ -29,8 +29,12 @@ function OnChangeTable.new(onchange, initialTable, readOnly)
                     -- do nothing, table is read-only
                     return
                 end
-                onchange(t, key, original[key], value)
-                original[key] = value
+                if value ~= original[key] then
+                    onchange(t, key, original[key], value)
+                    original[key] = value
+                else
+                    -- do nothing, value is the same
+                end
             else
                 if readOnly then
                     -- do nothing, table is read-only
