@@ -16,13 +16,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Toggle sidebar
     menuToggle?.addEventListener('click', function() {
-        sidebar.classList.toggle('closed');
-        main.classList.toggle('full-width');
-        menuToggle.classList.toggle('closed');
+        const isClosed = sidebar.classList.toggle('closed');
+        if (isClosed) {
+            sidebar.classList.remove('open');
+        } else {
+            sidebar.classList.add('open');
+        }
+        
+        console.log('Sidebar state:', isClosed ? 'closed' : 'open');
+        console.log('Sidebar classes:', sidebar.className);
         
         // Save state to localStorage
         localStorage.setItem('sidebarState', 
-            sidebar.classList.contains('closed') ? 'closed' : 'open'
+            isClosed ? 'closed' : 'open'
         );
     });
 
@@ -93,5 +99,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Prevent clicks inside sidebar from closing it
     sidebar.addEventListener('click', function(e) {
         e.stopPropagation();
+    });
+
+    // Filter sections based on search input
+    const searchInput = document.getElementById('search');
+    const sections = document.querySelectorAll('.section-link');
+
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+
+        sections.forEach(section => {
+            const name = section.querySelector('h2').textContent.toLowerCase();
+            const tags = Array.from(section.querySelectorAll('.tag')).map(tag => tag.textContent.toLowerCase());
+            const matches = name.includes(query) || tags.some(tag => tag.includes(query));
+
+            section.style.display = matches ? '' : 'none';
+        });
     });
 });
