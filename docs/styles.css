@@ -127,76 +127,6 @@ header h1 {
     background: var(--primary-light);
 }
 
-/* Mobile adjustments */
-@media (max-width: 768px) {
-    #sidebar {
-        transform: translateX(-280px);
-    }
-    
-    #sidebar.open {
-        transform: translateX(0) !important;
-    }
-    
-    main {
-        margin-left: 0;
-        padding: 80px 20px 20px;
-    }
-
-    header {
-        padding: 15px 10px;
-        text-align: center;
-    }
-
-    .menuToggle {
-        top: 5px;
-        left: 5px;
-    }
-
-    section {
-        margin-top: 20px;
-    }
-
-    .command {
-        text-align: center;
-    }
-
-    header h1 {
-        font-size: 1.2em;
-    }
-
-    .menuToggle {
-        top: 10px;
-        left: 10px;
-        font-size: 1.2em;
-        padding: 6px;
-    }
-
-    #sidebar ul li a {
-        padding: 10px 15px;
-    }
-
-    section {
-        padding: 15px;
-        margin: 10px;
-    }
-
-    h2 {
-        font-size: 1.4em;
-        margin-bottom: 10px;
-    }
-
-    p {
-        font-size: 1em;
-        line-height: 1.4;
-    }
-
-    /* Ensure images are responsive */
-    img, video {
-        max-width: 100%;
-        height: auto;
-    }
-}
-
 .menuToggle {
     position: fixed;
     top: 15px;
@@ -229,21 +159,6 @@ header h1 {
 
 .menuToggle.closed .fas {
     transform: rotate(180deg);
-}
-
-@media (max-width: 768px) {
-    .menuToggle {
-        top: 10px;
-        left: 10px;
-    }
-    
-    .menuToggle .fas {
-        transform: rotate(0deg);
-    }
-    
-    .menuToggle.closed .fas {
-        transform: rotate(-180deg);
-    }
 }
 
 main {
@@ -591,25 +506,6 @@ section:hover .learn-more {
     font-family: 'Consolas', 'Monaco', monospace;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    #sidebar {
-        transform: translateX(-280px);
-    }
-    
-    #sidebar.open {
-        transform: translateX(0) !important;
-    }
-    
-    main {
-        margin-left: 0;
-    }
-    
-    .menuToggle {
-        display: block;
-    }
-}
-
 .main-content {
     display: flex;
     justify-content: center;
@@ -635,4 +531,75 @@ section:hover .learn-more {
 
 .rounded-button:hover {
     background-color: #0056b3; /* Darker shade for hover effect */
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    #sidebar {
+        transform: translateX(-280px);
+    }
+    
+    #sidebar.open {
+        transform: translateX(0);
+    }
+
+    header {
+        text-align: center;
+        font-size: x-small;
+    }
+
+    section {
+        width: 80vw;
+        margin-left: -4em;
+    }
+
+    footer {
+        font-size: x-small;
+    }
+
+    .tags {
+        flex-wrap: wrap;
+    }
+
+    .tag {
+        margin-bottom: 5px;
+        
+    }
+
+    .main-content {
+        padding-left: 5em;
+    }
+
+    main {
+        padding-bottom: 80px;
+    }
+    
+    #methods, #basic-usage, #overview, #installation, #examples, #advanced {
+        margin-left: -4em;
+        width: 80vw;
+    }
+
+    .method {
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    .command {
+        font-size: 1em;
+        overflow: hidden; /* Hide overflowed text */
+        text-overflow: ellipsis; /* Add ellipsis for overflowed text */
+        white-space: nowrap; /* Prevent text from wrapping */
+        max-width: 100%;
+    }
+
+    .command .copy-button {
+        visibility: visible; /* Always show the copy button */
+        position: absolute; /* Positioning to keep it visible */
+        right: 10%; /* Adjust as needed for your layout */
+        transform: translateY(-150%); /* Adjust for perfect centering */
+    }
+
+    .code-block {
+        width: 85vw;
+    }
 }
