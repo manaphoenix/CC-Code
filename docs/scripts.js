@@ -121,5 +121,8 @@ document.addEventListener("DOMContentLoaded", function () {
         section.style.display = matches ? "" : "none";
       });
     });
+  } else {
+    console.log("Notice me senpai")
+    console.log(window.location.pathname);
   }
 });
