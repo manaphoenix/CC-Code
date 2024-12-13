@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Filter sections based on search input
-  if (window.location.pathname.endsWith("index.html")) {
+  if (!window.location.pathname.includes("/pages/")) {
     const searchInput = document.getElementById("search");
     const sections = document.querySelectorAll(".section-link");
 
@@ -121,8 +121,5 @@ document.addEventListener("DOMContentLoaded", function () {
         section.style.display = matches ? "" : "none";
       });
     });
-  } else {
-    console.log("Notice me senpai")
-    console.log(window.location.pathname);
   }
 });
