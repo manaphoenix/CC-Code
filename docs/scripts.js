@@ -1,7 +1,5 @@
 // Basic JavaScript functionality for the documentation
 
-console.log("Script loaded"); // Confirm script execution
-
 document.addEventListener("DOMContentLoaded", function () {
   const sidebar = document.getElementById("sidebar");
   const menuToggle = document.querySelector(".menuToggle");
@@ -24,9 +22,6 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       sidebar.classList.add("open");
     }
-
-    console.log("Sidebar state:", isClosed ? "closed" : "open");
-    console.log("Sidebar classes:", sidebar.className);
 
     // Save state to localStorage
     localStorage.setItem("sidebarState", isClosed ? "closed" : "open");
