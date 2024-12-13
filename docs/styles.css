@@ -621,3 +621,18 @@ section:hover .learn-more {
 .main-content section {
     margin-bottom: 40px;
 }
+
+.rounded-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007BFF; /* Change to your preferred color */
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 25px; /* Makes the button rounded */
+    transition: background-color 0.3s;
+}
+
+.rounded-button:hover {
+    background-color: #0056b3; /* Darker shade for hover effect */
+}
