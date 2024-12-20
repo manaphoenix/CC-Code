@@ -33,4 +33,13 @@ function mathExt.lcf(a, b)
     return 1  -- If no other factor is found, return 1
 end
 
+--- Rounds a number to the given number of decimal places.
+--- @param num number The number to round.
+--- @param idp number The number of decimal places to round to.
+--- @return number The rounded number.
+function mathExt.round(num, idp)
+    local mult = 10^(idp or 0)
+    return math.floor(num * mult + 0.5) / mult
+end
+
 return mathExt
