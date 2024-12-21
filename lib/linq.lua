@@ -43,7 +43,7 @@ local function stringMT(self)
             end
             result = result .. "},\n"
         else
-            result = result .. "\t" ..  k .. " = " .. v .. ",\n"
+            result = result .. "\t" .. k .. " = " .. v .. ",\n"
         end
     end
     -- remove extra comma
@@ -73,9 +73,9 @@ local functionString = [[
 ---@return function @The lambda function.
 function module.lambda(delegate)
     local params, predicate = delegate:match("%(?(.-)%)? => (.*)")
-    predicate = predicate:gsub("return","")
+    predicate = predicate:gsub("return", "")
     local func = functionString:format(params, predicate)
-    return assert(load(func,"lambda","bt", _ENV))()
+    return assert(load(func, "lambda", "bt", _ENV))()
 end
 
 local function buildFunction(delegate)
@@ -329,7 +329,6 @@ function linq:average(selector)
     return count > 0 and sum / count or 0
 end
 
-
 --- groups the items in the table by the keySelector
 --- @param keySelector fun(item: any): any
 --- @return table
@@ -360,6 +359,18 @@ end
 ---@return table
 function linq:toList()
     return self
+end
+
+--- Projects each element of the collection into a new form.
+--- @param self table @The table to operate on, representing the LINQ collection.
+--- @param selector function @A function that defines how to transform each element.
+--- @return table @A new table containing the transformed elements.
+function linq:select(selector)
+    local result = {}
+    for i, v in ipairs(self) do
+        result[i] = selector(v)
+    end
+    return setmetatable(result, getmetatable(self)) -- Maintain the metatable for LINQ methods
 end
 
 ---makes a table into a linq table
