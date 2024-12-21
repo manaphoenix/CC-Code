@@ -6,6 +6,21 @@ document.addEventListener("DOMContentLoaded", function () {
   const main = document.querySelector("main");
   const links = sidebar.querySelectorAll('a[href^="#"]');
 
+  // Add this inside the DOMContentLoaded event listener
+  const copyButtons = document.querySelectorAll(".copy-button");
+
+  copyButtons.forEach((button) => {
+    button.addEventListener("click", function () {
+      // Add a class to indicate the button was clicked
+      this.classList.add("active");
+
+      // Remove the class after a short delay
+      setTimeout(() => {
+        this.classList.remove("active");
+      }, 200); // Adjust the duration as needed
+    });
+  });
+
   // Set initial state from localStorage
   const sidebarState = localStorage.getItem("sidebarState");
   if (sidebarState === "closed") {

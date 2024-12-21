@@ -65,7 +65,8 @@
             https://raw.githubusercontent.com/manaphoenix/CC_OC-Code/refs/heads/main/lib/linq.lua</span
           >
           <button class="copy-button" onclick="copyInstallationCode(this)">
-            Copy
+            <i class="fa fa-copy" aria-hidden="true"></i>
+            <span>Copy</span>
           </button>
         </div>
       </section>
@@ -394,15 +395,33 @@ end</code></pre>
       }
 
       function copyInstallationCode(button) {
-        const commandElement = button.previousElementSibling;
-        const commandText = commandElement.textContent;
+        // Get the text to copy
+        const textToCopy = button.previousElementSibling.textContent.trim();
 
-        navigator.clipboard.writeText(commandText).then(() => {
-          button.textContent = "Copied!";
-          setTimeout(() => {
-            button.textContent = "Copy";
-          }, 2000);
-        });
+        // Create a temporary textarea element to hold the text
+        const textarea = document.createElement("textarea");
+        textarea.value = textToCopy;
+        document.body.appendChild(textarea);
+
+        // Select the text and copy it to the clipboard
+        textarea.select();
+        document.execCommand("copy");
+
+        // Remove the textarea from the DOM
+        document.body.removeChild(textarea);
+
+        // Change the span text to indicate success
+        const buttonText = button.querySelector("span");
+        buttonText.textContent = "Copied!";
+
+        // Optionally, you can add feedback for the user
+        button.classList.add("active");
+
+        // Reset button text and remove active class after a delay
+        setTimeout(() => {
+          buttonText.textContent = "Copy"; // Reset text
+          button.classList.remove("active"); // Remove active class
+        }, 2000); // Adjust the duration as needed
       }
     </script>
   </body>
