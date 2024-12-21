@@ -89,10 +89,7 @@ function module.lambda(delegate)
 end
 
 local function buildFunction(delegate)
-    local func = module.lambda(delegate)
-    return function(x)
-        return func(x)
-    end
+    return module.lambda(delegate) -- Directly return the lambda function
 end
 
 ---combines two tables into one.
@@ -101,12 +98,19 @@ end
 function linq:concat(other)
     local result = {}
     setmetatable(result, { __index = self })
-    for i, v in pairs(self) do
-        table.insert(result, v)
+    local selfCount = #self
+    local otherCount = #other
+
+    -- Move elements from self
+    for i = 1, selfCount do
+        result[i] = self[i]
     end
-    for i, v in pairs(other) do
-        table.insert(result, v)
+
+    -- Move elements from other
+    for i = 1, otherCount do
+        result[selfCount + i] = other[i]
     end
+
     return result
 end
 
@@ -114,13 +118,15 @@ end
 ---@param predicate function
 ---@return linqTable
 function linq:where(predicate)
-    local result = {}
-    setmetatable(result, linqmt)
+    local result = setmetatable({}, linqmt) -- Initialize with metatable
+    local predFunc = type(predicate) == "function" and predicate or buildFunction(predicate)
+
     for i, v in pairs(self) do
-        if predicate(v) then
+        if predFunc(v) then
             table.insert(result, v)
         end
     end
+
     return result
 end
 
