@@ -18,6 +18,8 @@ function linq:min(selector) end
 function linq:orderBy(selector) end
 function linq:reverse() end
 function linq:skip(count) end
+function linq:average(selector) end
+function linq:groupBy(selector) end
 --]]
 
 ---@class linqModule
@@ -312,6 +314,52 @@ function linq:skip(count)
     for i = #self, #self - count + 1, -1 do
         self[i] = nil
     end
+end
+
+---returns the average of a specified field
+---@param selector function
+---@return number
+function linq:average(selector)
+    local sum = 0
+    local count = 0
+    for _, item in ipairs(self) do
+        sum = sum + selector(item)
+        count = count + 1
+    end
+    return count > 0 and sum / count or 0
+end
+
+
+--- groups the items in the table by the keySelector
+--- @param keySelector fun(item: any): any
+--- @return table
+function linq:groupBy(keySelector)
+    local groups = {}
+    for _, item in ipairs(self) do
+        local key = keySelector(item)
+        if not groups[key] then
+            groups[key] = {}
+        end
+        table.insert(groups[key], item)
+    end
+    return groups
+end
+
+--- Sums the values of a table based on a selector function.
+--- @param selector fun(item: any): number A function that takes an item and returns a number to sum.
+--- @return number The total sum of the selected values.
+function linq:sum(selector)
+    local total = 0
+    for _, item in ipairs(self) do
+        total = total + selector(item)
+    end
+    return total
+end
+
+---converts the current collection to a list
+---@return table
+function linq:toList()
+    return self
 end
 
 ---makes a table into a linq table

@@ -122,4 +122,42 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
+
+  // Handle dark mode toggle
+  const toggleContainer = document.querySelector(".dark-mode-toggle");
+  const sunIcon = toggleContainer.querySelector(".fa-sun");
+  const moonIcon = toggleContainer.querySelector(".fa-moon");
+
+  // Check local storage for dark mode preference
+  if (localStorage.getItem("darkMode") === "enabled") {
+    document.body.classList.add("dark-mode");
+    sunIcon.style.display = "none"; // Hide sun icon
+    moonIcon.style.display = "inline"; // Show moon icon
+
+    // Apply dark mode to all sections
+    document.querySelectorAll("section").forEach((section) => {
+      section.classList.add("dark-mode");
+    });
+  }
+
+  // Add event listener for toggle
+  toggleContainer.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+    document.querySelectorAll("section").forEach((section) => {
+      section.classList.toggle("dark-mode");
+    });
+
+    // Toggle icon visibility
+    sunIcon.style.display =
+      sunIcon.style.display === "none" ? "inline" : "none";
+    moonIcon.style.display =
+      moonIcon.style.display === "none" ? "inline" : "none";
+
+    // Save the current state to local storage
+    if (document.body.classList.contains("dark-mode")) {
+      localStorage.setItem("darkMode", "enabled");
+    } else {
+      localStorage.setItem("darkMode", "disabled");
+    }
+  });
 });

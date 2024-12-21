@@ -14,7 +14,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
     />
     <link rel="icon" type="image/x-icon" href="../favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
 
   <body>
@@ -23,6 +23,11 @@
         <i class="fas fa-bars"></i>
       </div>
       <h1>Linq Library Documentation</h1>
+      <div class="dark-mode-toggle">
+        <i class="fas fa-sun"></i>
+        <div class="slider"></div>
+        <i class="fas fa-moon" style="display: none"></i>
+      </div>
     </header>
 
     <aside id="sidebar">
@@ -334,11 +339,39 @@ local adultNames = data
               <span class="language">lua</span>
               <button class="copy-button" onclick="copyCode(this)">Copy</button>
             </div>
-            <pre><code class="language-lua">local result = data
-    :where("x => x.age > 20")
-    :orderBy("x => x.name")
-    :select("x => { name = x.name, isAdmin = x.role == 'admin' }")
-    :take(5)</code></pre>
+            <pre><code class="language-lua">-- Assuming linq.lua is properly required
+local linq = require("lib.linq")
+
+-- Sample data: a list of products
+local products = {
+    { Name = "Blender",    Category = "Appliances",  Price = 29.99 },
+    { Name = "Toaster",    Category = "Appliances",  Price = 19.99 },
+    { Name = "Laptop",     Category = "Electronics", Price = 999.99 },
+    { Name = "Smartphone", Category = "Electronics", Price = 699.99 },
+    { Name = "Desk",       Category = "Furniture",   Price = 199.99 },
+    { Name = "Chair",      Category = "Furniture",   Price = 89.99 },
+}
+
+-- LINQ-like query
+local query = linq(products)
+    :where(function(product) return product.Price > 50 end) -- Filter products with price greater than 50
+    :groupBy(function(product) return product.Category end) -- Group by category
+    :select(function(group)
+        return {
+            Category = group.Key,
+            Products = linq(group):orderBy(function(product) return product.Price end):toList(), -- Order products by price
+            TotalPrice = linq(group):sum(function(product) return product.Price end)             -- Calculate total price for the group
+        }
+    end)
+
+-- Print the results
+for _, categoryGroup in ipairs(query:toList()) do
+    print("Category: " .. categoryGroup.Category)
+    print("Total Price: " .. categoryGroup.TotalPrice)
+    for _, product in ipairs(categoryGroup.Products) do
+        print("  Product: " .. product.Name .. ", Price: " .. product.Price)
+    end
+end</code></pre>
           </div>
         </div>
       </section>
