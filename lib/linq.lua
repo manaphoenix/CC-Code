@@ -34,21 +34,23 @@ local linq = {}
 ---@param self table @The table to convert.
 ---@return string @The string representation of the table.
 local function stringMT(self)
-    local result = "{\n"
+    local result = {}
+    table.insert(result, "{\n")
     for k, v in pairs(self) do
         if type(v) == "table" then
-            result = result .. "{\n"
+            table.insert(result, "\t" .. k .. " = {\n")
             for sk, sv in pairs(v) do
-                result = result .. "\t\t" .. sk .. "=" .. sv .. ",\n"
+                table.insert(result, "\t\t" .. sk .. " = " .. sv .. ",\n")
             end
-            result = result .. "},\n"
+            table.insert(result, "\t},\n")
         else
-            result = result .. "\t" .. k .. " = " .. v .. ",\n"
+            table.insert(result, "\t" .. k .. " = " .. v .. ",\n")
         end
     end
     -- remove extra comma
-    result = result:sub(1, -3)
-    return result .. "\n}"
+    result[#result] = result[#result]:sub(1, -3) -- Remove the last comma
+    table.insert(result, "\n}")
+    return table.concat(result)
 end
 
 local linqmt = {
@@ -73,9 +75,17 @@ local functionString = [[
 ---@return function @The lambda function.
 function module.lambda(delegate)
     local params, predicate = delegate:match("%(?(.-)%)? => (.*)")
-    predicate = predicate:gsub("return", "")
-    local func = functionString:format(params, predicate)
-    return assert(load(func, "lambda", "bt", _ENV))()
+    if predicate:find("return") then
+        predicate = predicate:gsub("return", "")
+    end
+
+    -- Create a closure instead of using load
+    local func = function(...)
+        local arg = {...}
+        return load("return " .. predicate)(table.unpack(arg))
+    end
+
+    return func
 end
 
 local function buildFunction(delegate)
@@ -184,9 +194,9 @@ end
 ---@param predicate function
 ---@return boolean
 function linq:all(predicate)
-    predicate = type(predicate) == "function" and predicate or buildFunction(predicate)
+    local predFunc = type(predicate) == "function" and predicate or buildFunction(predicate)
     for i, v in pairs(self) do
-        if not predicate(v) then
+        if not predFunc(v) then
             return false
         end
     end
