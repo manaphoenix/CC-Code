@@ -3,7 +3,7 @@ local actions = require("lib.parallelAction")
 local stub = {}
 local optionals = {}
 local knownSubTypes = {}
-local config = require("stubConfig") -- Load the config from the external file
+local config = require("config.stubConfig") -- Load the config from the external file
 
 -- write functions
 local function writeJsonTypeStub(data, path)
