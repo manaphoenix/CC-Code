@@ -61,8 +61,8 @@ local function addInventoryPeripheral(inv)
         error("Inventory with full name '" .. fullName .. "' already exists in the manager")
     end
 
-    local shortName = fullName:match(":(.*)")  -- Extract short name
-    local modName = fullName:match("^(.-):")  -- Extract mod name
+    local shortName = fullName:match(":(.*)") or fullName  -- Extract short name
+    local modName = fullName:match("^(.-):") or fullName  -- Extract mod name
 
     -- Add mod and name properties to the peripheral
     inv.name = fullName
