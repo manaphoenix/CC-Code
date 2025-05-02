@@ -6,6 +6,10 @@ if not http then
     return
 end
 
+term.clear()
+term.setCursorPos(1, 1)
+print("Installing stub creator...")
+
 local githubRepo = "https://raw.githubusercontent.com/manaphoenix/CC_OC-Code/main/"
 
 -- Paths to download files to
@@ -13,6 +17,12 @@ local installPaths = {
     createStub = "createStub.lua",
     stubConfig = "config/stubConfig.lua",
     parallelAction = "lib/parallelAction.lua",
+}
+
+local downloadPaths = {
+    createStub = "apps/stubcreator/createStub.lua",
+    stubConfig = "apps/stubcreator/stubConfig.lua",
+    parallelAction = "lib/parallelActions.lua",
 }
 
 -- Function to download a file from the GitHub repo
@@ -51,12 +61,12 @@ local function installFiles()
     ensureDirectoryExists(installPaths.parallelAction)
 
     -- Download or update each file
-    for _, path in pairs(installPaths) do
+    for key, path in pairs(installPaths) do
         if fileExists(path) then
             print(path .. " already exists, deleting and reinstalling...")
             fs.delete(path)  -- Delete the file to ensure the latest version
         end
-        local url = githubRepo .. path
+        local url = githubRepo .. downloadPaths[key]
         downloadFile(url, path)
     end
 
