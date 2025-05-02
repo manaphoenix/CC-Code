@@ -16,13 +16,13 @@ local function writeLuaCATS(data, path)
     local file = fs.open(path .. ".lua", "w")
     file.write("---@" .. "class " .. data.name .. "\n")
     for _, field in ipairs(data.fields) do
-        file.write(string.format("---@field %s %s\n", field.name, field.type .. (field.optional and "?" or "")))
+        file.write(string.format("---@field %s %s\n", field.name .. (field.optional and "?" or ""), field.type))
     end
     for _, sub in ipairs(data.subTypes or {}) do
         file.write("\n---@class " .. sub.name .. "\n")
         for _, subField in ipairs(sub.fields) do
-            file.write(string.format("---@field %s %s\n", subField.name,
-                subField.type .. (subField.optional and "?" or "")))
+            file.write(string.format("---@field %s %s\n", subField.name .. (subField.optional and "?" or ""),
+                subField.type))
         end
     end
     file.close()
