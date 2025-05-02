@@ -9,6 +9,9 @@ local actions = {}
 --- @type integer
 local maxActionsPerBatch = 250
 
+--- @type boolean
+local executing = false
+
 --- Set the maximum number of actions per batch
 --- @param size integer
 function module.setBatchSize(size)
@@ -20,11 +23,15 @@ end
 --- @param action fun()
 function module.addAction(action)
     assert(type(action) == "function", "Action must be a function")
+    assert(not executing, "Cannot add actions while executing")
     table.insert(actions, action)
 end
 
 --- Executes all actions added with addAction in parallel
 function module.execute()
+    if executing then return end
+    executing = true
+
     local count = #actions
     if count == 0 then return end
 
@@ -45,6 +52,8 @@ function module.execute()
     for i = 1, count do
         actions[i] = nil
     end
+
+    executing = false
 end
 
 return module
