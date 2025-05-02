@@ -1,35 +1,36 @@
 ---@meta
 
 --[[
-white 0
-orange 1
-magenta 2
-lightBlue 3
-yellow 4
-lime 5
-pink 6
-gray 7
-lightGray 8
-cyan 9
-purple a
-blue b
-brown c
-green d
-red e
-black f
+Color code legend:
+white      = 0
+orange     = 1
+magenta    = 2
+lightBlue  = 3
+yellow     = 4
+lime       = 5
+pink       = 6
+gray       = 7
+lightGray  = 8
+cyan       = 9
+purple     = a
+blue       = b
+brown      = c
+green      = d
+red        = e
+black      = f
 ]]
 
----@alias BlitHex string  @Single-character hex color code ('0'-'f')
+---@alias BlitHex '"0"'|'"1"'|'"2"'|'"3"'|'"4"'|'"5"'|'"6"'|'"7"'|'"8"'|'"9"'|'"a"'|'"b"'|'"c"'|'"d"'|'"e"'|'"f"'
 
----Convert a color constant or code to a blit hex character.
----@param color string|integer @Can be a color name, blit hex character, or `colors.X` constant.
+---Converts a color name, blit code, or `colors.X` constant to a blit hex character.
+---@param color string|integer @Color name (e.g. "red"), blit hex character, or color constant from `colors`
 ---@return BlitHex
 local function colorToBlitHex(color)
   return colors.toBlit(color)
 end
 
 ---Advance the cursor to the next line or reset if bottom of device.
----@param device table @The terminal or monitor object
+---@param device {getSize: fun(): integer, integer, getCursorPos: fun(): integer, integer, setCursorPos: fun(x: integer, y: integer)} @Terminal or monitor object
 local function nextLine(device)
   local _, my = device.getSize()
   local _, cy = device.getCursorPos()
@@ -41,16 +42,17 @@ local function nextLine(device)
 end
 
 ---@class BlitWriter
----@field write fun(self:BlitWriter, str:string, autoNewLine?:boolean) @Write a string with embedded color codes. Does **not** add a newline unless `autoNewLine` is explicitly `true`.
----@field writeLine fun(self:BlitWriter, str:string) @Write a string with embedded color codes and move to the next line (like `print`)
----@field resetColors fun(self:BlitWriter) @Reset foreground/background colors to their defaults
----@field setPos fun(self:BlitWriter, x:integer, y:integer) @Set the cursor position to `(x, y)`
----@field getPos fun(self:BlitWriter): integer, integer @Get the current cursor position `(x, y)`
----@field clear fun(self:BlitWriter) @Clear the display surface without moving the cursor
----@field resetDevice fun(self:BlitWriter) @Clear the screen and reset the cursor to the top-left corner (1,1)
+---@field write fun(str: string, autoNewLine?: boolean) @Write a string with embedded color codes. Optional `autoNewLine` moves cursor to next line.
+---@field writeLine fun(str: string) @Write a string and automatically move to the next line.
+---@field resetColors fun() @Resets foreground and background colors to default.
+---@field setPos fun(x: integer, y: integer) @Sets cursor position.
+---@field getPos fun(): integer, integer @Returns current cursor position.
+---@field clear fun() @Clears the device screen.
+---@field resetDevice fun() @Clears screen and resets cursor to top-left.
+---@field rewriteLine fun(str: string) @Rewrites current line with given string.
 
----Create a new writer for the given device.
----@param device table @The terminal or monitor object
+---Creates a new writer for a terminal or monitor device.
+---@param device {blit: fun(text: string, fg: string, bg: string), getSize: fun(): integer, integer, getCursorPos: fun(): integer, integer, setCursorPos: fun(x: integer, y: integer), clear: fun(), getTextColor: fun(): integer, getBackgroundColor: fun(): integer}
 ---@return BlitWriter
 local function createWriter(device)
   local defaultFg = colorToBlitHex(device.getTextColor())
@@ -127,15 +129,21 @@ local function createWriter(device)
     end,
     writeLine = function(str)
       writeColored(str, true)
+    end,
+    rewriteLine = function(str)
+      local x, y = device.getCursorPos()
+      device.setCursorPos(1, y)
+      writeColored(str)
+      device.setCursorPos(x, y)
     end
   }
 end
 
 ---@class BlitUtil
----@field forTerm fun(): BlitWriter
----@field forMonitor fun(mon:table): BlitWriter
+---@field forTerm fun(): BlitWriter @Creates a writer for the default terminal.
+---@field forMonitor fun(mon: table): BlitWriter @Creates a writer for the specified monitor.
 
----Return a module for creating blit writers.
+---Blit writer utility module.
 ---@type BlitUtil
 return {
   forTerm = function() return createWriter(term) end,
