@@ -32,12 +32,16 @@ local config = {
 
 if fs.exists("config/startup.cfg") then
     local ok, result = pcall(function()
-        return textutils.unserialize(fs.readAll("config/startup.cfg"))
+        local f = fs.open("config/startup.cfg", "r")
+        local data = f.readAll()
+        f.close()
+        return textutils.unserialize(data)
     end)
     if ok and type(result) == "table" then
         config = result
     else
         print("Warning: startup.cfg is invalid. Using defaults.")
+        print(ok,result)
     end
 end
 
@@ -239,6 +243,8 @@ local function createAppAliases()
 end
 
 createAppAliases()
+
+_ENV.package.path = _ENV.package.path .. ";lib/?.lua"
 
 coroutines[1] = { coro = coroutine.create(peripheralWatchDog), name = "peripheralWatchDog" }
 
