@@ -216,6 +216,13 @@ end
 if config.clearTmp then clearTmpFolder() end
 
 -- set alias
+
+-- check if alias exists
+local function getAlias(aliasName)
+    local aliases = shell.aliases()
+    return aliases[aliasName] ~= nil
+end
+
 -- Automatically add aliases for scripts in the "apps" folder
 local function createAppAliases()
     if not fs.exists("apps") then return end
@@ -224,7 +231,7 @@ local function createAppAliases()
         local path = fs.combine("apps", file)
         if not fs.isDir(path) and file:match("%.lua$") then
             local aliasName = file:gsub("%.lua$", "")
-            if not shell.getAlias(aliasName) then
+            if not getAlias(aliasName) then
                 shell.setAlias(aliasName, path)
             end
         end
