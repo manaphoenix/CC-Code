@@ -24,10 +24,29 @@ local pal = {
     black = 0x0C0C0C
 }
 
+-- configs
 local config = {
     clearTmp = true,
     logStartup = false
 }
+
+if fs.exists("config/startup.cfg") then
+    local ok, result = pcall(function()
+        return textutils.unserialize(fs.readAll("config/startup.cfg"))
+    end)
+    if ok and type(result) == "table" then
+        config = result
+    else
+        print("Warning: startup.cfg is invalid. Using defaults.")
+    end
+end
+
+-- log startup
+if config.logStartup then
+    local f = fs.open("logs/startup.log", "a")
+    f.writeLine(os.date() .. " - Startup completed")
+    f.close()
+end
 
 -- automatic peripheral mounting
 _G.components = {
@@ -178,6 +197,13 @@ for _, v in pairs(folders) do
     if not fs.exists(v) then fs.makeDir(v) end
 end
 
+-- create default config if does note exist.
+if not fs.exists("config/startup.cfg") then
+    local f = fs.open("config/startup.cfg", "w")
+    f.write(textutils.serialize(config))
+    f.close()
+end
+
 -- clear tmp folder
 local function clearTmpFolder()
     if fs.exists("tmp") then
@@ -187,9 +213,6 @@ local function clearTmpFolder()
     end
 end
 
-if fs.exists("config/startup.cfg") then
-    config = textutils.unserialize(fs.readAll("config/startup.cfg"))
-end
 if config.clearTmp then clearTmpFolder() end
 
 -- set alias
@@ -201,7 +224,9 @@ local function createAppAliases()
         local path = fs.combine("apps", file)
         if not fs.isDir(path) and file:match("%.lua$") then
             local aliasName = file:gsub("%.lua$", "")
-            shell.setAlias(aliasName, path)
+            if not shell.getAlias(aliasName) then
+                shell.setAlias(aliasName, path)
+            end
         end
     end
 end
