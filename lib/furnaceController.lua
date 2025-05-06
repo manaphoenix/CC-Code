@@ -161,7 +161,7 @@ function module.fillFurnaces()
             attemptFilled = attemptFilled + movedItems
         until attemptFilled >= maxSplit
     end
-    return true
+    return true, ""
 end
 
 --- Dumps all items from furnaces back to their respective chests

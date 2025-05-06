@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-global
 local UnitTester = {}
 
 local startTime = os.epoch("utc")

@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-doc-name
 local bsky = {}
 
 ---@class request
