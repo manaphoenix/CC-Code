@@ -1,7 +1,5 @@
----@meta
-
---[[
-Color code legend:
+--[[ 
+Color code legend (blit hex):
 white      = 0
 orange     = 1
 magenta    = 2
@@ -20,39 +18,52 @@ red        = e
 black      = f
 ]]
 
----@alias BlitHex '"0"'|'"1"'|'"2"'|'"3"'|'"4"'|'"5"'|'"6"'|'"7"'|'"8"'|'"9"'|'"a"'|'"b"'|'"c"'|'"d"'|'"e"'|'"f"'
+--- Example string: "{&r|bHello, World!"
 
----Converts a color name, blit code, or `colors.X` constant to a blit hex character.
----@param color string|integer @Color name (e.g. "red"), blit hex character, or color constant from `colors`
+---@alias BlitHex '"0"' | '"1"' | '"2"' | '"3"' | '"4"' | '"5"' | '"6"' | '"7"' 
+---| '"8"' | '"9"' | '"a"' | '"b"' | '"c"' | '"d"' | '"e"' | '"f"'
+
+--- A peripheral with terminal-like capabilities (term or monitor).
+---@class BlitDevice
+---@field blit fun(text: string, fg: string, bg: string)
+---@field getSize fun(): integer, integer
+---@field getCursorPos fun(): integer, integer
+---@field setCursorPos fun(x: integer, y: integer)
+---@field clear fun()
+---@field getTextColor fun(): integer
+---@field getBackgroundColor fun(): integer
+
+--- Converts a color name, blit hex, or `colors.X` constant to a blit hex character.
+---@param color string | integer @Color name (e.g. "red"), blit hex character, or color constant from `colors`
 ---@return BlitHex
 local function colorToBlitHex(color)
   return colors.toBlit(color)
 end
 
----Advance the cursor to the next line or reset if bottom of device.
----@param device {getSize: fun(): integer, integer, getCursorPos: fun(): integer, integer, setCursorPos: fun(x: integer, y: integer)} @Terminal or monitor object
+--- Moves cursor to the next line or resets to left edge if at bottom.
+---@param device BlitDevice
 local function nextLine(device)
-  local _, my = device.getSize()
-  local _, cy = device.getCursorPos()
-  if cy == my then
-    device.setCursorPos(1, cy)
+  local _, maxY = device.getSize()
+  local _, curY = device.getCursorPos()
+  if curY == maxY then
+    device.setCursorPos(1, curY)
   else
-    device.setCursorPos(1, cy + 1)
+    device.setCursorPos(1, curY + 1)
   end
 end
 
 ---@class BlitWriter
----@field write fun(str: string, autoNewLine?: boolean) @Write a string with embedded color codes. Optional `autoNewLine` moves cursor to next line.
----@field writeLine fun(str: string) @Write a string and automatically move to the next line.
----@field resetColors fun() @Resets foreground and background colors to default.
----@field setPos fun(x: integer, y: integer) @Sets cursor position.
----@field getPos fun(): integer, integer @Returns current cursor position.
----@field clear fun() @Clears the device screen.
----@field resetDevice fun() @Clears screen and resets cursor to top-left.
----@field rewriteLine fun(str: string) @Rewrites current line with given string.
+---@field write fun(str: string, autoNewLine?: boolean) @Write string with embedded color codes ({&x|y} or {&r}). Optional newline.
+---@field writeLine fun(str: string) @Write string and move to next line.
+---@field resetColors fun() @Reset foreground and background colors to default.
+---@field setPos fun(x: integer, y: integer) @Set cursor position.
+---@field getPos fun(): integer, integer @Get cursor position.
+---@field clear fun() @Clear the screen.
+---@field resetDevice fun() @Clear screen and reset cursor to top-left.
+---@field rewriteLine fun(str: string) @Rewrite current line without changing position.
 
----Creates a new writer for a terminal or monitor device.
----@param device {blit: fun(text: string, fg: string, bg: string), getSize: fun(): integer, integer, getCursorPos: fun(): integer, integer, setCursorPos: fun(x: integer, y: integer), clear: fun(), getTextColor: fun(): integer, getBackgroundColor: fun(): integer}
+--- Creates a writer for a terminal or monitor.
+---@param device BlitDevice
 ---@return BlitWriter
 local function createWriter(device)
   local defaultFg = colorToBlitHex(device.getTextColor())
@@ -114,15 +125,9 @@ local function createWriter(device)
   return {
     write = writeColored,
     resetColors = reset,
-    setPos = function(x, y)
-      device.setCursorPos(x, y)
-    end,
-    getPos = function()
-      return device.getCursorPos()
-    end,
-    clear = function()
-      device.clear()
-    end,
+    setPos = device.setCursorPos,
+    getPos = device.getCursorPos,
+    clear = device.clear,
     resetDevice = function()
       device.clear()
       device.setCursorPos(1, 1)
@@ -140,10 +145,9 @@ local function createWriter(device)
 end
 
 ---@class BlitUtil
----@field forTerm fun(): BlitWriter @Creates a writer for the default terminal.
----@field forMonitor fun(mon: table): BlitWriter @Creates a writer for the specified monitor.
+---@field forTerm fun(): BlitWriter @Create writer for the default terminal.
+---@field forMonitor fun(mon: BlitDevice): BlitWriter @Create writer for a specific monitor.
 
----Blit writer utility module.
 ---@type BlitUtil
 return {
   forTerm = function() return createWriter(term) end,
