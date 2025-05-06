@@ -25,23 +25,23 @@ black      = f
 
 --- A peripheral with terminal-like capabilities (term or monitor).
 ---@class BlitDevice
----@field blit fun(text: string, fg: string, bg: string)
----@field getSize fun(): integer, integer
----@field getCursorPos fun(): integer, integer
----@field setCursorPos fun(x: integer, y: integer)
----@field clear fun()
----@field getTextColor fun(): integer
----@field getBackgroundColor fun(): integer
+---@field blit fun(text: string, fg: string, bg: string) @Blits the text with specified foreground and background color codes.
+---@field getSize fun(): integer, integer @Returns the width and height of the device.
+---@field getCursorPos fun(): integer, integer @Returns the current cursor position (x, y).
+---@field setCursorPos fun(x: integer, y: integer) @Sets the cursor to the specified (x, y) position.
+---@field clear fun() @Clears the device screen.
+---@field getTextColor fun(): integer @Returns the current text color index.
+---@field getBackgroundColor fun(): integer @Returns the current background color index.
 
 --- Converts a color name, blit hex, or `colors.X` constant to a blit hex character.
----@param color string | integer @Color name (e.g. "red"), blit hex character, or color constant from `colors`
----@return BlitHex
+---@param color string | integer @Color name (e.g. "red"), blit hex character, or color constant from `colors`.
+---@return BlitHex @The corresponding blit hex color code.
 local function colorToBlitHex(color)
   return colors.toBlit(color)
 end
 
---- Moves cursor to the next line or resets to left edge if at bottom.
----@param device BlitDevice
+--- Moves cursor to the next line or resets to the left edge if at the bottom.
+---@param device BlitDevice @The device to check the cursor position on.
 local function nextLine(device)
   local _, maxY = device.getSize()
   local _, curY = device.getCursorPos()
@@ -53,18 +53,18 @@ local function nextLine(device)
 end
 
 ---@class BlitWriter
----@field write fun(str: string, autoNewLine?: boolean) @Write string with embedded color codes ({&x|y} or {&r}). Optional newline.
----@field writeLine fun(str: string) @Write string and move to next line.
----@field resetColors fun() @Reset foreground and background colors to default.
----@field setPos fun(x: integer, y: integer) @Set cursor position.
----@field getPos fun(): integer, integer @Get cursor position.
----@field clear fun() @Clear the screen.
----@field resetDevice fun() @Clear screen and reset cursor to top-left.
----@field rewriteLine fun(str: string) @Rewrite current line without changing position.
+---@field write fun(str: string, autoNewLine?: boolean) @Writes a string with embedded color codes, optionally moving to the next line after. 
+---@field writeLine fun(str: string) @Writes a string and moves the cursor to the next line.
+---@field resetColors fun() @Resets foreground and background colors to the default colors.
+---@field setPos fun(x: integer, y: integer) @Sets the cursor to the specified (x, y) position.
+---@field getPos fun(): integer, integer @Returns the current cursor position (x, y).
+---@field clear fun() @Clears the screen.
+---@field resetDevice fun() @Clears the screen and resets the cursor position to the top-left corner.
+---@field rewriteLine fun(str: string) @Rewrites the current line with the specified string.
 
---- Creates a writer for a terminal or monitor.
----@param device BlitDevice
----@return BlitWriter
+--- Creates a writer for a terminal or monitor device.
+---@param device BlitDevice @The device to create the writer for (can be terminal or monitor).
+---@return BlitWriter @Returns a new BlitWriter instance for the specified device.
 local function createWriter(device)
   local defaultFg = colorToBlitHex(device.getTextColor())
   local defaultBg = colorToBlitHex(device.getBackgroundColor())
@@ -145,8 +145,8 @@ local function createWriter(device)
 end
 
 ---@class BlitUtil
----@field forTerm fun(): BlitWriter @Create writer for the default terminal.
----@field forMonitor fun(mon: BlitDevice): BlitWriter @Create writer for a specific monitor.
+---@field forTerm fun(): BlitWriter @Creates a writer for the default terminal.
+---@field forMonitor fun(mon: BlitDevice): BlitWriter @Creates a writer for a specific monitor device.
 
 ---@type BlitUtil
 return {
