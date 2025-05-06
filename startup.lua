@@ -184,6 +184,22 @@ if fs.exists("config/startup.cfg") then
 end
 if config.clearTmp then clearTmpFolder() end
 
+-- set alias
+-- Automatically add aliases for scripts in the "apps" folder
+local function createAppAliases()
+    if not fs.exists("apps") then return end
+
+    for _, file in ipairs(fs.list("apps")) do
+        local path = fs.combine("apps", file)
+        if not fs.isDir(path) and file:match("%.lua$") then
+            local aliasName = file:gsub("%.lua$", "")
+            shell.setAlias(aliasName, path)
+        end
+    end
+end
+
+createAppAliases()
+
 coroutines[1] = { coro = coroutine.create(peripheralWatchDog), name = "peripheralWatchDog" }
 
 print("System ready. Components loaded: " .. tostring(components))
