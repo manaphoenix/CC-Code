@@ -1,116 +1,159 @@
+--[[ 
+Color code legend (blit hex):
+white      = {&0}
+orange     = {&1}
+magenta    = {&2}
+lightBlue  = {&3}
+yellow     = {&4}
+lime       = {&5}
+pink       = {&6}
+gray       = {&7}
+lightGray  = {&8}
+cyan       = {&9}
+purple     = {&a}
+blue       = {&b}
+brown      = {&c}
+green      = {&d}
+red        = {&e}
+black      = {&f}
+reset      = {&r}
+
+to also set background do:
+{&r|b} where r is foreground, and b is background
+
+example: {&e}Hello{&b} World{&r}
+
+example with background: {&e|f}Hello{&b|f} World{&r}
+]]
+
 ---@alias BlitHex '"0"' | '"1"' | '"2"' | '"3"' | '"4"' | '"5"' | '"6"' | '"7"' 
 ---| '"8"' | '"9"' | '"a"' | '"b"' | '"c"' | '"d"' | '"e"' | '"f"'
 
+--- A peripheral with terminal-like capabilities (term or monitor).
 ---@class BlitDevice
----@field blit fun(text: string, fg: string, bg: string)
----@field getSize fun(): integer, integer
----@field getCursorPos fun(): integer, integer
----@field setCursorPos fun(x: integer, y: integer)
----@field clear fun()
----@field getTextColor fun(): integer
----@field getBackgroundColor fun(): integer
+---@field blit fun(text: string, fg: string, bg: string) @Blits the text with specified foreground and background color codes.
+---@field getSize fun(): integer, integer @Returns the width and height of the device.
+---@field getCursorPos fun(): integer, integer @Returns the current cursor position (x, y).
+---@field setCursorPos fun(x: integer, y: integer) @Sets the cursor to the specified (x, y) position.
+---@field clear fun() @Clears the device screen.
+---@field getTextColor fun(): integer @Returns the current text color index.
+---@field getBackgroundColor fun(): integer @Returns the current background color index.
 
-local colors = require("colors")  -- assuming standard CC:Tweaked colors API
-
-local function colorToBlitHex(c)
-  return colors.toBlit(c)
+--- Converts a color name, blit hex, or `colors.X` constant to a blit hex character.
+---@param color string | integer @Color name (e.g. "red"), blit hex character, or color constant from `colors`.
+---@return BlitHex @The corresponding blit hex color code.
+local function colorToBlitHex(color)
+  return colors.toBlit(color)
 end
 
+--- Moves cursor to the next line or resets to the left edge if at the bottom.
+---@param device BlitDevice @The device to check the cursor position on.
 local function nextLine(device)
-  local w, h = device.getSize()
-  local x, y = device.getCursorPos()
-  device.setCursorPos(1, (y == h) and y or (y + 1))
+  local _, maxY = device.getSize()
+  local _, curY = device.getCursorPos()
+  if curY == maxY then
+    device.setCursorPos(1, curY)
+  else
+    device.setCursorPos(1, curY + 1)
+  end
 end
 
 ---@class BlitWriter
----@field write fun(str: string, autoNewLine?: boolean)
----@field writeLine fun(str: string)
----@field resetColors fun()
----@field setPos fun(x: integer, y: integer)
----@field getPos fun(): integer, integer
----@field clear fun()
----@field resetDevice fun()
----@field rewriteLine fun(str: string)
+---@field write fun(str: string, autoNewLine?: boolean) @Writes a string with embedded color codes, optionally moving to the next line after. 
+---@field writeLine fun(str: string) @Writes a string and moves the cursor to the next line.
+---@field resetColors fun() @Resets foreground and background colors to the default colors.
+---@field setPos fun(x: integer, y: integer) @Sets the cursor to the specified (x, y) position.
+---@field getPos fun(): integer, integer @Returns the current cursor position (x, y).
+---@field clear fun() @Clears the screen.
+---@field resetDevice fun() @Clears the screen and resets the cursor position to the top-left corner.
+---@field rewriteLine fun(str: string) @Rewrites the current line with the specified string.
 
+--- Creates a writer for a terminal or monitor device.
+---@param device BlitDevice @The device to create the writer for (can be terminal or monitor).
+---@return BlitWriter @Returns a new BlitWriter instance for the specified device.
 local function createWriter(device)
-  -- cache default colors
   local defaultFg = colorToBlitHex(device.getTextColor())
   local defaultBg = colorToBlitHex(device.getBackgroundColor())
-  local curFg, curBg = defaultFg, defaultBg
 
-  -- locals for speed
-  local blit    = device.blit
-  local sub     = string.sub
-  local len     = string.len
+  local currentFg = defaultFg
+  local currentBg = defaultBg
 
-  local function writeColored(str, newLine)
-    local L = len(str)
-    -- preallocate tables
-    local text = {}   text[L] = nil
-    local fg   = {}   fg[L]   = nil
-    local bg   = {}   bg[L]   = nil
+  local function writeColored(str, autoNewLine)
+    local text, fgStr, bgStr = {}, {}, {}
+    local i, len = 1, #str
 
-    local t_i, f_i, b_i = 1, 1, 1
-    local i = 1
-    while i <= L do
-      local c1 = sub(str, i, i)
-      if c1 == "\\" and sub(str, i+1, i+3) == "{&" then
-        -- escaped literal "{&"
-        text[t_i], fg[f_i], bg[b_i] = "{", curFg, curBg
-        t_i, f_i, b_i = t_i+1, f_i+1, b_i+1
-        text[t_i], fg[f_i], bg[b_i] = "&", curFg, curBg
-        t_i, f_i, b_i = t_i+1, f_i+1, b_i+1
-        text[t_i], fg[f_i], bg[b_i] = "{", curFg, curBg
-        t_i, f_i, b_i = t_i+1, f_i+1, b_i+1
-        i = i + 4
-      elseif c1 == "{" and sub(str, i+1, i+2) == "&" then
-        -- color change
-        local fgCode = sub(str, i+2, i+2)
-        curFg = (fgCode == "r") and defaultFg or fgCode
-
-        if sub(str, i+3, i+3) == "|" then
-          local bgCode = sub(str, i+4, i+4)
-          curBg = (bgCode == "r") and defaultBg or bgCode
+    while i <= len do
+      if str:sub(i, i + 2) == "\\{&" then
+        table.insert(text, "{&")
+        table.insert(fgStr, currentFg)
+        table.insert(bgStr, currentBg)
+        i = i + 3
+      elseif str:sub(i, i + 1) == "{&" then
+        local code = str:sub(i + 2, i + 2)
+        currentFg = (code == "r") and defaultFg or code
+        if str:sub(i + 3, i + 3) == "|" then
+          local bgColor = str:sub(i + 4, i + 4)
+          currentBg = (bgColor == "r") and defaultBg or bgColor
           i = i + 6
         else
           i = i + 4
         end
       else
-        -- normal character
-        text[t_i], fg[f_i], bg[b_i] = c1, curFg, curBg
-        t_i, f_i, b_i = t_i+1, f_i+1, b_i+1
+        local char = str:sub(i, i)
+        table.insert(text, char)
+        table.insert(fgStr, currentFg)
+        table.insert(bgStr, currentBg)
         i = i + 1
       end
     end
 
-    -- stitch and blit
-    blit(table.concat(text,    1, t_i-1),
-         table.concat(fg,      1, f_i-1),
-         table.concat(bg,      1, b_i-1))
-    if newLine then nextLine(device) end
+    local textStr = table.concat(text)
+    local fgStrStr = table.concat(fgStr)
+    local bgStrStr = table.concat(bgStr)
+
+    if #textStr == #fgStrStr and #textStr == #bgStrStr then
+      device.blit(textStr, fgStrStr, bgStrStr)
+      if autoNewLine then
+        nextLine(device)
+      end
+    else
+      error(("Mismatched string lengths: text=%d, fg=%d, bg=%d"):format(#textStr, #fgStrStr, #bgStrStr), 0)
+    end
+  end
+
+  local function reset()
+    currentFg = defaultFg
+    currentBg = defaultBg
   end
 
   return {
-    write       = writeColored,
-    writeLine   = function(s) writeColored(s, true) end,
-    resetColors = function() curFg, curBg = defaultFg, defaultBg end,
-    setPos      = device.setCursorPos,
-    getPos      = device.getCursorPos,
-    clear       = device.clear,
+    write = writeColored,
+    resetColors = reset,
+    setPos = device.setCursorPos,
+    getPos = device.getCursorPos,
+    clear = device.clear,
     resetDevice = function()
       device.clear()
       device.setCursorPos(1, 1)
     end,
-    rewriteLine = function(s)
+    writeLine = function(str)
+      writeColored(str, true)
+    end,
+    rewriteLine = function(str)
       local x, y = device.getCursorPos()
       device.setCursorPos(1, y)
-      writeColored(s, false)
+      writeColored(str)
       device.setCursorPos(x, y)
-    end,
+    end
   }
 end
 
+---@class BlitUtil
+---@field forTerm fun(): BlitWriter @Creates a writer for the default terminal.
+---@field forMonitor fun(mon: BlitDevice): BlitWriter @Creates a writer for a specific monitor device.
+
+---@type BlitUtil
 return {
-  forTerm    = function() return createWriter(term) end,
-  forMonitor = createWriter,
+  forTerm = function() return createWriter(term) end,
+  forMonitor = function(mon) return createWriter(mon) end
 }
