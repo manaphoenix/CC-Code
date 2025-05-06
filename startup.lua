@@ -24,6 +24,11 @@ local pal = {
     black = 0x0C0C0C
 }
 
+local config = {
+    clearTmp = true,
+    logStartup = false
+}
+
 -- automatic peripheral mounting
 _G.components = {}
 
@@ -69,6 +74,9 @@ local componentMT = {
         end
         -- remove extra newline
         str = str:sub(1, -2)
+        if str == "" then
+            str = "None"
+        end
         return str
     end,
     __call = updateComponents
@@ -136,49 +144,7 @@ local function peripheralWatchDog()
     end
 end
 
--- Download Custom Libs
-local function downloadFiles()
-    local gitTemplate = "https://raw.githubusercontent.com/manaphoenix/CC_OC-Code/main/"
-    if not http then return end
-    local req = http.get("https://api.github.com/repos/manaphoenix/CC_OC-Code/git/trees/main?recursive=1")
-    if not req then return end
-    local files = textutils.unserialiseJSON(req.readAll())
-    req.close()
-    local toDownload = {}
-
-    local shaFile = fs.open("fileShas.txt", "w")
-    for _, v in pairs(files.tree) do
-        if v.path:match("%.lua") and not fs.exists(v.path) then
-            table.insert(toDownload, function()
-                req = http.get(gitTemplate .. v.path, nil, true)
-                if not req then return end
-                local file = fs.open(v.path, "wb")
-                if file then
-                    file.write(req.readAll())
-                    file.close()
-                end
-                req.close()
-            end)
-        end
-        shaFile.writeLine(v.path .. " " .. v.sha)
-    end
-    parallel.waitForAll(table.unpack(toDownload))
-    shaFile.close()
-end
-
--- cosu auto completion
--- add completion if it does not exist
-local completions = shell.getCompletionInfo()
-if not completions["cosu.lua"] then
-    local completion = require("cc.shell.completion")
-    local complete = completion.build(
-        completion.file
-    )
-    shell.setCompletionFunction("cosu.lua", complete)
-end
-
 components()
---downloadFiles()
 
 -- set colors
 for i, v in pairs(pal) do term.setPaletteColor(colors[i], v) end
@@ -189,4 +155,35 @@ if (components.monitor) then
     end
 end
 
+-- create folders if they don't exist.
+local folders = {
+    "config",
+    "data",
+    "installers",
+    "lib",
+    "logs",
+    "tmp",
+    "assets",
+    "apps"
+}
+for _, v in pairs(folders) do
+    if not fs.exists(v) then fs.makeDir(v) end
+end
+
+-- clear tmp folder
+local function clearTmpFolder()
+    if fs.exists("tmp") then
+        for _, file in ipairs(fs.list("tmp")) do
+            fs.delete(fs.combine("tmp", file))
+        end
+    end
+end
+
+if fs.exists("config/startup.cfg") then
+    config = textutils.unserialize(fs.readAll("config/startup.cfg"))
+end
+if config.clearTmp then clearTmpFolder() end
+
 coroutines[1] = { coro = coroutine.create(peripheralWatchDog), name = "peripheralWatchDog" }
+
+print("System ready. Components loaded: " .. tostring(components))
