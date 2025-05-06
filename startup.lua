@@ -30,7 +30,15 @@ local config = {
 }
 
 -- automatic peripheral mounting
-_G.components = {}
+_G.components = {
+    count = function(self)
+        local c = 0
+        for k, v in pairs(self) do
+            if type(v) == "table" then c = c + 1 end
+        end
+        return c
+    end
+}
 
 -- utility functions
 local function reset()
@@ -202,4 +210,4 @@ createAppAliases()
 
 coroutines[1] = { coro = coroutine.create(peripheralWatchDog), name = "peripheralWatchDog" }
 
-print("System ready. Components loaded: " .. tostring(components))
+print("System ready. Components loaded: " .. components:count())
