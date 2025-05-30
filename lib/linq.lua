@@ -1,140 +1,78 @@
--- make a linq library
---[[
-function linq:concat(other) end
-function linq:where(predicate) end
-function linq:contains(value) end
-function linq:intersect(other) end
-function linq:foreach(action) end
-function linq:removeAll(predicate) end
-function linq:remove(value) end
-function linq:count() end
-function linq:all(predicate) end
-function linq:any(predicate) end
-function linq:except(other) end
-function linq:first(predicate) end
-function linq:last(predicate) end
-function linq:max(selector) end
-function linq:min(selector) end
-function linq:orderBy(selector) end
-function linq:reverse() end
-function linq:skip(count) end
-function linq:average(selector) end
-function linq:groupBy(selector) end
---]]
+-- Updated LINQ-style library for Lua with safety, performance, and feature improvements
 
----@class linqModule
----@operator call(table):linqTable
 local module = {}
 
----@class linqTable
----@operator concat:string
-local linq = {}
+-- Internal helper for shallow clone
+local function clone(t)
+    local result = {}
+    for i, v in ipairs(t) do
+        result[i] = v
+    end
+    return setmetatable(result, getmetatable(t))
+end
 
----Converts a table to a string representation.
----@param self table @The table to convert.
----@return string @The string representation of the table.
+-- Improved stringifier with cycle protection
+local function toString(value, indent, visited)
+    indent = indent or ""
+    visited = visited or {}
+    if visited[value] then return "<cycle>" end
+    visited[value] = true
+
+    if type(value) ~= "table" then return tostring(value) end
+
+    local str = "{\n"
+    local nextIndent = indent .. "  "
+    for k, v in pairs(value) do
+        str = str .. nextIndent .. tostring(k) .. " = " .. toString(v, nextIndent, visited) .. ",\n"
+    end
+    return str .. indent .. "}"
+end
+
 local function stringMT(self)
-    local result = {}
-    table.insert(result, "{\n")
-    for k, v in pairs(self) do
-        if type(v) == "table" then
-            table.insert(result, "\t" .. k .. " = {\n")
-            for sk, sv in pairs(v) do
-                table.insert(result, "\t\t" .. sk .. " = " .. sv .. ",\n")
-            end
-            table.insert(result, "\t},\n")
-        else
-            table.insert(result, "\t" .. k .. " = " .. v .. ",\n")
-        end
-    end
-    -- remove extra comma
-    result[#result] = result[#result]:sub(1, -3) -- Remove the last comma
-    table.insert(result, "\n}")
-    return table.concat(result)
+    return toString(self)
 end
 
-local linqmt = {
-    __index = linq,
-    __tostring = stringMT,
-    __concat = function(str, mytable)
-        return str .. mytable:toString()
-    end,
-    __eq = function(str, mytable)
-        return str:toString() == mytable:toString()
-    end,
-}
+local linq = {}
+linq.__index = linq
 
-local functionString = [[
-    return function(%s)
-        return %s
-    end
-]]
-
----Creates a lambda function from a delegate string.
----@param delegate string @"(params) => predicate"
----@return function @The lambda function.
-function module.lambda(delegate)
-    local params, predicate = delegate:match("%(?(.-)%)? => (.*)")
-    if predicate:find("return") then
-        predicate = predicate:gsub("return", "")
-    end
-
-    -- Create a closure instead of using load
-    local func = function(...)
-        local arg = {...}
-        return load("return " .. predicate)(table.unpack(arg))
-    end
-
-    return func
-end
-
-local function buildFunction(delegate)
-    return module.lambda(delegate) -- Directly return the lambda function
-end
-
----combines two tables into one.
----@param other table
----@return linqTable
-function linq:concat(other)
-    local result = {}
-    setmetatable(result, { __index = self })
-    local selfCount = #self
-    local otherCount = #other
-
-    -- Move elements from self
-    for i = 1, selfCount do
-        result[i] = self[i]
-    end
-
-    -- Move elements from other
-    for i = 1, otherCount do
-        result[selfCount + i] = other[i]
-    end
-
-    return result
-end
-
----returns all elements which match the predicate
----@param predicate function
----@return linqTable
 function linq:where(predicate)
-    local result = setmetatable({}, linqmt) -- Initialize with metatable
-    local predFunc = type(predicate) == "function" and predicate or buildFunction(predicate)
-
-    for i, v in pairs(self) do
-        if predFunc(v) then
+    local result = {}
+    for _, v in ipairs(self) do
+        if predicate(v) then
             table.insert(result, v)
         end
     end
-
-    return result
+    return setmetatable(result, getmetatable(self))
 end
 
----returns if the table contains element
----@param value any
----@return boolean
+function linq:select(selector)
+    local result = {}
+    for i, v in ipairs(self) do
+        result[i] = selector(v)
+    end
+    return setmetatable(result, getmetatable(self))
+end
+
+function linq:any(predicate)
+    for _, v in ipairs(self) do
+        if predicate(v) then
+            return true
+        end
+    end
+    return false
+end
+
+function linq:all(predicate)
+    for _, v in ipairs(self) do
+        if not predicate(v) then
+            return false
+        end
+    end
+    return true
+end
+
 function linq:contains(value)
-    for i, v in pairs(self) do
+    for _, v in ipairs(self) do
         if v == value then
             return true
         end
@@ -142,113 +80,11 @@ function linq:contains(value)
     return false
 end
 
----returns all elements which exist in both tables
----@param other table
----@return linqTable
-function linq:intersect(other)
-    local result = {}
-    setmetatable(result, linqmt)
-    for i, v in pairs(self) do
-        if other:contains(v) then
-            table.insert(result, v)
-        end
-    end
-    return result
-end
-
----performs an action on each element in the table
----@param action function
-function linq:foreach(action)
-    for i, v in pairs(self) do
-        action(v)
-    end
-end
-
----removes all elements that match the predicate
----@param predicate function
----@return linqTable
-function linq:removeAll(predicate)
-    predicate = type(predicate) == "function" and predicate or buildFunction(predicate)
-    local result = {}
-    setmetatable(result, linqmt)
-    for i, v in pairs(self) do
-        if not predicate(v) then
-            table.insert(result, v)
-        end
-    end
-    return result
-end
-
----removes all elements that match the value
----@param value any
----@return linqTable
-function linq:remove(value)
-    return self:removeAll(function(x) return x == value end)
-end
-
----returns the number of entries in the table
----@return integer
-function linq:count()
-    local result = 0
-    for i, v in pairs(self) do
-        result = result + 1
-    end
-    return result
-end
-
----returns if all elements in the table match the predicate
----@param predicate function
----@return boolean
-function linq:all(predicate)
-    local predFunc = type(predicate) == "function" and predicate or buildFunction(predicate)
-    for i, v in pairs(self) do
-        if not predFunc(v) then
-            return false
-        end
-    end
-    return true
-end
-
----returns if at least one element in the table matches the predicate
----@param predicate function
----@return boolean
-function linq:any(predicate)
-    predicate = type(predicate) == "function" and predicate or buildFunction(predicate)
-    for i, v in pairs(self) do
-        if predicate(v) then
-            return true
-        end
-    end
-    return false
-end
-
----returns all elements that do not exist in the other table
----@param other table
----@return linqTable
-function linq:except(other)
-    local result = {}
-    setmetatable(result, linqmt)
-    for i, v in pairs(self) do
-        local found = false
-        for i2, v2 in pairs(other) do
-            if v == v2 then
-                found = true
-                break
-            end
-        end
-        if not found then
-            table.insert(result, v)
-        end
-    end
-    return result
-end
-
----returns the first element that matches the predicate
----@param predicate function
----@return any | nil
 function linq:first(predicate)
-    predicate = type(predicate) == "function" and predicate or buildFunction(predicate)
-    for i, v in pairs(self) do
+    if not predicate then
+        return self[1]
+    end
+    for _, v in ipairs(self) do
         if predicate(v) then
             return v
         end
@@ -256,150 +92,182 @@ function linq:first(predicate)
     return nil
 end
 
----returns the last element in the table that matches the predicate (NOTE: may not be the last element due to the way Lua iterators work)
----@param predicate function
----@return unknown
 function linq:last(predicate)
-    predicate = type(predicate) == "function" and predicate or buildFunction(predicate)
-    local result = nil
-    for i, v in pairs(self) do
-        if predicate(v) then
-            result = v
+    for i = #self, 1, -1 do
+        local v = self[i]
+        if not predicate or predicate(v) then
+            return v
         end
     end
-    return result
+    return nil
 end
 
----returns the largest value based on the selector
----@param selector function
----@return any | nil
-function linq:max(selector)
-    selector = type(selector) == "function" and selector or buildFunction(selector)
-    local result = nil
-    for i, v in pairs(self) do
-        if not result or selector(v) > selector(result) then
-            result = v
-        end
-    end
-    return result
-end
-
----returns the mininum value based on the selector
----@param selector function
----@return any | nil
-function linq:min(selector)
-    selector = type(selector) == "function" and selector or buildFunction(selector)
-    local result = nil
-    for i, v in pairs(self) do
-        if not result or selector(v) < selector(result) then
-            result = v
-        end
-    end
-    return result
-end
-
----sorts the table by the selector
----@param selector function
----@return linqTable
-function linq:orderBy(selector)
-    selector = type(selector) == "function" and selector or buildFunction(selector)
-    table.sort(self, function(a, b)
-        return selector(a, b)
-    end)
-    return self
-end
-
-linq.thenBy = linq.orderBy
-
----reverses the entries in the table (Note: only works with standard Lua tables)
----@return linqTable
-function linq:reverse()
-    local n = #self
-    for i = 1, math.floor(n / 2) do
-        self[i], self[n - i + 1] = self[n - i + 1], self[i]
-    end
-    return self
-end
-
----removes entries 1 through count
----@param count number
-function linq:skip(count)
-    for i = 1, #self - count do
-        self[i] = self[i + count]
-    end
-    for i = #self, #self - count + 1, -1 do
-        self[i] = nil
-    end
-end
-
----returns the average of a specified field
----@param selector function
----@return number
-function linq:average(selector)
-    local sum = 0
+function linq:count(predicate)
     local count = 0
-    for _, item in ipairs(self) do
-        sum = sum + selector(item)
+    for _, v in ipairs(self) do
+        if not predicate or predicate(v) then
+            count = count + 1
+        end
+    end
+    return count
+end
+
+function linq:sum(selector)
+    selector = selector or function(x) return x end
+    local sum = 0
+    for _, v in ipairs(self) do
+        sum = sum + selector(v)
+    end
+    return sum
+end
+
+function linq:average(selector)
+    selector = selector or function(x) return x end
+    local sum, count = 0, 0
+    for _, v in ipairs(self) do
+        sum = sum + selector(v)
         count = count + 1
     end
-    return count > 0 and sum / count or 0
+    return count > 0 and (sum / count) or 0
 end
 
---- groups the items in the table by the keySelector
---- @param keySelector fun(item: any): any
---- @return table
-function linq:groupBy(keySelector)
-    local groups = {}
-    for _, item in ipairs(self) do
-        local key = keySelector(item)
-        if not groups[key] then
-            groups[key] = {}
+function linq:max(selector)
+    selector = selector or function(x) return x end
+    local max = nil
+    for _, v in ipairs(self) do
+        local val = selector(v)
+        if not max or val > max then
+            max = val
         end
-        table.insert(groups[key], item)
     end
-    return groups
+    return max
 end
 
---- Sums the values of a table based on a selector function.
---- @param selector fun(item: any): number A function that takes an item and returns a number to sum.
---- @return number The total sum of the selected values.
-function linq:sum(selector)
-    local total = 0
-    for _, item in ipairs(self) do
-        total = total + selector(item)
+function linq:min(selector)
+    selector = selector or function(x) return x end
+    local min = nil
+    for _, v in ipairs(self) do
+        local val = selector(v)
+        if not min or val < min then
+            min = val
+        end
     end
-    return total
+    return min
 end
 
----converts the current collection to a list
----@return table
-function linq:toList()
-    return self
+function linq:distinct()
+    local seen, result = {}, {}
+    for _, v in ipairs(self) do
+        if not seen[v] then
+            seen[v] = true
+            table.insert(result, v)
+        end
+    end
+    return setmetatable(result, getmetatable(self))
 end
 
---- Projects each element of the collection into a new form.
---- @param self table @The table to operate on, representing the LINQ collection.
---- @param selector function @A function that defines how to transform each element.
---- @return table @A new table containing the transformed elements.
-function linq:select(selector)
+function linq:skip(count)
     local result = {}
-    for i, v in ipairs(self) do
-        result[i] = selector(v)
+    for i = count + 1, #self do
+        result[#result + 1] = self[i]
     end
-    return setmetatable(result, getmetatable(self)) -- Maintain the metatable for LINQ methods
+    return setmetatable(result, getmetatable(self))
 end
 
----makes a table into a linq table
----@param t table
----@return linqTable
+function linq:take(count)
+    local result = {}
+    for i = 1, math.min(count, #self) do
+        result[#result + 1] = self[i]
+    end
+    return setmetatable(result, getmetatable(self))
+end
+
+function linq:reverse()
+    local result = {}
+    for i = #self, 1, -1 do
+        table.insert(result, self[i])
+    end
+    return setmetatable(result, getmetatable(self))
+end
+
+function linq:orderBy(selector)
+    local result = clone(self)
+    table.sort(result, function(a, b)
+        return selector(a) < selector(b)
+    end)
+    return setmetatable(result, getmetatable(self))
+end
+
+function linq:intersect(other)
+    local otherLinq = module(other)
+    local result = {}
+    for _, v in ipairs(self) do
+        if otherLinq:contains(v) then
+            table.insert(result, v)
+        end
+    end
+    return setmetatable(result, getmetatable(self))
+end
+
+function linq:except(other)
+    local otherLinq = module(other)
+    local result = {}
+    for _, v in ipairs(self) do
+        if not otherLinq:contains(v) then
+            table.insert(result, v)
+        end
+    end
+    return setmetatable(result, getmetatable(self))
+end
+
+function linq:flatMap(selector)
+    local result = {}
+    for _, item in ipairs(self) do
+        for _, v in ipairs(selector(item)) do
+            table.insert(result, v)
+        end
+    end
+    return setmetatable(result, getmetatable(self))
+end
+
+function linq:zip(other, combiner)
+    local result = {}
+    local len = math.min(#self, #other)
+    for i = 1, len do
+        result[i] = combiner(self[i], other[i])
+    end
+    return setmetatable(result, getmetatable(self))
+end
+
+function linq:forEach(action)
+    for _, v in ipairs(self) do
+        action(v)
+    end
+end
+
+linq.each = linq.forEach
+
+-- Lambda support for x => x*2 style
+function module.lambda(delegate)
+    local params, body = delegate:match("%(?([%w_, ]+)%s*%)?%s*=>%s*(.+)")
+    if not params or not body then
+        error("Invalid lambda syntax: " .. tostring(delegate))
+    end
+    local fn, err = load("return function(" .. params .. ") return " .. body .. " end")
+    if not fn then error("Lambda error: " .. err) end
+    return fn()
+end
+
 function module.from(t)
-    return setmetatable(t, { __index = linq })
+    return setmetatable(t, linq)
 end
 
 setmetatable(module, {
-    __call = function(self, t)
-        return setmetatable(t, linqmt)
+    __call = function(_, t)
+        return module.from(t)
     end
 })
+
+linq.__tostring = stringMT
 
 return module
