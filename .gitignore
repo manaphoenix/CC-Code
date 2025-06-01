@@ -26,6 +26,15 @@ node_modules/
 *~
 *.bak
 
+#Ignore GemFile
+Gemfile*
+
+# Ignore local Jekyll files and folders
+.jekyll-cache
+
+# Ignore Jekyll site files
+_site/
+
 # Ignore IDE files
 .vscode/
 .idea/
