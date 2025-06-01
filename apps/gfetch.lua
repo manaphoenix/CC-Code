@@ -250,7 +250,10 @@ if not args[1] then
 
     print("Usage:")
     print("  gfetch owner/repo/branch/path/to/file [output]")
+    print("  gfetch <aliasKey>/path/to/file [output]")
     print("  gfetch --batch file_or_url")
+    print("  gfetch --alias add <key> <owner/repo/branch>")
+    print("  gfetch --alias remove <key>")
     return
 end
 
