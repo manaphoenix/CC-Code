@@ -1,6 +1,13 @@
-# CC and OC Repository
-A repository for all the code developed for Computercraft (and its addons/forks) and OpenComputers, including their addons and forks.
+# CC-Code Repository
+A repository for all the code developed for Computercraft, including their addons and forks.
 
-Currently, there is no code available for OpenComputers.
+## gfetch app
+A simple git fetch wrapper for git repositories.
 
-Visit the project page: [CC_OC-Code](https://manaphoenix.github.io/CC_OC-Code/)
+### Installation
+wget https://raw.githubusercontent.com/manaphoenix/CC-Code/refs/heads/main/apps/gfetch.lua apps/gfetch.lua
+
+### Usage
+`gfetch Owner/Repo/[Path/]File.lua [Path]/File`
+
+Visit the project page: [CC-Code](https://manaphoenix.github.io/CC-Code/)
