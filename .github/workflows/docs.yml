@@ -1,46 +1,50 @@
-name: Build and Deploy Docs
+# .github/workflows/docs.yml
 
+name: Build and Deploy Docs
 on:
   push:
     branches:
-      - main    # or whichever branch you want to trigger on
+      - main
 
 jobs:
   generate-docs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Check out the repo
+      # 1) Check out the repository (full history so we can commit back docs/)
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           persist-credentials: false
-          fetch-depth: 0           # so that docs/ can be committed back
+          fetch-depth: 0
 
-      # 2) Install Lua 5.3 + LuaRocks
-      - name: Set up Lua & LuaRocks
-        uses: leafo/gh-actions-luarocks@v7
-        with:
-          lua-version: "5.3"
+      # 2) Install Lua 5.3 and LuaRocks via apt-get
+      - name: Install Lua and LuaRocks
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lua5.3 luarocks
+        # Running `apt-get update` + `apt-get install -y lua5.3 luarocks` on `ubuntu-latest`
+        # ensures both Lua and LuaRocks are available. GitHub’s Ubuntu runners include `apt-get` by default :contentReference[oaicite:0]{index=0}.
 
-      # 3) Install LDoc via LuaRocks
+      # 3) Install LDoc from LuaRocks
       - name: Install LDoc
-        run: luarocks install ldoc
+        run: |
+          luarocks install ldoc
+        # With LuaRocks installed, `luarocks install ldoc` puts the `ldoc` binary on PATH.
 
-      # 4) Run LDoc to regenerate docs into docs/
+      # 4) Run LDoc to regenerate HTML docs into docs/
       - name: Run LDoc
-        run: ldoc -c ldoc.lua
+        run: |
+          ldoc -c ldoc.lua
+        # This reads your ldoc.lua (which points source → ./lib or ./src and output → ./docs)
+        # and overwrites the docs/ folder with fresh HTML.
 
       # 5) Commit any changes in docs/ back to main
       - name: Commit and push updated docs
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Stage the entire docs/ folder
           git add docs
-
-          # Only commit if LDoc actually changed something
           if ! git diff --cached --quiet; then
             git commit -m "chore(docs): regenerate API docs"
             git push origin main
