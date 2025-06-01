@@ -1,9 +1,14 @@
 ---
 layout: codepage
-title: Linq Library
+title: Test Library
+tags: [Collections, Data Processing, Queries]
+description: >
+  A powerful LINQ-style library for Lua that provides collection manipulation
+  methods similar to .NET's LINQ. Enables complex table operations with a fluent interface.
+permalink: /pages/test.html
 overview: >
   Updated LINQ-style library for Lua with safety, performance, and feature improvements.
-installation: "https://raw.githubusercontent.com/manaphoenix/CC_OC-Code/refs/heads/main/lib/linq.lua lib/linq"
+installation: "manaphoenix/CC-Code/main/lib/linq.lua"
 basic_usage_description: >
   Use the library by calling `require` and chaining query methods on tables.
 basic_usage: |
@@ -11,7 +16,11 @@ basic_usage: |
   local data = linq.from({1, 2, 3, 4})
   local evens = data:where(function(x) return x % 2 == 0 end)
 methods:
-  - method_name: "where(predicate)"
+  - method_name: where
+    params:
+      - name: predicate
+        type: "function"
+    return_type: "Linq<T>"
     method_description: "Filters the collection based on the predicate function."
     method_code: |
       function linq:where(predicate)
@@ -24,10 +33,14 @@ methods:
           return setmetatable(result, getmetatable(self))
       end
 
-  - method_name: "select(selector)"
+  - method_name: "select"
+    params:
+      - name: selector
+        type: "function"
+    return_type: "Linq<T>"
     method_description: "Projects each element into a new form using the selector function."
     method_code: |
-      function linq:select(selector)
+      function linq:select
           local result = {}
           for i, v in ipairs(self) do
               result[i] = selector(v)
@@ -35,7 +48,11 @@ methods:
           return setmetatable(result, getmetatable(self))
       end
 
-  - method_name: "count(predicate)"
+  - method_name: "count"
+    params:
+      - name: predicate
+        type: "function"
+    return_type: "number"
     method_description: "Counts elements that satisfy the predicate or all if none given."
     method_code: |
       function linq:count(predicate)

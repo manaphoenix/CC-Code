@@ -1,11 +1,22 @@
 <div class="method">
-  <h3 id="{{ include.method_name }}">{{ include.method_name }}</h3>
+  <h3 id="{{ include.method_name }}" class="method-header">
+    <code>
+      <span class="token function">{{ include.method_name }}</span> (
+      {% for param in include.params %}
+        <span class="token parameter">{{ param.name }}</span><span class="token operator">:</span> 
+        <span class="token class-name">{{ param.type }}</span>{% if forloop.last == false %}, {% endif %}
+      {% endfor %}
+      ) <span class="token operator">:</span> 
+      <span class="token class-name">{{ include.return_type }}</span>
+    </code>
+  </h3>
   <p>{{ include.method_description }}</p>
-  <div class="code-block">
+  <details class="code-block">
+    <summary class="code-summary">Example Code</summary>
     <div class="code-header">
       <span class="language">lua</span>
       <button class="copy-button" onclick="copyCode(this)">Copy</button>
     </div>
     <pre><code class="language-lua">{{ include.method_code }}</code></pre>
-  </div>
+  </details>
 </div>

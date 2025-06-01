@@ -455,12 +455,25 @@ a:visited {
   color: var(--link-visited);
 }
 
+details {
+  margin-top: 10px;
+}
+
 .command {
   background-color: rgba(0, 0, 0, 0.75);
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 1rem;
   font-size: 1.5rem;
+  text-align: center;
+}
+
+.command-alt {
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  font-size: 1rem;
   text-align: center;
 }
 
@@ -602,6 +615,16 @@ section:hover .learn-more {
   color: #ffffff; /* Light text for code */
 }
 
+.code-summary {
+  cursor: pointer;
+  font-weight: bold;
+  background-color: #121212;
+  color: #f8f8f2;
+  padding: 0.5em 1em;
+  border-radius: 0.3em 0.3em 0 0;
+}
+
+
 .code-header {
   display: flex;
   justify-content: space-between;
@@ -609,6 +632,11 @@ section:hover .learn-more {
   padding: 3px 15px;
   background: #1e1e1e;
   color: #e0e0e0;
+}
+
+.code-title {
+  font-weight: bold;
+  font-size: 0.95em;
 }
 
 .language {
@@ -694,6 +722,32 @@ section:hover .learn-more {
   background-color: #0056b3; /* Darker shade for hover effect */
 }
 
+.method-header code {
+  font-family: "Fira Code", monospace;
+  font-size: 1.05em;
+  background-color: transparent;
+  color: #ddd;
+  padding: 0.3em 0.6em;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.method-header .method-name {
+  color: #fc9527; /* orange */
+}
+
+.method-header .param-name {
+  color: #bd93f9; /* purple */
+}
+
+.method-header .type {
+  color: #8be9fd; /* cyan */
+}
+
+.method-header .return-type {
+  color: #50fa7b; /* green */
+}
+
 /* Mobile adjustments */
 @media (max-width: 768px) {
   #sidebar {
@@ -744,22 +798,11 @@ section:hover .learn-more {
     width: 80vw;
   }
 
-  /* Installation Section Styles */
-  #installation {
-    padding: 20px;
-    background-color: var(--background);
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin: 20px 0; /* Add margin for spacing */
-  }
-
   /* Command text styling */
   .command span {
     font-family: "Courier New", monospace;
-    background-color: #e8e8e8;
     padding: 10px;
     border-radius: 5px;
-    border: 1px solid #ccc;
     display: block; /* Ensure it takes full width */
   }
 
@@ -796,13 +839,19 @@ section:hover .learn-more {
   }
 
   .command .copy-button {
+    padding: 0px 15px;
     visibility: visible; /* Always show the copy button */
     position: absolute; /* Positioning to keep it visible */
-    right: 10%; /* Adjust as needed for your layout */
+    right: 5%; /* Adjust as needed for your layout */
+    top: 14.5%;
+    font-size: 0.8em; /* too big */
     transform: translateY(-150%); /* Adjust for perfect centering */
+    z-index: 1;
+    size: 1em;
   }
 
   .code-block {
     width: 85vw;
   }
+
 }

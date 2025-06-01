@@ -49,21 +49,24 @@ layout: none
 
     <div>
         <main class="main-content">
-            <a href="pages/linq.html" class="section-link">
-                <section id="library1">
-                    <h2>Linq Library</h2>
-                    <div class="tags">
-                        <span class="tag">Collections</span>
-                        <span class="tag">Data Processing</span>
-                        <span class="tag">Queries</span>
-                    </div>
-                    <p>A powerful LINQ-style library for Lua that provides collection manipulation methods similar to .NET's LINQ. 
-                       Enables complex table operations with a fluent interface.</p>
-                    <div class="learn-more">Learn More →</div>
-                </section>
+          {% assign page_list = site.pages | where_exp: "p", "p.path contains 'pages/'" %}
+          {% for p in page_list %}
+            <a href="{{ site.baseurl }}{{ p.url }}" class="section-link">
+              <section id="{{ p.title | slugify }}">
+                <h2>{{ p.title }}</h2>
+                <div class="tags">
+                  {% for tag in p.tags %}
+                    <span class="tag">{{ tag }}</span>
+                  {% endfor %}
+                </div>
+                <p>{{ p.description }}</p>
+                <div class="learn-more">Learn More →</div>
+              </section>
             </a>
+          {% endfor %}
         </main>
-    </div>
+      </div>
+      
     <footer>
         <div class="footerContainer">
             <h4>Author: Manaphoenix</h4>
