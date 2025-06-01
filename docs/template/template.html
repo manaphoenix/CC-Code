@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+    <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+    <header>
+      <div class="menuToggle">
+        <i class="fas fa-bars"></i>
+      </div>
+      <h1>{{title}}</h1>
+      <div class="dark-mode-toggle">
+        <i class="fas fa-sun"></i>
+        <div class="slider"></div>
+        <i class="fas fa-moon" style="display: none"></i>
+      </div>
+    </header>
+
+    {{insert includes/sidebar.html}}
+
+    <main class="main-content">
+      <section id="overview">
+        <h2>Overview</h2>
+        <p>{{overview}}</p>
+      </section>
+
+      <section id="installation">
+        <h2>Installation</h2>
+        <div class="command">
+          <span>{{installation}}</span>
+          <button class="copy-button" onclick="copyInstallationCode(this)">
+            <i class="fa fa-copy" aria-hidden="true"></i>
+            <span>Copy</span>
+          </button>
+        </div>
+      </section>
+
+      <section id="basic-usage">
+        <h2>Basic Usage</h2>
+        <p>{{basic_usage_description}}</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="language">lua</span>
+            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code class="language-lua">{{basic_usage}}</code></pre>
+        </div>
+      </section>
+
+      <section id="methods">
+        <h2>Methods</h2>
+
+        {{foreach method in methods}}
+            {{insert includes/method.html}}
+        {{end foreach}}
+      </section>
+
+      <section id="examples">
+        <h2>Examples</h2>
+        {{foreach example in examples}}
+            {{insert includes/example.html}}
+        {{end foreach}}
+      </section>
+
+      <section id="advanced">
+        <h2>Advanced Usage</h2>
+        {{foreach advanced in advanced}}
+            {{insert includes/advanced.html}}
+        {{end foreach}}
+      </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
+    <script src="../scripts.js"></script>
+    <script src="../copyCode.js"></script>
+  </body>
+</html>
