@@ -1,1 +1,6 @@
-theme: null
+title: My Site
+description: Custom Jekyll theme
+url: "https://manaphoenix.github.io"
+baseurl: "/CC-Code"
+plugins:
+  - jekyll-sitemap
