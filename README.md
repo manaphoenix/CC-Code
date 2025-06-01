@@ -12,7 +12,7 @@ A simple Git fetch wrapper for retrieving raw Lua files from GitHub repositories
 
 ```bash
 wget https://raw.githubusercontent.com/manaphoenix/CC-Code/refs/heads/main/apps/gfetch.lua apps/gfetch.lua
-````
+```
 
 ### Usage
 
