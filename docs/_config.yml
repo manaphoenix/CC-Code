@@ -4,7 +4,7 @@ description: "Logger, BlitUtil, ClockTime, and more"
 baseurl: ""             # since GitHub Pages will serve from root of the 'docs' folder
 url: "https://manaphoenix.github.io/CC-Code"  # replace with your GitHub Pages URL
 
-remote_theme: "pmarsceill/just-the-docs"
+remote-theme: "just-the-docs/just-the-docs"
 
 # Tell Jekyll to use the just-the-docs gem:
 plugins:
