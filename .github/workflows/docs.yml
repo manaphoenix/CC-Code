@@ -1,0 +1,49 @@
+name: Build and Deploy Docs
+
+on:
+  push:
+    branches:
+      - main    # or whichever branch you want to trigger on
+
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Check out the repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+          fetch-depth: 0           # so that docs/ can be committed back
+
+      # 2) Install Lua 5.3 + LuaRocks
+      - name: Set up Lua & LuaRocks
+        uses: leafo/gh-actions-luarocks@v7
+        with:
+          lua-version: "5.3"
+
+      # 3) Install LDoc via LuaRocks
+      - name: Install LDoc
+        run: luarocks install ldoc
+
+      # 4) Run LDoc to regenerate docs into docs/
+      - name: Run LDoc
+        run: ldoc -c ldoc.lua
+
+      # 5) Commit any changes in docs/ back to main
+      - name: Commit and push updated docs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Stage the entire docs/ folder
+          git add docs
+
+          # Only commit if LDoc actually changed something
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(docs): regenerate API docs"
+            git push origin main
+          else
+            echo "No changes in docs/"
+          fi
