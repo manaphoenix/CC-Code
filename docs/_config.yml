@@ -15,7 +15,7 @@ plugins:
 # You can nest under “Library” or “Apps” as you like.
 # The left‐hand sidebar on every page is generated from this.
 just_the_docs:
-  logo: "/assets/images/logo.png"  # optional: put a logo in docs/assets/images/logo.png
+  #logo: "/assets/images/logo.png"  # optional: put a logo in docs/assets/images/logo.png
   # Here’s a simple “nav” example. Adjust the file paths to match your .md files:
   nav:
     - Home: test.md
