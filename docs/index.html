@@ -43,7 +43,10 @@ title: "Manaphoenix's Lua Docs"
     <aside id="sidebar">
         <h2>Libraries & APIs</h2>
         <ul>
-            <li><a href="#library1">Linq Library</a></li>
+            {% assign sorted_pages = site.pages | where_exp: "p", "p.path contains 'pages/'" | sort: 'title' %}
+            {% for p in sorted_pages %}
+                <li><a href="{{ site.baseurl }}{{ p.url }}">{{ p.title }}</a></li>
+            {% endfor %}
         </ul>
     </aside>
 

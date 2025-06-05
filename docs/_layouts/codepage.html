@@ -84,6 +84,7 @@
         {% endfor %}
       </section>
 
+      {% if page.examples %}
       <section id="examples">
         <h2>Examples</h2>
         {% for example in page.examples %}
@@ -92,13 +93,15 @@
              code=example.code %}
         {% endfor %}
       </section>
-
+      {% endif %}
+      {% if page.advanced %}
       <section id="advanced">
         <h2>Advanced Usage</h2>
         {% for advanced in page.advanced %}
           {% include example.html title=advanced.title code=advanced.code %}
         {% endfor %}
       </section>
+      {% endif %}
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
