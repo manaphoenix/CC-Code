@@ -1,8 +1,13 @@
+{% assign codeblock = include.codeblock | default: "true" %}
+{% if codeblock == "true" %}
 <div class="code-block">
+{% endif %}
   <div class="code-header">
     <span class="language">{{ include.language | default: "lua" }}</span>
     <span class="code-title">{{ include.title }}</span>
     <button class="copy-button" onclick="copyCode(this)">Copy</button>
   </div>
   <pre><code class="language-{{ include.language | default: 'lua' }}">{{ include.code }}</code></pre>
+{% if codeblock == "true" %}
 </div>
+{% endif %}

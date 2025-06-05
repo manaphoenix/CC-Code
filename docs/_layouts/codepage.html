@@ -64,7 +64,7 @@
         <p>{{ page.basic_usage_description }}</p>
         {% include codeblock.html
           title="Basic Usage"
-          language="lua"
+          language=page.basic_usage_language
           code=page.basic_usage %}
       </section>
 
@@ -98,7 +98,7 @@
       <section id="advanced">
         <h2>Advanced Usage</h2>
         {% for advanced in page.advanced %}
-          {% include example.html title=advanced.title language=advanced.language code=advanced.code %}
+          {% include codeblock.html title=advanced.title language=advanced.language code=advanced.code %}
         {% endfor %}
       </section>
       {% endif %}
