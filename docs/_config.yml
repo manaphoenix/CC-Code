@@ -1,5 +1,5 @@
-title: My Site
-description: Custom Jekyll theme
+title: Manaphoenix’s CC-Code Project
+description: A curated collection of ComputerCraft scripts and tools for Minecraft.
 url: "https://manaphoenix.github.io"
 baseurl: "/CC-Code"
 plugins:
