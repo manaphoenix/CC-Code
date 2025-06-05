@@ -48,7 +48,7 @@ function module.execute(optStr, verbose)
         for i = 1, total, batchSize do
             local upper = math.min(i + batchSize - 1, total)
             local batchLen = upper - i + 1
-            local batch = table.create and table.create(batchLen, 0) or {}  -- Use table.create if available (Lua 5.4+ or CC-Tweaked)
+            local batch = {}
             for j = 1, batchLen do
                 batch[j] = actions[i + j - 1]
             end

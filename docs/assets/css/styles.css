@@ -710,7 +710,7 @@ section:hover .learn-more {
 .rounded-button {
   display: inline-block;
   padding: 10px 20px;
-  background-color: #007bff; /* Change to your preferred color */
+  background-color: #3700b3; /* Change to your preferred color */
   color: white;
   text-align: center;
   text-decoration: none;
@@ -718,8 +718,12 @@ section:hover .learn-more {
   transition: background-color 0.3s;
 }
 
+.rounded-button:visited {
+  color: #9f6ed4;
+}
+
 .rounded-button:hover {
-  background-color: #0056b3; /* Darker shade for hover effect */
+  background-color: #3600b39a; /* Darker shade for hover effect */
 }
 
 .method-header code {
@@ -730,22 +734,6 @@ section:hover .learn-more {
   padding: 0.3em 0.6em;
   border-radius: 6px;
   display: inline-block;
-}
-
-.method-header .method-name {
-  color: #fc9527; /* orange */
-}
-
-.method-header .param-name {
-  color: #bd93f9; /* purple */
-}
-
-.method-header .type {
-  color: #8be9fd; /* cyan */
-}
-
-.method-header .return-type {
-  color: #50fa7b; /* green */
 }
 
 /* Mobile adjustments */

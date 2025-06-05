@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Filter sections based on search input
-  if (!window.location.pathname.includes("/pages/")) {
+  if (document.getElementById("search") !== null) {
     const searchInput = document.getElementById("search");
     const sections = document.querySelectorAll(".section-link");
 

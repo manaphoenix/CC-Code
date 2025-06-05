@@ -1,5 +1,6 @@
 ---
 layout: none
+title: "Manaphoenix's Lua Docs"
 ---
 <!DOCTYPE html>
 <head>
@@ -31,7 +32,7 @@ layout: none
         <div class="menuToggle">
             <i class="fas fa-bars"></i>
         </div>
-        <h1>Linq Library Documentation</h1>
+        <h1>{{ page.title }}</h1>
         <input type="text" id="search" placeholder="Search by tag..." style="width: 200px; padding: 5px; margin-left: 20px;">   
         <div class="dark-mode-toggle">
             <i class="fas fa-sun"></i>
@@ -39,7 +40,6 @@ layout: none
             <i class="fas fa-moon" style="display: none;"></i>
         </div>
     </header>
-
     <aside id="sidebar">
         <h2>Libraries & APIs</h2>
         <ul>
@@ -67,15 +67,7 @@ layout: none
         </main>
       </div>
       
-    <footer>
-        <div class="footerContainer">
-            <h4>Author: Manaphoenix</h4>
-            <i class="fab fa-github"></i>
-            <a href="https://github.com/manaphoenix">My Github</a><br>
-            <i class="fab fa-steam"></i>
-            <a href="https://steamcommunity.com/id/manaphoenix/">My Steam</a>
-        </div>
-    </footer>
+    {% include footer.html %}
     <script src="{{ site.baseurl }}/assets/js/scripts.js"></script>
 </body>
 </html>
