@@ -64,13 +64,14 @@
         <p>{{ page.basic_usage_description }}</p>
         <div class="code-block">
           <div class="code-header">
-            <span class="language">lua</span>
+            <span class="language">{{ page.basic_usage_language | default: "lua" }}</span>
             <button class="copy-button" onclick="copyCode(this)">Copy</button>
           </div>
-          <pre><code class="language-lua">{{ page.basic_usage }}</code></pre>
+          <pre><code class="language-{{ page.basic_usage_language | default: 'lua' }}">{{ page.basic_usage }}</code></pre>
         </div>
       </section>
 
+      {% if page.methods %}
       <section id="methods">
         <h2>Methods</h2>
         {% for method in page.methods %}
@@ -83,6 +84,7 @@
           %}
         {% endfor %}
       </section>
+      {% endif %}
 
       {% if page.examples %}
       <section id="examples">
@@ -90,6 +92,7 @@
         {% for example in page.examples %}
           {% include example.html
              title=example.title
+             language=example.language
              code=example.code %}
         {% endfor %}
       </section>
@@ -98,7 +101,7 @@
       <section id="advanced">
         <h2>Advanced Usage</h2>
         {% for advanced in page.advanced %}
-          {% include example.html title=advanced.title code=advanced.code %}
+          {% include example.html title=advanced.title language=advanced.language code=advanced.code %}
         {% endfor %}
       </section>
       {% endif %}
@@ -106,6 +109,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
     <script src="{{ site.baseurl }}/assets/js/scripts.js"></script>
     <script src="{{ site.baseurl }}/assets/js/copyCode.js"></script>
   </body>
