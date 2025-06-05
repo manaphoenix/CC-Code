@@ -13,10 +13,9 @@
   <p>{{ include.method_description }}</p>
   <details class="code-block">
     <summary class="code-summary">Example Code</summary>
-    <div class="code-header">
-      <span class="language">{{ include.language | default: "lua" }}</span>
-      <button class="copy-button" onclick="copyCode(this)">Copy</button>
-    </div>
-    <pre><code class="language-{{ include.language | default: 'lua' }}">{{ include.method_code }}</code></pre>
+    {% include codeblock.html
+      title="Example Code"
+      language="lua"
+      code=include.method_code %}
   </details>
 </div>

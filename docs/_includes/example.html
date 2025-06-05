@@ -1,10 +1,6 @@
 <div class="example">
-  <div class="code-block">
-    <div class="code-header">
-      <span class="language">{{ include.language | default: "lua" }}</span>
-      <span class="code-title">{{ include.title }}</span>
-      <button class="copy-button" onclick="copyCode(this)">Copy</button>
-    </div>
-    <pre><code class="language-{{ include.language | default: 'lua' }}">{{ include.code }}</code></pre>
-  </div>
+  {% include codeblock.html
+    title=example.title
+    language=example.language
+    code=example.code %}
 </div>

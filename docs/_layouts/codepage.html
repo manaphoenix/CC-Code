@@ -62,13 +62,10 @@
       <section id="basic-usage">
         <h2>Basic Usage</h2>
         <p>{{ page.basic_usage_description }}</p>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="language">{{ page.basic_usage_language | default: "lua" }}</span>
-            <button class="copy-button" onclick="copyCode(this)">Copy</button>
-          </div>
-          <pre><code class="language-{{ page.basic_usage_language | default: 'lua' }}">{{ page.basic_usage }}</code></pre>
-        </div>
+        {% include codeblock.html
+          title="Basic Usage"
+          language="lua"
+          code=page.basic_usage %}
       </section>
 
       {% if page.methods %}
