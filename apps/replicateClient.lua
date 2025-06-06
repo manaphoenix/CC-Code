@@ -1,8 +1,17 @@
-local mod = components.modem
-local repChannel = 420
-local modChannel = 69
-mod.open(repChannel)
+local comps = components or peripheral
+local modem = comps.modem
+
+local config = {
+    modChannel = 69,
+    repChannel = 420
+}
+
+modem.open(config.repChannel)
 
 while true do
-    mod.transmit(modChannel, repChannel, table.pack(os.pullEventRaw())) 
+    local evt = table.pack(os.pullEventRaw())
+    modem.transmit(config.modChannel, config.repChannel, {
+        type = "event",
+        payload = evt
+    })
 end
