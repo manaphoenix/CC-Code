@@ -46,12 +46,20 @@ local function should_log(level)
   return LEVELS[level] >= LEVELS[config.level]
 end
 
+local function sanitize_message(str)
+  return tostring(str):gsub("[%c]", " ")
+end
+
+local function sanitize_filename(name)
+  return tostring(name or config.default_file):gsub("[^%w%._-]", "_")
+end
+
 local function format_message(level, message, tag)
   local parts = {}
   if config.show_timestamp then table.insert(parts, get_timestamp()) end
   table.insert(parts, string.format("[%s]", level))
-  if tag then table.insert(parts, string.format("[%s]", tag)) end
-  table.insert(parts, message)
+  if tag then table.insert(parts, string.format("[%s]", sanitize_message(tag))) end
+  table.insert(parts, sanitize_message(message))
   return table.concat(parts, " ")
 end
 
@@ -66,7 +74,7 @@ end
 
 local function write_file(msg, file)
   ensure_dir(config.log_path)
-  local path = fs.combine(config.log_path, file or config.default_file)
+  local path = fs.combine(config.log_path, sanitize_filename(file))
   local handle = fs.open(path, "a")
   if handle then
     handle.writeLine(msg)
@@ -125,7 +133,7 @@ function logger.setLogPath(path)
 end
 
 function logger.setDefaultFile(name)
-  config.default_file = name
+  config.default_file = sanitize_filename(name)
 end
 
 return logger
