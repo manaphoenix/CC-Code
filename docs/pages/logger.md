@@ -9,7 +9,7 @@ permalink: /pages/logger.html
 overview: >
   The Logger library provides a simple yet powerful way to handle logging in
   ComputerCraft programs. It supports multiple log levels, colored console output,
-  and file-based logging with automatic log rotation.
+  and file-based logging with automatic directory creation.
 installation: "manaphoenix/CC-Code/main/lib/logger.lua"
 basic_usage_description: >
   Get started with the default logger or create tagged loggers for different
@@ -19,11 +19,11 @@ basic_usage: |
   
   -- Basic logging
   logger.info("Application started")
-  logger.warn("This is a warning")
+  logger.warning("This is a warning")
   logger.error("Something went wrong!")
   
   -- Create a tagged logger
-  local netLog = logger.createTagged("NETWORK")
+  local netLog = logger.get("NETWORK")
   netLog.info("Connected to server")
   netLog.error("Connection timeout")
 
@@ -34,17 +34,20 @@ methods:
         type: "string"
       - name: message
         type: "string"
+      - name: tag
+        type: "string"
+        optional: true
       - name: file
         type: "string"
         optional: true
     return_type: "void"
-    method_description: "Logs a message with the specified level and optional file output."
+    method_description: "Logs a message with the specified level, optional tag, and optional file output."
     method_code: |
       local logger = require("logger")
-      logger.log("info", "This is an info message")
-      logger.log("error", "This is an error", "errors.log")
+      logger.log("INFO", "This is an info message")
+      logger.log("ERROR", "This is an error", "NETWORK", "network_errors.log")
 
-  - method_name: createTagged
+  - method_name: get
     params:
       - name: tag
         type: "string"
@@ -55,8 +58,8 @@ methods:
     method_description: "Creates a new logger instance that prefixes all messages with a tag."
     method_code: |
       local logger = require("logger")
-      local netLog = logger.createTagged("NETWORK")
-      netLog.info("Initialized network module")  -- Logs: [HH:MM:SS] [info] [NETWORK] Initialized network module
+      local netLog = logger.get("NETWORK")
+      netLog.info("Initialized network module")  -- Logs: [HH:MM:SS] [INFO] [NETWORK] Initialized network module
 
   - method_name: "Log Levels (Shortcut Methods)"
     params: []
@@ -66,29 +69,33 @@ methods:
       local logger = require("logger")
       
       -- Available log levels (in increasing severity):
-      logger.trace("Detailed debug information")
       logger.debug("Debug information")
       logger.info("Informational message")
-      logger.warn("Warning message")
+      logger.warning("Warning message")
       logger.error("Error message")
-      logger.fatal("Fatal error, application may terminate")
+      logger.critical("Critical error, application may terminate")
 
 examples:
   - title: "Basic Logging"
     code: |
       local logger = require("logger")
       
-      -- Set up logging
-      logger.info("Starting application")
+      -- Configure logger
+      logger.setLogPath("/myapp/logs")
+      logger.setDefaultFile("app.log")
+      logger.setLevel("DEBUG")  -- Show all messages
       
-      -- Log different levels
+      -- Basic logging
       logger.debug("Debug information")
-      logger.info("User logged in", "auth.log")
-      logger.warn("Disk space low")
-      logger.error("Failed to save file", "errors.log")
+      logger.info("Application started")
+      logger.warning("Disk space low")
+      logger.error("Failed to save file")
+      
+      -- Log to a specific file
+      logger.info("User logged in", nil, "auth.log")
       
       -- Create a tagged logger for a specific module
-      local dbLog = logger.createTagged("DATABASE")
+      local dbLog = logger.get("DATABASE")
       dbLog.info("Connected to database")
       dbLog.error("Query failed")
 
@@ -96,53 +103,79 @@ examples:
     code: |
       local logger = require("logger")
       
+      -- Create a logger for file operations
+      local fileLog = logger.get("FILE")
+      
       local function processFile(filename)
           local file = fs.open(filename, "r")
           if not file then
-              logger.error(string.format("Failed to open file: %s", filename))
+              fileLog.error(string.format("Failed to open file: %s", filename))
               return nil
           end
           
-          logger.debug(string.format("Processing file: %s", filename))
+          fileLog.debug(string.format("Processing file: %s", filename))
           -- File processing logic here
+          local success, err = pcall(function()
+              -- Simulate file processing
+              if filename:find("test") then
+                  error("Test file processing failed")
+              end
+          end)
+          
           file.close()
+          
+          if not success then
+              fileLog.error(string.format("Error processing %s: %s", filename, err))
+              return nil
+          end
+          
           return true
       end
       
       -- Usage
-      local success, err = pcall(processFile, "config.txt")
-      if not success then
-          logger.error(string.format("Error in processFile: %s", err))
-      end
+      processFile("config.txt")  -- Will log to default file
+      processFile("test.txt")    -- Will log error to default file
 
 advanced:
-  - title: "Custom Log File Location"
-    description: "Change the default log directory and file."
+  - title: "Configuration Options"
+    description: "Configure logger behavior programmatically."
     code: |
       local logger = require("logger")
       
-      -- Change default log directory (do this before any logging)
-      logger.LOG_PATH = "/my/custom/logs"
-      logger.DEFAULT_FILE = "myapp.log"
+      -- Set log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+      logger.setLevel("DEBUG")  -- Show all messages
       
-      -- Now all logs will go to /my/custom/logs/myapp.log
-      logger.info("Using custom log location")
+      -- Toggle output destinations
+      logger.setOutput({
+          console = true,  -- Enable/disable console output
+          file = true      -- Enable/disable file output
+      })
+      
+      -- Set log directory and default file
+      logger.setLogPath("/myapp/logs")  -- Will be created if it doesn't exist
+      logger.setDefaultFile("app.log")
+      
+      -- Toggle features
+      logger.setColors(true)       -- Enable/disable colored output
+      logger.setTimestamp(true)    -- Show/hide timestamps
 
-  - title: "Custom Log Levels"
-    description: "Add or modify log levels."
+  - title: "Advanced Usage"
+    description: "Tagged loggers with different output files."
     code: |
       local logger = require("logger")
       
-      -- Add a new log level
-      logger.LOG_LEVELS.notice = 2.5  -- Between info and warn
-      logger.COLOR_CODES.notice = colors.blue
+      -- Configure default logger
+      logger.setLogPath("/myapp/logs")
       
-      -- Create a notice function
-      logger.notice = function(msg, file)
-          logger.log("notice", msg, file)
-      end
+      -- Create loggers for different modules
+      local dbLogger = logger.get("DATABASE", "database.log")
+      local netLogger = logger.get("NETWORK", "network.log")
       
-      -- Now you can use the new level
-      logger.notice("This is a notice")
+      -- These will go to their respective files
+      dbLogger.info("Connected to database")
+      netLogger.info("Connected to server")
+      
+      -- This will go to the default log file
+      logger.info("Application started")
 
 ---
