@@ -6,6 +6,7 @@ local module = {}
 
 --- Log levels.
 ---@private
+---@alias LogLevel number
 local LEVELS = {
   NOTSET = 0,
   DEBUG = 10,
@@ -15,8 +16,17 @@ local LEVELS = {
   CRITICAL = 50
 }
 
+---@class LogLevelTable
+---@field NOTSET LogLevel
+---@field DEBUG LogLevel
+---@field INFO LogLevel
+---@field WARNING LogLevel
+---@field ERROR LogLevel
+---@field CRITICAL LogLevel
+
 --- Colors for log levels.
 ---@private
+---@alias Color number
 local COLORS = {
   DEBUG = colors.lightGray, -- Detailed information, typically of interest only when diagnosing problems.
   INFO = colors.white,      -- Confirmation that things are working as expected.
@@ -138,11 +148,10 @@ local function getLevelName(level)
   return ""
 end
 
----@alias LogLevel number
+---@type LogLevelTable
 logger.LEVELS = createProtectedTable(LEVELS, "no-modify")
 logger.COLORS = createProtectedTable(COLORS, "no-delete", isValidColor)
 module.LEVELS = logger.LEVELS
-module.COLORS = logger.COLORS
 
 ---@class loggerConfig
 ---@field log_path? string the path to save logs to
