@@ -1,5 +1,5 @@
 --- Logger module.
----@alias logger
+---@class logger
 local logger = {}
 
 local module = {}
@@ -253,7 +253,7 @@ end
 
 --- Creates a new logger instance with basic configuration.
 ---@param basicConfig loggerConfig
----@return nil
+---@return logger # the logger instance
 function module.init(basicConfig)
   assert(basicConfig.filename ~= nil, "filename is required")
   assert(basicConfig.level ~= nil, "level is required")
