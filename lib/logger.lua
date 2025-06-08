@@ -2,6 +2,8 @@
 ---@alias logger
 local logger = {}
 
+local module = {}
+
 --- Log levels.
 ---@private
 local LEVELS = {
@@ -141,7 +143,7 @@ logger.LEVELS = createProtectedTable(LEVELS, "no-modify")
 logger.COLORS = createProtectedTable(COLORS, "no-delete", isValidColor)
 
 ---@class loggerConfig
----@field log_path string the path to save logs to
+---@field log_path? string the path to save logs to
 ---@field filename string the name of the log file
 ---@field level LogLevel the minimum level of logs to write to file
 ---@field fmt? string the format string for log messages, supports some intentional globals ${level}, ${message}, ${timestamp}, ${tag}; defaults to "${timestamp} ${level} [${tag}] ${message}"
@@ -252,7 +254,7 @@ end
 --- Creates a new logger instance with basic configuration.
 ---@param basicConfig loggerConfig
 ---@return nil
-function logger.new(basicConfig)
+function module.init(basicConfig)
   assert(basicConfig.filename ~= nil, "filename is required")
   assert(basicConfig.level ~= nil, "level is required")
   basicConfig.log_path = basicConfig.log_path or "/logs"
@@ -272,6 +274,8 @@ function logger.new(basicConfig)
   if fs.exists(fs.combine(logger.config.log_path, logger.config.filename)) then
     rotateLog()
   end
+
+  return logger
 end
 
 --- Sets a configuration value.
@@ -397,4 +401,4 @@ function logger.debug(message)
   logger.log(message, logger.LEVELS.DEBUG)
 end
 
-return logger
+return module
