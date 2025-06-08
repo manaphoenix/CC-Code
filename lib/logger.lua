@@ -141,6 +141,8 @@ end
 ---@alias LogLevel number
 logger.LEVELS = createProtectedTable(LEVELS, "no-modify")
 logger.COLORS = createProtectedTable(COLORS, "no-delete", isValidColor)
+module.LEVELS = logger.LEVELS
+module.COLORS = logger.COLORS
 
 ---@class loggerConfig
 ---@field log_path? string the path to save logs to
