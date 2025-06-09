@@ -6,22 +6,22 @@ term.setCursorPos(1, 1)
 
 -- intialize var
 local pal = {
-    white     = 0xE0D0FF,  -- soft lilac
-    orange    = 0xFF7F50,  -- coral fire (phoenix heat)
-    magenta   = 0xB85FFF,  -- mana magenta
-    lightBlue = 0x7EC8E3,  -- airy magic blue
-    yellow    = 0xFFD700,  -- golden flame core
-    lime      = 0x9EFFD6,  -- mana-touched green
-    pink      = 0xFFB7F5,  -- light pink-purple glow
-    gray      = 0x1B0F2F,  -- deep royal shadow
-    lightGray = 0x2E1A47,  -- soft obsidian violet
-    cyan      = 0x529EDC,  -- retained, mana-infused cyan
-    purple    = 0x6A0DAD,  -- royal purple (main brand)
-    blue      = 0x5D5FEF,  -- mystical deep blue
-    brown     = 0x6E1A25,  -- charred ember
-    green     = 0x8BC550,  -- natural retained
-    red       = 0xFF3CAC,  -- mana flame burst
-    black     = 0x0A0613   -- true void (richer black)
+    white     = 0xE8E0FF,  -- soft lilac (brighter, less purple haze)
+    orange    = 0xFF6F40,  -- slightly deeper coral fire (less washed out)
+    magenta   = 0xA040FF,  -- vivid mana magenta (a bit more saturated)
+    lightBlue = 0x6CB4E3,  -- brighter airy magic blue (more contrast)
+    yellow    = 0xFFD540,  -- golden flame core (stronger, warmer)
+    lime      = 0x8FF0B5,  -- brighter mana-touched green (lighter, less pastel)
+    pink      = 0xFFA3F7,  -- light pink-purple glow (more visible)
+    gray      = 0x271B45,  -- deep royal shadow (less dark, more legible)
+    lightGray = 0x3B2A6E,  -- soft obsidian violet (a little lighter)
+    cyan      = 0x3D88CE,  -- mana-infused cyan (more saturated)
+    purple    = 0x7B29D1,  -- royal purple (main brand, brighter for contrast)
+    blue      = 0x5D6CFF,  -- mystical deep blue (slightly lighter)
+    brown     = 0x7F2830,  -- charred ember (richer, more visible)
+    green     = 0xA6D250,  -- natural retained (brighter green)
+    red       = 0xFF559D,  -- mana flame burst (less neon, more warm)
+    black     = 0x100720   -- true void (richer black, but not pure)
 }
 
 -- configs
