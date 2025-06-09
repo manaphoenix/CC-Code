@@ -167,7 +167,7 @@ module.LEVELS = logger.LEVELS
 ---@param level LogLevel the log level
 ---@param message string the log message
 ---@param buildBlitStrings? boolean whether to build the blit strings
----@return string the formatted log message
+---@return string,string?,string? the formatted log message
 local function messageFormatter(level, message, buildBlitStrings)
   assert(logger.config, "Logger not initialized")
   assert(logger.config.fmt, "fmt is required; how did you even manage this?")
@@ -185,7 +185,7 @@ local function messageFormatter(level, message, buildBlitStrings)
   local tag = logger.config.tag
   local msg = message
 
-  fmt = fmt:gsub("${timestamp}", date)   -- utc timestamp
+  fmt = fmt:gsub("${timestamp}", date) -- utc timestamp
   fmt = fmt:gsub("${level}", lvlName)
   if tag ~= "" then
     fmt = fmt:gsub("${tag}", tag)
