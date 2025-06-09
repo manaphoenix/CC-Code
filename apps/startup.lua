@@ -6,22 +6,22 @@ term.setCursorPos(1, 1)
 
 -- intialize var
 local pal = {
-    white = 0xD3D7CF,
-    orange = 0xFF7F00,
-    magenta = 0xFF00FF,
-    lightBlue = 0xADD8E6,
-    yellow = 0xFFD700,
-    lime = 0x00FF00,
-    pink = 0xFFC0CB,
-    gray = 0x1E2227,
-    lightGray = 0x23272E,
-    cyan = 0x529EDC,
-    purple = 0x75507B,
-    blue = 0x0000ff,
-    brown = 0xA52A2A,
-    green = 0x8BC550,
-    red = 0xE42D2D,
-    black = 0x0C0C0C
+    white     = 0xE0D0FF,  -- soft lilac
+    orange    = 0xFF7F50,  -- coral fire (phoenix heat)
+    magenta   = 0xB85FFF,  -- mana magenta
+    lightBlue = 0x7EC8E3,  -- airy magic blue
+    yellow    = 0xFFD700,  -- golden flame core
+    lime      = 0x9EFFD6,  -- mana-touched green
+    pink      = 0xFFB7F5,  -- light pink-purple glow
+    gray      = 0x1B0F2F,  -- deep royal shadow
+    lightGray = 0x2E1A47,  -- soft obsidian violet
+    cyan      = 0x529EDC,  -- retained, mana-infused cyan
+    purple    = 0x6A0DAD,  -- royal purple (main brand)
+    blue      = 0x5D5FEF,  -- mystical deep blue
+    brown     = 0x6E1A25,  -- charred ember
+    green     = 0x8BC550,  -- natural retained
+    red       = 0xFF3CAC,  -- mana flame burst
+    black     = 0x0A0613   -- true void (richer black)
 }
 
 -- configs
@@ -41,7 +41,7 @@ if fs.exists("config/startup.cfg") then
         config = result
     else
         print("Warning: startup.cfg is invalid. Using defaults.")
-        print(ok,result)
+        print(ok, result)
     end
 end
 
@@ -139,8 +139,11 @@ function redrun.init(silent)
                 for k, v in pairs(coroutines) do
                     if v.terminate or v.filter == nil or v.filter == ev[1] or ev[1] == "terminate" then
                         local ok
-                        if v.terminate then ok, v.filter = coroutine.resume(v.coro, "terminate")
-                        else ok, v.filter = coroutine.resume(v.coro, table.unpack(ev, 1, ev.n)) end
+                        if v.terminate then
+                            ok, v.filter = coroutine.resume(v.coro, "terminate")
+                        else
+                            ok, v.filter = coroutine.resume(v.coro, table.unpack(ev, 1, ev.n))
+                        end
                         if not ok or coroutine.status(v.coro) ~= "suspended" or v.terminate then delete[#delete + 1] = k end
                     end
                 end
@@ -183,6 +186,8 @@ for i, v in pairs(pal) do term.setPaletteColor(colors[i], v) end
 if (components.monitor) then
     for i, v in pairs(pal) do
         components.monitor.setPaletteColor(colors[i], v)
+        components.monitor.clear()
+        components.monitor.setCursorPos(1, 1)
     end
 end
 
