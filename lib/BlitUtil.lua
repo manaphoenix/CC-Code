@@ -164,5 +164,5 @@ end
 return {
   forTerm = function() return createWriter(term) end,
   forMonitor = function(mon) return createWriter(mon) end,
-  render = render
+  stripFormatting = stripFormatting
 }
