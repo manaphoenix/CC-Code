@@ -91,6 +91,7 @@ local function createWriter(device)
   local currentBg = defaultBg
 
   local function writeColored(str, autoNewLine)
+    str = tostring(str) -- sanitize string
     local text, fgStr, bgStr = {}, {}, {}
     local i, len = 1, #str
 
@@ -162,14 +163,14 @@ end
 
 ---@class BlitUtil
 ---@field forTerm fun(): BlitWriter @Creates a writer for the default terminal.
----@field forMonitor fun(mon: BlitDevice): BlitWriter @Creates a writer for a specific monitor device.
+---@field forMonitor fun(mon: BlitDevice): BlitWriter | nil @Creates a writer for a specific monitor device.
 ---@field stripFormatting fun(txt: string): string @Removes all blit formatting tags from a string.
 ---@field formatLen fun(txt: string): number @Returns the length of a string without any blit formatting tags.
 
 ---@type BlitUtil
 return {
   forTerm = function() return createWriter(term) end,
-  forMonitor = function(mon) return createWriter(mon) end,
+  forMonitor = function(mon) if mon then return createWriter(mon) else return nil end end,
   stripFormatting = stripFormatting,
   formatLen = format_len
 }
