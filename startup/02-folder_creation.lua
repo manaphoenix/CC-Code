@@ -1,17 +1,17 @@
 -- create folders if they don't exist.
 local folders = {
+    "apps",
+    "assets",
+    "bin",
     "config",
     "data",
-    "installers", -- or "setup"
+    "docs",
     "lib",
     "logs",
+    "services",
+    "startup",
     "tmp",
-    "assets",
-    "apps",
-    "startup",  -- renamed from startup for clarity
-    "bin",      -- optional
-    "services", -- optional
-    "docs"      -- optional
+    "workflows",
 }
 
 for _, v in pairs(folders) do

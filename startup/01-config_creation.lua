@@ -2,8 +2,10 @@ local config = {
     clearTmp = true
 }
 
-if fs.exists("config/startup.cfg") then
-    config = textutils.unserialize(fs.open("config/startup.cfg", "r").readAll())
+local path = "config/startup.cfg"
+
+if fs.exists(path) then
+    config = textutils.unserialize(fs.open(path, "r").readAll())
 else
-    fs.open("config/startup.cfg", "w").write(textutils.serialize(config))
+    fs.open(path, "w").write(textutils.serialize(config))
 end

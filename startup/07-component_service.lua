@@ -1,65 +1,99 @@
 -- automatic peripheral mounting
-_G.components = {
+local components = {
     count = function(self)
         local c = 0
-        for k, v in pairs(self) do
+        for _, v in pairs(self) do
             if type(v) == "table" then c = c + 1 end
         end
         return c
     end
 }
+_G.components = components
 
 -- utility functions
 local function reset()
-    for i, v in pairs(components) do
-        if type(v) == "table" then components[i] = nil end
+    for k in pairs(components) do
+        if type(components[k]) == "table" then
+            components[k] = nil
+        end
     end
 end
 
 local function updateComponents()
     reset()
     local perips = peripheral.getNames()
-    if #perips == 0 then return end
-    for _, v in pairs(perips) do
-        local name = peripheral.getType(v)
-        name = name:gsub(".+:(.+)", "%1")
-        if components[name] then
-            local t = 2
-            local test = name .. "_" .. t
+    for _, side in ipairs(perips) do
+        local pType = peripheral.getType(side)
+        if not pType then goto continue end
+        local baseName = pType:match(":(.+)") or pType
+        local name = baseName
+        local t = 2
 
-            while (components[test] ~= nil) do
-                t = t + 1
-                test = name .. "_" .. t
-            end
-
-            name = test
+        while components[name] do
+            name = baseName .. "_" .. t
+            t = t + 1
         end
-        components[name] = peripheral.wrap(v)
-        components[name].side = v
+
+        local wrapped = peripheral.wrap(side)
+        if wrapped then
+            wrapped.side = side
+            components[name] = wrapped
+        end
+        ::continue::
     end
 end
 
 -- components metatable
-local componentMT = {
+setmetatable(components, {
     __tostring = function(self)
-        -- print all components, formatted
-        local str = ""
+        local parts = {}
         for k, v in pairs(self) do
             if type(v) == "table" then
-                str = str .. k .. "\n"
+                parts[#parts + 1] = k
             end
         end
-        -- remove extra newline
-        str = str:sub(1, -2)
-        if str == "" then
-            str = "None"
-        end
-        return str
+        return #parts > 0 and table.concat(parts, "\n") or "None"
     end,
     __call = updateComponents
-}
+})
 
-setmetatable(components, componentMT)
+-- peripheral watcher
+local function peripheralWatchDog()
+    while true do
+        local ev, side = os.pullEvent()
+        if ev == "peripheral" then
+            local pType = peripheral.getType(side)
+            if not pType then goto continue end
+            local baseName = pType:match(":(.+)") or pType
+            local name = baseName
+            local t = 2
+
+            while components[name] do
+                name = baseName .. "_" .. t
+                t = t + 1
+            end
+
+            local wrapped = peripheral.wrap(side)
+            if wrapped then
+                wrapped.side = side
+                components[name] = wrapped
+            end
+        elseif ev == "peripheral_detach" then
+            for k, v in pairs(components) do
+                if type(v) == "table" and v.side == side then
+                    components[k] = nil
+                    break
+                end
+            end
+        end
+        ::continue::
+    end
+end
+
+components()
+
+-- === RedRun === --
+-- === do not modify === --
 
 --- RedRun - A very tiny background task runner using the native top-level coroutine
 -- By JackMacWindows
@@ -104,27 +138,6 @@ function redrun.init(silent)
 end
 
 redrun.init(true)
-
--- peripheral watcher
-local function peripheralWatchDog()
-    while true do
-        local ev, side = os.pullEvent()
-        if ev == "peripheral" then
-            local name = peripheral.getType(side)
-            name = name:gsub(".+:(.+)", "%1")
-            components[name] = peripheral.wrap(side)
-            components[name].side = side
-        elseif ev == "peripheral_detach" then
-            for i, v in pairs(components) do
-                if type(v) == "table" and v.side == side then
-                    components[i] = nil
-                end
-            end
-        end
-    end
-end
-
-components()
 
 coroutines[1] = { coro = coroutine.create(peripheralWatchDog), name = "peripheralWatchDog" }
 
