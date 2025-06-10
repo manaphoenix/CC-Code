@@ -1,4 +1,4 @@
---[[ 
+--[[
 Color code legend (blit hex):
 white      = {&0}
 orange     = {&1}
@@ -26,7 +26,7 @@ example: {&e}Hello{&b} World{&r}
 example with background: {&e|f}Hello{&b|f} World{&r}
 ]]
 
----@alias BlitHex '"0"' | '"1"' | '"2"' | '"3"' | '"4"' | '"5"' | '"6"' | '"7"' 
+---@alias BlitHex '"0"' | '"1"' | '"2"' | '"3"' | '"4"' | '"5"' | '"6"' | '"7"'
 ---| '"8"' | '"9"' | '"a"' | '"b"' | '"c"' | '"d"' | '"e"' | '"f"'
 
 --- A peripheral with terminal-like capabilities (term or monitor).
@@ -58,8 +58,16 @@ local function nextLine(device)
   end
 end
 
+--- Removes all blit formatting tags from a string.
+--- Useful for layout calculations (e.g., centering).
+---@param txt string The formatted string
+---@return string plainText The visible text with all {&} codes stripped
+local function stripFormatting(txt)
+  return (txt:gsub("{&.-}", ""))
+end
+
 ---@class BlitWriter
----@field write fun(str: string, autoNewLine?: boolean) @Writes a string with embedded color codes, optionally moving to the next line after. 
+---@field write fun(str: string, autoNewLine?: boolean) @Writes a string with embedded color codes, optionally moving to the next line after.
 ---@field writeLine fun(str: string) @Writes a string and moves the cursor to the next line.
 ---@field resetColors fun() @Resets foreground and background colors to the default colors.
 ---@field setPos fun(x: integer, y: integer) @Sets the cursor to the specified (x, y) position.
@@ -155,5 +163,6 @@ end
 ---@type BlitUtil
 return {
   forTerm = function() return createWriter(term) end,
-  forMonitor = function(mon) return createWriter(mon) end
+  forMonitor = function(mon) return createWriter(mon) end,
+  render = render
 }
