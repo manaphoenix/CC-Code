@@ -66,6 +66,10 @@ local function stripFormatting(txt)
   return (txt:gsub("{&.-}", ""))
 end
 
+local function format_len(txt)
+  return #stripFormatting(txt)
+end
+
 ---@class BlitWriter
 ---@field write fun(str: string, autoNewLine?: boolean) @Writes a string with embedded color codes, optionally moving to the next line after.
 ---@field writeLine fun(str: string) @Writes a string and moves the cursor to the next line.
@@ -159,10 +163,13 @@ end
 ---@class BlitUtil
 ---@field forTerm fun(): BlitWriter @Creates a writer for the default terminal.
 ---@field forMonitor fun(mon: BlitDevice): BlitWriter @Creates a writer for a specific monitor device.
+---@field stripFormatting fun(txt: string): string @Removes all blit formatting tags from a string.
+---@field formatLen fun(txt: string): number @Returns the length of a string without any blit formatting tags.
 
 ---@type BlitUtil
 return {
   forTerm = function() return createWriter(term) end,
   forMonitor = function(mon) return createWriter(mon) end,
-  stripFormatting = stripFormatting
+  stripFormatting = stripFormatting,
+  formatLen = format_len
 }
