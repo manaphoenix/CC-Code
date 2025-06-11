@@ -47,3 +47,4 @@ build/
 
 # Ignore Python cache files
 __pycache__/
+startup/08-monitor-status.lua
