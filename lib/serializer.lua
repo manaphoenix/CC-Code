@@ -24,7 +24,7 @@ local defaultOpts = {
 ---@param seen? table<any, boolean> Table tracking visited tables to detect recursion
 ---@param path? string Path string representing current location in the structure (for logs)
 ---@param opts? OptTable Options controlling serialization behavior
----@return string Serialized string representation of `value`
+---@return string #Serialized string representation of `value`
 local function _serialize(value, seen, path, opts)
     local t = type(value)
     seen = seen or {}
@@ -97,8 +97,8 @@ end
 --- Serialize a Lua value to a Lua source string with options and logging
 ---@param value any Value to serialize
 ---@param opts? OptTable Optional serialization options
----@return string? Serialized Lua source string starting with "return " (nil on error)
----@return string[]|nil Logs generated during serialization or nil if no logs / error occurred
+---@return string? #Serialized Lua source string starting with "return " (nil on error)
+---@return string[]|nil #Logs generated during serialization or nil if no logs / error occurred
 function serializer.serialize(value, opts)
     opts = opts or {}
     -- Fill in missing options with defaults
@@ -116,8 +116,8 @@ end
 
 --- Deserialize Lua source string into a Lua value
 ---@param str string Lua source code to deserialize (should return a value)
----@return any|nil Deserialized value or nil on error
----@return string|nil Error message if deserialization failed
+---@return any|nil #Deserialized value or nil on error
+---@return string|nil #Error message if deserialization failed
 function serializer.deserialize(str)
     local chunk, err = load(str, "deserializer", "t", {})
     if not chunk then return nil, "Load error: " .. err end
@@ -130,9 +130,9 @@ end
 ---@param value any Value to serialize
 ---@param path string File path to save serialized string
 ---@param opts? OptTable Optional serialization options
----@return boolean success True if file was written successfully
----@return string|nil err Error message on failure or nil
----@return string[]|nil logs Serialization logs, if any
+---@return boolean #success True if file was written successfully
+---@return string|nil #err Error message on failure or nil
+---@return string[]|nil #logs Serialization logs, if any
 function serializer.serializeToFile(value, path, opts)
     local str, logs = serializer.serialize(value, opts)
     if not str then
@@ -149,21 +149,22 @@ end
 
 --- Load and deserialize Lua value from a file
 ---@param path string File path to read from
----@return any|nil Deserialized value or nil on failure
----@return string|nil Error message if failed
+---@return any|nil #Deserialized value or nil on failure
+---@return string|nil #Error message if failed
 function serializer.deserializeFromFile(path)
     local file = fs.open(path, "r")
     if not file then return nil, "Failed to open file for reading" end
     local contents = file.readAll()
     file.close()
+    if not contents then return nil, "Failed to read file contents" end
     return serializer.deserialize(contents)
 end
 
 --- Deserialize Lua source string with a custom environment
 ---@param str string Lua source code to deserialize
 ---@param env? table Environment table to use for chunk execution
----@return any|nil Deserialized value or nil on failure
----@return string|nil Error message if failed
+---@return any|nil #Deserialized value or nil on failure
+---@return string|nil #Error message if failed
 function serializer.deserializeWithEnv(str, env)
     env = env or {}
     local chunk, err = load(str, "deserializer", "t", env)
