@@ -85,6 +85,10 @@ local function init(config, writer, util)
         table.insert(rows, row)
     end
 
+    function obj:clear()
+        rows = {}
+    end
+
     function obj:render()
         local colWidths = {}
         for i, colName in ipairs(columns) do
