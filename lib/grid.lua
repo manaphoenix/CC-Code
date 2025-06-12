@@ -123,22 +123,71 @@ local function init(config, writer, util)
         end
     end
 
-    function obj:serializeToMarkdown()
+    function obj:serializeToMarkdown(heading, filePath)
+        local function escapeCell(cell)
+            cell = tostring(cell or "")
+            cell = cell:gsub("\\", "\\\\") -- Escape backslashes
+            cell = cell:gsub("|", "\\|")   -- Escape pipes
+            return cell
+        end
+
+        local function stripCell(cell)
+            return renderer.strip(cell or "")
+        end
+
+        local function alignToken(align)
+            if align == "left" then
+                return ":---"
+            elseif align == "right" then
+                return "---:"
+            elseif align == "center" then
+                return ":---:"
+            else
+                return "---"
+            end
+        end
+
+        -- Optional heading before table
         local md = ""
-        for i, col in ipairs(columns) do
-            md = md .. "|" .. col
+        if heading then
+            md = "# " .. heading .. "\n\n"
+        end
+
+        -- Header row
+        for _, col in ipairs(columns) do
+            md = md .. "| " .. escapeCell(stripCell(col)) .. " "
         end
         md = md .. "|\n"
-        for i, col in ipairs(columns) do
-            md = md .. "|---"
+
+        -- Alignment row
+        for i = 1, #columns do
+            local align = config.align and config.align[i] or "left"
+            md = md .. "| " .. alignToken(align) .. " "
         end
         md = md .. "|\n"
+
+        -- Data rows
         for _, row in ipairs(rows) do
-            for i, cell in ipairs(row) do
-                md = md .. "|" .. cell
+            for i = 1, #columns do
+                md = md .. "| " .. escapeCell(stripCell(row[i] or "")) .. " "
             end
             md = md .. "|\n"
         end
+
+        -- Optional footer comment with timestamp for traceability
+        md = md .. "\n<!-- Generated on " .. os.date("%Y-%m-%d %H:%M:%S") .. " -->\n"
+
+        -- Optional file output
+        if filePath then
+            local h = fs.open(filePath, "w")
+            if h then
+                h.write(md)
+                h.close()
+            else
+                error("Could not open file for writing: " .. filePath)
+            end
+        end
+
         return md
     end
 
