@@ -123,6 +123,25 @@ local function init(config, writer, util)
         end
     end
 
+    function obj:serializeToMarkdown()
+        local md = ""
+        for i, col in ipairs(columns) do
+            md = md .. "|" .. col
+        end
+        md = md .. "|\n"
+        for i, col in ipairs(columns) do
+            md = md .. "|---"
+        end
+        md = md .. "|\n"
+        for _, row in ipairs(rows) do
+            for i, cell in ipairs(row) do
+                md = md .. "|" .. cell
+            end
+            md = md .. "|\n"
+        end
+        return md
+    end
+
     return obj
 end
 
