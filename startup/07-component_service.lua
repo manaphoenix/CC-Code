@@ -6,6 +6,26 @@ local components = {
             if type(v) == "table" then c = c + 1 end
         end
         return c
+    end,
+    dump = function(self)
+        for k, v in pairs(self) do
+            if type(v) == "table" then
+                print(k)
+            end
+        end
+    end,
+    dumpTypes = function()
+        local seen = {}
+        for _, name in ipairs(peripheral.getNames()) do
+            seen[peripheral.getType(name)] = true
+        end
+
+        local out = {}
+        for typeName in pairs(seen) do
+            out[#out + 1] = typeName
+        end
+
+        return out
     end
 }
 _G.components = components
