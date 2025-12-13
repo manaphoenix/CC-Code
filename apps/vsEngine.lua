@@ -1,5 +1,5 @@
 -- VS Engine by Manaphoenix
--- Version: 1.0.8
+-- Version: 1.0.9
 
 local output_side = "right"
 -- side that the output relay is on, if your using a modem and leaving the redstone relay somewhere else, use its name
@@ -36,9 +36,9 @@ local securityKey = "dogs"
 local fuelCapacity = 24000
 -- max amount the tank can handle (this has to be hard coded there is no way to detect tank size)
 
-local fuelUpdate = 3     -- how often in seconds should we check the fuel?
+local fuelUpdate = 3      -- how often in seconds should we check the fuel?
 
-local dbgMessages = true -- should it print the debug message(s)
+local dbgMessages = false -- should it print the debug message(s)
 
 --== MAIN CODE (DO NOT MODIFY) ==--
 
@@ -171,42 +171,31 @@ end
 
 local function checkOff()
     local state = latch_relay.getInput(isOffSide)
-    if state ~= lastStates.isOff then
-        if dbgMessages then
-            print("CheckOff: " .. tostring(state))
-        end
-        return true, state
-    end
-
-    return false, state
+    lastStates.isOff = state -- just do it every time w/e man
+    saveState()
 end
 
 local function handle_redstone()
     local sides = getInputSides()
 
-    local checkOff, newState = checkOff()
-    if checkOff then
-        lastStates.isOff = newState
-        saveState()
-    else
-        -- check if more than one input was received, if true; ignore the input
-        -- Count active inputs
-        local activeCount = 0
-        for _, state in pairs(sides) do
-            if state then activeCount = activeCount + 1 end
-        end
-
-        -- Only update if exactly one input is active
-        if activeCount == 1 then
-            local isOffCopy = lastStates.isOff
-            lastStates = sides
-            lastStates.isOff = isOffCopy
-        end
-
-
-        -- Update the output relay
-        updateState()
+    checkOff()
+    -- check if more than one input was received, if true; ignore the input
+    -- Count active inputs
+    local activeCount = 0
+    for _, state in pairs(sides) do
+        if state then activeCount = activeCount + 1 end
     end
+
+    -- Only update if exactly one input is active
+    if activeCount == 1 then
+        local isOffCopy = lastStates.isOff
+        lastStates = sides
+        lastStates.isOff = isOffCopy
+    end
+
+
+    -- Update the output relay
+    updateState()
 
     -- Send a message to the ender modem to update the state
     sendStateMessage()
