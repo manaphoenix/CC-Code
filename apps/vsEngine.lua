@@ -194,7 +194,9 @@ print("Press X to exit")
 
 while running do
     os.startTimer(fuelUpdate)
+    print("Waiting for an event: ")
     local pull = { os.pullEvent() }
+    print("Current handling event: " .. pull[1])
     handleEvent(pull)
     --sleep(0.1) -- to avoid double input detection
 end
