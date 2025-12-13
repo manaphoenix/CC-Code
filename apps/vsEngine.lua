@@ -1,3 +1,6 @@
+-- VS Engine by Manaphoenix
+-- Version: 1.0
+
 local output_side = "right"
 -- side that the output relay is on, if your using a modem and leaving the redstone relay somewhere else, use its name
 -- use the peripherals program to determine what its name is ^_^ (it also puts it in chat when you connect via modem too :shrug:)
