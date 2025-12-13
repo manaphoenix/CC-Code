@@ -1,5 +1,5 @@
 -- VS Receiver by Manaphoenix
--- Version: 1.0.4
+-- Version: 1.0.5
 
 --====================================================================--
 -- CONFIGURATION (EDIT THESE)
@@ -128,7 +128,7 @@ local function updateStatusMonitor()
     statusMon.setCursorPos(1, 1)
 
 
-    if statusConfig.isOff then
+    if not statusConfig.isOff then
         statusColors = {
             inactive       = colors.gray, -- Inactive gears
             active         = colors.gray, -- Active gears
