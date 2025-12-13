@@ -1,5 +1,5 @@
 -- VS Engine by Manaphoenix
--- Version: 1.0.2
+-- Version: 1.0.3
 
 local output_side = "right"
 -- side that the output relay is on, if your using a modem and leaving the redstone relay somewhere else, use its name
@@ -139,6 +139,9 @@ local function sendStateMessage()
     end
 
     enderModem.transmit(modemCode, modemCode, data)
+    if dbgMessages then
+        print("Sent state message: " .. textutils.serialize(data))
+    end
 end
 
 local function handle_redstone()
