@@ -31,7 +31,9 @@ local securityKey = "dogs"
 local fuelCapacity = 24000
 -- max amount the tank can handle (this has to be hard coded there is no way to detect tank size)
 
-local fuelUpdate = 3 -- how often in seconds should we check the fuel?
+local fuelUpdate = 3      -- how often in seconds should we check the fuel?
+
+local dbgMessages = false -- should it print the debug message(s)
 
 --== MAIN CODE (DO NOT MODIFY) ==--
 
@@ -111,13 +113,19 @@ local function getInputSides()
 end
 
 local function sendStateMessage()
+    local currentFuel = 0
+
+    if tank.tanks()[1] ~= nil and tank.tanks()[1].amount ~= nil then
+        currentFuel = tank.tanks()[1].amount
+    end
+
     local data = {
         key = securityKey,
         payload = {
             speed = speedometer.getSpeed(),
             usedStress = stressometer.getStress(),
             stressCapacity = stressometer.getStressCapacity(),
-            currentFuel = tank.tanks()[1] and tank.tanks()[1].amount or 0,
+            currentFuel = currentFuel,
             capacityFuel = fuelCapacity,
             activeGear = {}
         }
@@ -158,6 +166,7 @@ end
 
 local function handleTimer()
     sendStateMessage()
+    os.startTimer(fuelUpdate)
 end
 
 local function handleEvent(evTable)
@@ -191,12 +200,13 @@ term.setCursorPos(1, 1)
 
 print("VS Engine by Manaphoenix")
 print("Press X to exit")
+os.startTimer(fuelUpdate)
 
 while running do
-    os.startTimer(fuelUpdate)
-    print("Waiting for an event: ")
     local pull = { os.pullEvent() }
-    print("Current handling event: " .. pull[1])
+    if dbgMessages then
+        print("Current handling event: " .. pull[1], pull[2])
+    end
     handleEvent(pull)
     --sleep(0.1) -- to avoid double input detection
 end
