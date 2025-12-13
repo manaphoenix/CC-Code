@@ -62,15 +62,23 @@ local statusColors        = {
 local tuningColors        = {}
 
 --====================================================================--
+-- Other Variables
+--====================================================================--
+
+local blinkFrequency      = 1 -- how often in seconds should the refill label blink?
+-- 1 = once a second, 0.5 = twice a second
+
+
+--====================================================================--
 --===                    MAIN CODE (DO NOT MODIFY)                 ===--
 --====================================================================--
 
 -- constants
-local enderModem          = peripheral.wrap(ender_modem_side)
-local statusMon           = peripheral.wrap(status_monitor_side)
-local tuningMon           = peripheral.wrap(tuning_monitor_side)
+local enderModem = peripheral.wrap(ender_modem_side)
+local statusMon  = peripheral.wrap(status_monitor_side)
+local tuningMon  = peripheral.wrap(tuning_monitor_side)
 
-local running             = true -- used to control the main loop
+local running    = true          -- used to control the main loop
 
 assert(enderModem, "Ender modem not found on side " .. ender_modem_side)
 assert(statusMon, "Status monitor not found on side " .. status_monitor_side)
@@ -184,6 +192,10 @@ local function handleMessage(data)
     if data.capacityFuel then
         statusConfig.capacityFuel = data.capacityFuel
     end
+end
+
+local function handleTimer()
+
 end
 
 local function handleEvent(event)
