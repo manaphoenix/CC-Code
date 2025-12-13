@@ -1,5 +1,5 @@
 -- VS Receiver by Manaphoenix
--- Version: 1.0.2
+-- Version: 1.0.3
 
 --====================================================================--
 -- CONFIGURATION (EDIT THESE)
@@ -60,6 +60,8 @@ local statusColors        = {
 
 -- Tuning Monitor
 local tuningColors        = {}
+
+local dbgMessages         = false -- should it print the debug message(s)
 
 --====================================================================--
 --===                    MAIN CODE (DO NOT MODIFY)                 ===--
@@ -228,6 +230,9 @@ tuningMon.write("Loading...")
 
 while running do
     local ev = { os.pullEvent() }
+    if dbgMessages then
+        print("Current handling event: " .. ev[1], ev[2])
+    end
     handleEvent(ev)
 end
 
