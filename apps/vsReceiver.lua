@@ -78,7 +78,7 @@ local enderModem = peripheral.wrap(ender_modem_side)
 local statusMon  = peripheral.wrap(status_monitor_side)
 local tuningMon  = peripheral.wrap(tuning_monitor_side)
 
-local running    = true          -- used to control the main loop
+local running    = true -- used to control the main loop
 
 assert(enderModem, "Ender modem not found on side " .. ender_modem_side)
 assert(statusMon, "Status monitor not found on side " .. status_monitor_side)
@@ -146,13 +146,6 @@ local function updateStatusMonitor()
     writeToMonitor(statusMon, "Fuel:  " .. statusConfig.currentFuel .. "/", statusColors.fuel, colors.black)
     writeToMonitor(statusMon, "       " .. statusConfig.capacityFuel .. " mb", statusColors.fuel, colors.black)
 
-    statusMon.setCursorPos(1, 7)
-    if statusConfig.currentFuel > 0 then
-        writeToMonitor(statusMon, "REFILL", statusColors.refillInactive, colors.black)
-    else
-        writeToMonitor(statusMon, "REFILL", statusColors.refillActive, colors.black)
-    end
-
     -- Speed
     statusMon.setCursorPos(10, 1)
     writeToMonitor(statusMon, "Speed: ", statusColors.speed, colors.black)
@@ -194,8 +187,22 @@ local function handleMessage(data)
     end
 end
 
+local fueltog = false
 local function handleTimer()
-
+    if statusConfig.currentFuel > 0 then
+        writeToMonitor(statusMon, "REFILL", statusColors.refillInactive, colors.black)
+        fueltog = false
+        return
+    end
+    statusMon.setCursorPos(1, 7)
+    if fueltog then
+        writeToMonitor(statusMon, "REFILL", statusColors.refillInactive, colors.black)
+        fueltog = false
+    else
+        writeToMonitor(statusMon, "REFILL", statusColors.refillActive, colors.black)
+        fueltog = true
+    end
+    os.startTimer(blinkFrequency)
 end
 
 local function handleEvent(event)
@@ -213,6 +220,8 @@ local function handleEvent(event)
         local data = message.payload
         handleMessage(data)
         updateStatusMonitor()
+    elseif ev == "timer" then
+        handleTimer()
     end
 end
 
@@ -224,6 +233,8 @@ print("Press X to exit")
 -- intial loading of monitors
 updateStatusMonitor()
 updateTuningMonitor()
+
+os.startTimer(blinkFrequency)
 
 while running do
     local ev = { os.pullEvent() }
