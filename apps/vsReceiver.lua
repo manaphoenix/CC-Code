@@ -1,5 +1,5 @@
 -- VS Receiver by Manaphoenix
--- Version: 1.0.1
+-- Version: 1.0.2
 
 --====================================================================--
 -- CONFIGURATION (EDIT THESE)
@@ -219,8 +219,12 @@ print("VS Receiver by Manaphoenix")
 print("Press X to exit")
 
 -- intial loading of monitors
-updateStatusMonitor()
-updateTuningMonitor()
+statusMon.clear()
+tuningMon.clear()
+statusMon.setCursorPos(1, 1)
+tuningMon.setCursorPos(1, 1)
+statusMon.write("Loading...")
+tuningMon.write("Loading...")
 
 while running do
     local ev = { os.pullEvent() }
