@@ -218,7 +218,7 @@ local function handleMessage(data)
     if data.capacityFuel then
         statusConfig.capacityFuel = data.capacityFuel
     end
-    if data.isOff then
+    if statusConfig.isOff ~= data.isOff then
         statusConfig.isOff = data.isOff
     end
 end
