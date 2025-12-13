@@ -17,10 +17,10 @@ local outputsides = { -- overrides the default side mapping, so you can have an 
 }
 
 local gearSides = { -- how does each side of the input relay map to the rotation speed controller
-    front = 1,
-    top = 2,
-    left = 3,
-    back = 4
+    [1] = "front",
+    [2] = "top",
+    [3] = "left",
+    [4] = "back"
 }
 
 local modemCode = 1337
@@ -118,9 +118,15 @@ local function sendStateMessage()
             usedStress = stressometer.getStress(),
             stressCapacity = stressometer.getStressCapacity(),
             currentFuel = tank.tanks()[1].amount,
-            capacityFuel = fuelCapacity
+            capacityFuel = fuelCapacity,
+            activeGear = {}
         }
     }
+
+    for i = 1, 4 do
+        data.payload.activeGear[i] = lastStates[gearSides[i]]
+    end
+
     enderModem.transmit(modemCode, modemCode, data)
 end
 
