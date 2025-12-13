@@ -115,10 +115,18 @@ local function updateStatusMonitor()
 
     -- Gear
     for gearNum, state in ipairs(statusConfig.activeGear) do
-        if state then
-            writeToMonitor(statusMon, "[Gear " .. gearNum .. "]", statusColors.active, colors.black)
+        if gearNum < 4 then
+            if state then
+                writeToMonitor(statusMon, "[Gear " .. gearNum .. "]", statusColors.active, colors.black)
+            else
+                writeToMonitor(statusMon, "Gear " .. gearNum, statusColors.inactive, colors.black)
+            end
         else
-            writeToMonitor(statusMon, "Gear " .. gearNum, statusColors.inactive, colors.black)
+            if state then
+                writeToMonitor(statusMon, "[Reverse]", statusColors.active, colors.black)
+            else
+                writeToMonitor(statusMon, "Reverse", statusColors.inactive, colors.black)
+            end
         end
     end
 
