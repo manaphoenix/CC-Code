@@ -20,10 +20,10 @@ local outputsides = { -- overrides the default side mapping, so you can have an 
 }
 
 local gearSides = { -- how does each side of the input relay map to the rotation speed controller
-    [1] = "front",
+    [1] = "left",
     [2] = "top",
-    [3] = "left",
-    [4] = "back"
+    [3] = "back",
+    [4] = "front"
 }
 
 local modemCode = 1337
