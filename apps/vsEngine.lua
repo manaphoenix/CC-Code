@@ -61,9 +61,10 @@ local running = true -- used to control the main loop
 enderModem.open(modemCode)
 
 local stateFileName = "vsengineState.dat"
+local activeTimer   = -1 -- used to track the active timer
 
 -- state
-local lastStates = {
+local lastStates    = {
     -- initalize with default values
     front = false,
     back = false,
@@ -172,7 +173,6 @@ end
 
 local function handleTimer()
     sendStateMessage()
-    os.startTimer(fuelUpdate)
 end
 
 local function handleEvent(evTable)
@@ -195,6 +195,8 @@ local function handleEvent(evTable)
     elseif ev == "timer" then
         handleTimer()
     end
+    os.cancelTimer(activeTimer)
+    activeTimer = os.startTimer(fuelUpdate)
 end
 
 -- Load saved state on startup
@@ -206,7 +208,7 @@ term.setCursorPos(1, 1)
 
 print("VS Engine by Manaphoenix")
 print("Press X to exit")
-os.startTimer(fuelUpdate)
+activeTimer = os.startTimer(fuelUpdate)
 
 while running do
     local pull = { os.pullEvent() }
