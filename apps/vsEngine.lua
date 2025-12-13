@@ -1,5 +1,5 @@
 -- VS Engine by Manaphoenix
--- Version: 1.0.5
+-- Version: 1.0.6
 
 local output_side = "right"
 -- side that the output relay is on, if your using a modem and leaving the redstone relay somewhere else, use its name
@@ -26,6 +26,8 @@ local gearSides = { -- how does each side of the input relay map to the rotation
     [4] = "front"
 }
 
+local isOffSide = "front" -- what side the latch give redstone power to to signify the machine being off
+
 local modemCode = 1337
 -- This is the channel the ender modem operates on (IE. the channel it will receive messages on)
 local securityKey = "dogs"
@@ -48,6 +50,17 @@ local stressometer = peripheral.find("Create_Stressometer")
 local speedometer = peripheral.find("Create_Speedometer")
 local tank = peripheral.find("fluid_storage")
 local speedControllers = { peripheral.find("Create_RotationSpeedController") }
+local latch_relay = nil
+
+do
+    local relays = { peripheral.find("redstone_relay") }
+    for i, v in pairs(relays) do
+        if v ~= input_relay and v ~= output_relay then
+            latch_relay = v
+            break
+        end
+    end
+end
 
 assert(input_relay, "Input relay not found on side " .. input_side)
 assert(output_relay, "Output relay not found on side " .. output_side)
@@ -56,6 +69,7 @@ assert(stressometer, "stressometer not found!")
 assert(speedometer, "speedometer not found!")
 assert(tank, "Fuel tank not found!")
 assert(#speedControllers > 0, "No speed controllers found!")
+assert(latch_relay, "Latch relay not found!")
 
 local running = true -- used to control the main loop
 enderModem.open(modemCode)
@@ -71,7 +85,8 @@ local lastStates    = {
     left = false,
     right = false,
     top = false,
-    bottom = false
+    bottom = false,
+    isOff = false
 } -- for reloading the computer from chunk reloads
 
 local function saveState()
@@ -93,6 +108,9 @@ local function loadState()
                 lastStates = states
             end
         end
+    end
+    if lastStates.isOff == nil then
+        lastStates.isOff = false
     end
 end
 
@@ -136,7 +154,8 @@ local function sendStateMessage()
             stressCapacity = stressometer.getStressCapacity(),
             currentFuel = currentFuel,
             capacityFuel = fuelCapacity,
-            activeGear = {}
+            activeGear = {},
+            isOff = lastStates.isOff
         }
     }
 
@@ -150,23 +169,43 @@ local function sendStateMessage()
     end
 end
 
+local function checkOff()
+    local state = latch_relay.getInput(isOffSide)
+    if state ~= lastStates.isOff then
+        if dbgMessages then
+            print("CheckOff: " .. tostring(state))
+        end
+        return true, state
+    end
+
+    return false, state
+end
+
 local function handle_redstone()
     local sides = getInputSides()
 
-    -- check if more than one input was received, if true; ignore the input
-    -- Count active inputs
-    local activeCount = 0
-    for _, state in pairs(sides) do
-        if state then activeCount = activeCount + 1 end
-    end
+    local checkOff, newState = checkOff()
+    if checkOff then
+        lastStates.isOff = newState
+    else
+        -- check if more than one input was received, if true; ignore the input
+        -- Count active inputs
+        local activeCount = 0
+        for _, state in pairs(sides) do
+            if state then activeCount = activeCount + 1 end
+        end
 
-    -- Only update if exactly one input is active
-    if activeCount == 1 then
-        lastStates = sides
-    end
+        -- Only update if exactly one input is active
+        if activeCount == 1 then
+            local isOffCopy = lastStates.isOff
+            lastStates = sides
+            lastStates.isOff = isOffCopy
+        end
 
-    -- Update the output relay
-    updateState()
+
+        -- Update the output relay
+        updateState()
+    end
 
     -- Send a message to the ender modem to update the state
     sendStateMessage()

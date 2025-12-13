@@ -1,5 +1,5 @@
 -- VS Receiver by Manaphoenix
--- Version: 1.0.3
+-- Version: 1.0.4
 
 --====================================================================--
 -- CONFIGURATION (EDIT THESE)
@@ -58,22 +58,24 @@ local statusColors        = {
     refillActive   = colors.red,    -- Refill label (active)
 }
 
--- Tuning Monitor
-local tuningColors        = {}
 
-local dbgMessages         = false -- should it print the debug message(s)
+
+-- Tuning Monitor
+local tuningColors = {}
+
+local dbgMessages  = false -- should it print the debug message(s)
 
 --====================================================================--
 --===                    MAIN CODE (DO NOT MODIFY)                 ===--
 --====================================================================--
 
 -- constants
-local enderModem          = peripheral.wrap(ender_modem_side)
-local statusMon           = peripheral.wrap(status_monitor_side)
-local tuningMon           = peripheral.wrap(tuning_monitor_side)
-local fueltog             = false
+local enderModem   = peripheral.wrap(ender_modem_side)
+local statusMon    = peripheral.wrap(status_monitor_side)
+local tuningMon    = peripheral.wrap(tuning_monitor_side)
+local fueltog      = false
 
-local running             = true -- used to control the main loop
+local running      = true -- used to control the main loop
 
 assert(enderModem, "Ender modem not found on side " .. ender_modem_side)
 assert(statusMon, "Status monitor not found on side " .. status_monitor_side)
@@ -103,8 +105,14 @@ local statusConfig = {
     usedStress = 0,
     stressCapacity = 1,
     currentFuel = 1,
-    capacityFuel = 24000
+    capacityFuel = 24000,
+    isOff = false
 }
+
+local scopy = {}
+for i, v in pairs(statusColors) do
+    scopy[i] = v
+end
 
 local function writeToMonitor(monitor, text, fg, bg)
     monitor.setTextColor(fg)
@@ -118,6 +126,21 @@ end
 local function updateStatusMonitor()
     statusMon.clear()
     statusMon.setCursorPos(1, 1)
+
+
+    if statusConfig.isOff then
+        statusColors = {
+            inactive       = colors.gray, -- Inactive gears
+            active         = colors.gray, -- Active gears
+            fuel           = colors.gray, -- Fuel indicator
+            stress         = colors.gray, -- Stress indicator
+            speed          = colors.gray, -- Speed (RPM)
+            refillInactive = colors.gray, -- Refill label (inactive)
+            refillActive   = colors.gray, -- Refill label (active)
+        }
+    else
+        statusColors = scopy
+    end
 
     -- Gear
     for gearNum, state in ipairs(statusConfig.activeGear) do
@@ -194,6 +217,9 @@ local function handleMessage(data)
     end
     if data.capacityFuel then
         statusConfig.capacityFuel = data.capacityFuel
+    end
+    if data.isOff then
+        statusConfig.isOff = data.isOff
     end
 end
 
