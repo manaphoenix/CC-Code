@@ -1,5 +1,5 @@
 -- VS Engine by Manaphoenix
--- Version: 1.0.7
+-- Version: 1.0.8
 
 local output_side = "right"
 -- side that the output relay is on, if your using a modem and leaving the redstone relay somewhere else, use its name
@@ -36,9 +36,9 @@ local securityKey = "dogs"
 local fuelCapacity = 24000
 -- max amount the tank can handle (this has to be hard coded there is no way to detect tank size)
 
-local fuelUpdate = 3      -- how often in seconds should we check the fuel?
+local fuelUpdate = 3     -- how often in seconds should we check the fuel?
 
-local dbgMessages = false -- should it print the debug message(s)
+local dbgMessages = true -- should it print the debug message(s)
 
 --== MAIN CODE (DO NOT MODIFY) ==--
 
@@ -187,6 +187,7 @@ local function handle_redstone()
     local checkOff, newState = checkOff()
     if checkOff then
         lastStates.isOff = newState
+        saveState()
     else
         -- check if more than one input was received, if true; ignore the input
         -- Count active inputs
