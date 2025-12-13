@@ -1,5 +1,5 @@
 -- VS Engine by Manaphoenix
--- Version: 1.0
+-- Version: 1.0.1
 
 local output_side = "right"
 -- side that the output relay is on, if your using a modem and leaving the redstone relay somewhere else, use its name
