@@ -117,7 +117,7 @@ local function sendStateMessage()
             speed = speedometer.getSpeed(),
             usedStress = stressometer.getStress(),
             stressCapacity = stressometer.getStressCapacity(),
-            currentFuel = tank.tanks()[1].amount,
+            currentFuel = tank.tanks()[1] and tank.tanks()[1].amount or 0,
             capacityFuel = fuelCapacity,
             activeGear = {}
         }
