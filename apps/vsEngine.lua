@@ -1,5 +1,5 @@
 -- VS Engine by Manaphoenix
--- Version: 1.0.4
+-- Version: 1.0.5
 
 local output_side = "right"
 -- side that the output relay is on, if your using a modem and leaving the redstone relay somewhere else, use its name
@@ -119,8 +119,13 @@ end
 local function sendStateMessage()
     local currentFuel = 0
 
-    if tank ~= nil and tank.tanks() ~= nil and tank.tanks()[1] ~= nil and tank.tanks()[1].amount ~= nil then
-        currentFuel = tank.tanks()[1].amount
+    local tanks = tank.tanks()
+    if #tanks > 0 then
+        local first_tank = tanks[1]
+
+        if first_tank ~= nil and first_tank.amount ~= nil then
+            currentFuel = first_tank.amount
+        end
     end
 
     local data = {
