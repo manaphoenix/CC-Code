@@ -25,7 +25,7 @@ local gearSides = { -- how does each side of the input relay map to the rotation
     [4] = "front"
 }
 
-local isOffSide = "right" -- what side the latch give redstone power to to signify the machine being off
+local isOffSide = "front" -- what side the latch give redstone power to to signify the machine being off
 
 local modemCode = 1337
 -- This is the channel the ender modem operates on (IE. the channel it will receive messages on)
@@ -58,7 +58,8 @@ local enderModem = peripheral.wrap(ender_modem_side)
 local stressometer = peripheral.find("Create_Stressometer")
 local speedometer = peripheral.find("Create_Speedometer")
 local tank = peripheral.find("fluid_storage")
-local version = "1.1.5"
+local accumlator = peripheral.find("modular_accumulator")
+local version = "1.1.6"
 
 local latch_relay = nil
 local controllers = {
@@ -212,6 +213,7 @@ local function sendStateMessage()
             currentFuel = currentFuel,
             capacityFuel = fuelCapacity,
             activeGear = {},
+            energyPercent = accumlator.getPercent(),
             isOff = lastStates.isOff
         }
     }
