@@ -29,7 +29,8 @@ if not peripheral.isPresent(side) then
     error("No peripheral found on side: " .. side, 0)
 end
 
-print("Peripheral:", peripheral.getType(side))
+local perType = { peripheral.getType(side) }
+print("Peripheral:", unpack(perType))
 print(("="):rep(20))
 print("Methods (callable)")
 print(("="):rep(18))
