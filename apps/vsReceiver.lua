@@ -73,7 +73,7 @@ local enderModem          = peripheral.wrap(ender_modem_side)
 local statusMon           = peripheral.wrap(status_monitor_side)
 local tuningMon           = peripheral.wrap(tuning_monitor_side)
 local fueltog             = false
-local version             = "1.1.1"
+local version             = "1.1.2"
 local mx, my              = term.getSize()
 
 local running             = true -- used to control the main loop
@@ -88,6 +88,8 @@ enderModem.open(modemCode)
 
 statusMon.setTextScale(statusTextScale)
 tuningMon.setTextScale(tuningTextScale)
+
+local tmx, tmy = tuningMon.getSize()
 
 for colName, col in pairs(statusOverrides) do
     statusMon.setPaletteColor(colors[colName], col)
@@ -109,6 +111,7 @@ local statusConfig = {
     stressCapacity = 1,
     currentFuel = 1,
     capacityFuel = 24000,
+    energyPercent = 0,
     isOff = false
 }
 
@@ -127,6 +130,7 @@ local function writeToMonitor(monitor, text, fg, bg)
 end
 
 local function drawMenu()
+    --=== term menu ===--
     term.clear()
     term.setCursorPos(1, 1)
 
@@ -150,6 +154,18 @@ local function drawMenu()
     term.setCursorPos(mx - 3, 1)
     term.blit("Lock", ("0"):rep(4), ("b"):rep(4))
     term.setCursorPos(1, 2)
+
+    -- === tuning monitor === --
+    local txt = "Tuning monitor"
+
+    tuningMon.clear()
+    tuningMon.setCursorPos(1, 1)
+    tuningMon.blit((" "):rep(tmx), ("b"):rep(tmx), ("b"):rep(tmx))
+    tuningMon.setCursorPos(tmx / 2 - #txt / 2, 1)
+    tuningMon.setBackgroundColor(colors.blue)
+    tuningMon.write(txt)
+    tuningMon.setBackgroundColor(colors.black)
+    tuningMon.setCursorPos(1, 2)
 end
 
 local function drawLockScreen()
@@ -158,6 +174,12 @@ local function drawLockScreen()
     term.setCursorPos(mx / 2 - #lockText / 2, my / 2)
     term.write(lockText)
     term.setBackgroundColor(colors.black)
+
+    tuningMon.setBackgroundColor(colors.blue)
+    tuningMon.clear()
+    tuningMon.setCursorPos(tmx / 2 - #lockText / 2, tmy / 2)
+    tuningMon.write(lockText)
+    tuningMon.setBackgroundColor(colors.black)
 end
 
 local function updateStatusMonitor()
@@ -228,6 +250,25 @@ local function updateStatusMonitor()
     statusMon.setCursorPos(10, 4)
     local stressPercent = math.floor(statusConfig.usedStress / statusConfig.stressCapacity * 100)
     writeToMonitor(statusMon, stressPercent .. "%", statusColors.stress, colors.black)
+
+    -- Energy
+    statusMon.setCursorPos(1, 9)
+    statusMon.write("Energy: ")
+    statusMon.setCursorPos(1, 10)
+    --- text should 10 characters long, so we need to make sure it is
+    local energyamt = math.floor(statusConfig.energyPercent / 10)
+    local remaining = 10 - energyamt
+    -- 5 is green, 8 is gray
+    local energyText = ("5"):rep(energyamt) .. ("8"):rep(remaining)
+
+    local statusBarTxt = (" "):rep(10)
+    local txt = string.format("%d%%", statusConfig.energyPercent)
+    local xpos = 5
+
+    -- replace startBarTxt string at xpos
+    statusBarTxt = statusBarTxt:sub(1, xpos - 1) .. txt .. statusBarTxt:sub(xpos + #txt)
+
+    statusMon.blit(statusBarTxt, ("0"):rep(10), energyText)
 end
 
 local function updateTuningMonitor()
@@ -256,6 +297,9 @@ local function handleMessage(data)
         end
         if data.capacityFuel then
             statusConfig.capacityFuel = data.capacityFuel
+        end
+        if data.energyPercent then
+            statusConfig.energyPercent = data.energyPercent
         end
     end
     if statusConfig.isOff ~= data.isOff then
@@ -298,6 +342,10 @@ local function handleEvent(event)
     local ev = event[1]
     if ev == "key" and not locked then
         local key = event[2]
+        if key == keys.c then
+            locked = true
+            drawLockScreen()
+        end
     elseif ev == "modem_message" then
         local _, _, _, message, _ = event[2], event[3], event[4], event[5], event[6]
         if not message.key or message.key ~= securityKey then
