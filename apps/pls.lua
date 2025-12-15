@@ -13,7 +13,8 @@ if not side then
 
     local found = false
     for _, s in ipairs(peripheral.getNames()) do
-        print(("- %s (%s)"):format(s, peripheral.getType(s)))
+        local types = { peripheral.getType(s) }
+        print(("- %s (%s)"):format(s, table.concat(types, ", ")))
         found = true
     end
 
@@ -30,7 +31,7 @@ if not peripheral.isPresent(side) then
 end
 
 local perType = { peripheral.getType(side) }
-print("Peripheral:", unpack(perType))
+print("Peripheral:", table.concat(perType, ", "))
 print(("="):rep(20))
 print("Methods (callable)")
 print(("="):rep(18))
