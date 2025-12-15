@@ -118,7 +118,7 @@ if flags.tanks then
         if #tanks == 0 then
             print("No tanks found.")
         else
-            for i, t in ipairs(tanks) do
+            for i, t in pairs(tanks) do
                 print(("- Tank %d:"):format(i))
                 print(("  Name: %s"):format(t.name or "unknown"))
                 print(("  Amount: %s"):format(fmtFluid(t.amount or 0)))
