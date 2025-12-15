@@ -25,7 +25,7 @@ local gearSides = { -- how does each side of the input relay map to the rotation
     [4] = "front"
 }
 
-local isOffSide = "front" -- what side the latch give redstone power to to signify the machine being off
+local isOffSide = "right" -- what side the latch give redstone power to to signify the machine being off
 
 local modemCode = 1337
 -- This is the channel the ender modem operates on (IE. the channel it will receive messages on)

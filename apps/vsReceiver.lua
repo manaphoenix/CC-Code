@@ -27,7 +27,7 @@ local securityKey         = "dogs" -- Security key used to verify messages
 -- Valid range: 0.5 - 5.0 (increments of 0.5 required)
 
 local statusTextScale     = 1.0 -- Status monitor
-local tuningTextScale     = 1.0 -- Tuning monitor
+local tuningTextScale     = 1.5 -- Tuning monitor
 
 --====================================================================--
 -- Color Overrides
@@ -57,26 +57,27 @@ local statusColors        = {
     refillActive   = colors.red,    -- Refill label (active)
 }
 
-
+local lockText            = "Locked"
 
 -- Tuning Monitor
-local tuningColors = {}
+local tuningColors        = {}
 
-local dbgMessages  = false -- should it print the debug message(s)
+local dbgMessages         = true -- should it print the debug message(s)
 
 --====================================================================--
 --===                    MAIN CODE (DO NOT MODIFY)                 ===--
 --====================================================================--
 
 -- constants
-local enderModem   = peripheral.wrap(ender_modem_side)
-local statusMon    = peripheral.wrap(status_monitor_side)
-local tuningMon    = peripheral.wrap(tuning_monitor_side)
-local fueltog      = false
-local version      = "1.0.8"
+local enderModem          = peripheral.wrap(ender_modem_side)
+local statusMon           = peripheral.wrap(status_monitor_side)
+local tuningMon           = peripheral.wrap(tuning_monitor_side)
+local fueltog             = false
+local version             = "1.0.9"
 
-local running      = true -- used to control the main loop
-local lastReceived = os.clock()
+local running             = true -- used to control the main loop
+local lastReceived        = os.clock()
+local locked              = true
 
 assert(enderModem, "Ender modem not found on side " .. ender_modem_side)
 assert(statusMon, "Status monitor not found on side " .. status_monitor_side)
@@ -122,6 +123,40 @@ local function writeToMonitor(monitor, text, fg, bg)
 
     local cx, cy = monitor.getCursorPos()
     monitor.setCursorPos(1, cy + 1)
+end
+
+local function drawMenu()
+    term.clear()
+    term.setCursorPos(1, 1)
+    local cx, cy  = term.getSize()
+
+    -- make header
+    -- blit has to have all 3 params match in lengths
+    local title   = "VS Receiver by Manaphoenix v" .. version
+    local width   = #title
+    local padding = (cx - width) / 2
+
+    -- make header bar
+    term.setCursorPos(1, 1)
+    term.blit((" "):rep(cx), ("b"):rep(cx), ("b"):rep(cx))
+
+    -- center the title
+    term.setCursorPos(padding, 1)
+    term.blit(title, ("0"):rep(width), ("b"):rep(width))
+
+    -- exit
+    term.setCursorPos(1, 1)
+    term.blit("Exit", ("0"):rep(4), ("b"):rep(4))
+    term.setCursorPos(1, 2)
+end
+
+local function drawLockScreen()
+    local mx, my = term.getSize()
+
+    term.setBackgroundColor(colors.blue)
+    term.clear()
+    term.setCursorPos(mx / 2 - #lockText / 2, my / 2)
+    term.write(lockText)
 end
 
 local function updateStatusMonitor()
@@ -257,10 +292,11 @@ end
 
 local function handleEvent(event)
     local ev = event[1]
-    if ev == "key" then
+    if ev == "key" and not locked then
         local key = event[2]
-        if key == keys.x then
-            running = false
+        if key == keys.c then
+            locked = true
+            drawLockScreen()
         end
     elseif ev == "modem_message" then
         local _, _, _, message, _ = event[2], event[3], event[4], event[5], event[6]
@@ -271,8 +307,13 @@ local function handleEvent(event)
         handleMessage(data)
         updateStatusMonitor()
         lastReceived = os.clock()
-    elseif ev == "mouse_click" then
+    elseif ev == "mouse_click" and not locked then
         handleMouseClick(event[2], event[3], event[4])
+    elseif ev == "redstone" and locked then
+        if rs.getInput("left") then
+            locked = false
+            drawMenu()
+        end
     end
 end
 
@@ -283,34 +324,10 @@ statusMon.setCursorPos(1, 1)
 tuningMon.setCursorPos(1, 1)
 statusMon.write("Loading...")
 tuningMon.write("Loading...")
-
-do
-    term.clear()
-    term.setCursorPos(1, 1)
-    local cx, cy  = term.getSize()
-
-    -- make header
-    -- blit has to have all 3 params match in lengths
-    local title   = "VS Receiver by Manaphoenix v" .. version
-    local width   = #title
-    local padding = (cx - width) / 2
-
-    -- make header bar
-    term.setCursorPos(1, 1)
-    term.blit((" "):rep(cx), ("b"):rep(cx), ("b"):rep(cx))
-
-    -- center the title
-    term.setCursorPos(padding, 1)
-    term.blit(title, ("0"):rep(width), ("b"):rep(width))
-
-    -- exit
-    term.setCursorPos(1, 1)
-    term.blit("Exit", ("0"):rep(4), ("b"):rep(4))
-    term.setCursorPos(1, 2)
-end
+drawLockScreen()
 
 while running do
-    local ev = { os.pullEvent() }
+    local ev = { os.pullEventRaw() }
     handleEvent(ev)
 end
 
