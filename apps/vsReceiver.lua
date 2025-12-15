@@ -55,6 +55,7 @@ local statusColors        = {
     speed          = colors.blue,   -- Speed (RPM)
     refillInactive = colors.gray,   -- Refill label (inactive)
     refillActive   = colors.red,    -- Refill label (active)
+    energy         = colors.yellow, -- Energy indicator
 }
 
 local lockText            = "Locked"
@@ -73,7 +74,7 @@ local enderModem          = peripheral.wrap(ender_modem_side)
 local statusMon           = peripheral.wrap(status_monitor_side)
 local tuningMon           = peripheral.wrap(tuning_monitor_side)
 local fueltog             = false
-local version             = "1.1.2"
+local version             = "1.1.3"
 local mx, my              = term.getSize()
 
 local running             = true -- used to control the main loop
@@ -196,6 +197,7 @@ local function updateStatusMonitor()
             speed          = colors.gray, -- Speed (RPM)
             refillInactive = colors.gray, -- Refill label (inactive)
             refillActive   = colors.gray, -- Refill label (active)
+            energy         = colors.gray, -- Energy indicator
         }
     else
         statusColors = scopy
@@ -253,22 +255,26 @@ local function updateStatusMonitor()
 
     -- Energy
     statusMon.setCursorPos(1, 9)
-    statusMon.write("Energy: ")
+    writeToMonitor(statusMon, "Energy: ", statusColors.energy, colors.black)
     statusMon.setCursorPos(1, 10)
-    --- text should 10 characters long, so we need to make sure it is
-    local energyamt = math.floor(statusConfig.energyPercent / 10)
-    local remaining = 10 - energyamt
-    -- 5 is green, 8 is gray
-    local energyText = ("5"):rep(energyamt) .. ("8"):rep(remaining)
+    if statusConfig.isOff == true then
+        --- text should 10 characters long, so we need to make sure it is
+        local energyamt = math.floor(statusConfig.energyPercent / 10)
+        local remaining = 10 - energyamt
+        -- 5 is green, 8 is gray
+        local energyText = ("5"):rep(energyamt) .. ("8"):rep(remaining)
 
-    local statusBarTxt = (" "):rep(10)
-    local txt = string.format("%d%%", statusConfig.energyPercent)
-    local xpos = 5
+        local statusBarTxt = (" "):rep(10)
+        local txt = string.format("%d%%", statusConfig.energyPercent)
+        local xpos = 5
 
-    -- replace startBarTxt string at xpos
-    statusBarTxt = statusBarTxt:sub(1, xpos - 1) .. txt .. statusBarTxt:sub(xpos + #txt)
+        -- replace startBarTxt string at xpos
+        statusBarTxt = statusBarTxt:sub(1, xpos - 1) .. txt .. statusBarTxt:sub(xpos + #txt)
 
-    statusMon.blit(statusBarTxt, ("0"):rep(10), energyText)
+        statusMon.blit(statusBarTxt, ("0"):rep(10), energyText)
+    else
+        writeToMonitor(statusMon, "Off       ", statusColors.energy, colors.black)
+    end
 end
 
 local function updateTuningMonitor()
