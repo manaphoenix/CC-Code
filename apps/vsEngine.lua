@@ -58,7 +58,7 @@ local enderModem = peripheral.wrap(ender_modem_side)
 local stressometer = peripheral.find("Create_Stressometer")
 local speedometer = peripheral.find("Create_Speedometer")
 local tank = peripheral.find("fluid_storage")
-local version = "1.1.4"
+local version = "1.1.5"
 
 local latch_relay = nil
 local controllers = {
@@ -130,6 +130,7 @@ enderModem.open(modemCode)
 
 local stateFileName = "vsengineState.dat"
 local activeTimer   = -1 -- used to track the active timer
+local lastSent      = os.clock()
 
 -- state
 local lastStates    = {
@@ -221,7 +222,24 @@ local function sendStateMessage()
 
     enderModem.transmit(modemCode, modemCode, data)
     if dbgMessages then
-        print("Sent state message: " .. textutils.serialize(data))
+        term.setCursorPos(1, 2)
+        print("Sending: ")
+        print("Gear states: ")
+        local format = "\t%s: %s"
+        for i, v in ipairs(data.payload.activeGear) do
+            print(string.format(format, i, v))
+        end
+        print("Other data: ")
+        for i, v in pairs(data.payload) do
+            if type(v) ~= "table" then
+                print(string.format(format, i, v))
+            end
+        end
+        -- round to nearest 100th of a second
+        local lastRec = os.clock() - lastSent
+        print("Last received: " .. math.floor(lastRec * 100) / 100 .. " seconds ago")
+        -- time to make sure
+        print("Time: " .. os.date("%I:%M:%S %p"))
     end
 end
 
@@ -333,15 +351,13 @@ do
     -- exit
     term.setCursorPos(1, 1)
     term.blit("Exit", ("0"):rep(4), ("b"):rep(4))
+    term.setCursorPos(1, 2)
 end
 
 activeTimer = os.startTimer(fuelUpdate)
 
 while running do
     local pull = { os.pullEvent() }
-    if dbgMessages then
-        print("Current handling event: " .. pull[1], pull[2])
-    end
     handleEvent(pull)
     --sleep(0.1) -- to avoid double input detection
 end
