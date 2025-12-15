@@ -1,5 +1,4 @@
 -- VS Receiver by Manaphoenix
--- Version: 1.0.6
 
 --====================================================================--
 -- CONFIGURATION (EDIT THESE)
@@ -63,7 +62,7 @@ local statusColors        = {
 -- Tuning Monitor
 local tuningColors = {}
 
-local dbgMessages  = true -- should it print the debug message(s)
+local dbgMessages  = false -- should it print the debug message(s)
 
 --====================================================================--
 --===                    MAIN CODE (DO NOT MODIFY)                 ===--
@@ -74,6 +73,7 @@ local enderModem   = peripheral.wrap(ender_modem_side)
 local statusMon    = peripheral.wrap(status_monitor_side)
 local tuningMon    = peripheral.wrap(tuning_monitor_side)
 local fueltog      = false
+local version      = "1.0.7"
 
 local running      = true -- used to control the main loop
 
@@ -226,6 +226,14 @@ local function handleMessage(data)
     end
 end
 
+local function handleMouseClick(button, x, y)
+    if y == 1 then
+        if x >= 1 and x <= 4 then
+            running = false
+        end
+    end
+end
+
 local function handleEvent(event)
     local ev = event[1]
     if ev == "key" then
@@ -241,13 +249,10 @@ local function handleEvent(event)
         local data = message.payload
         handleMessage(data)
         updateStatusMonitor()
+    elseif ev == "mouse_click" then
+        handleMouseClick(event[2], event[3], event[4])
     end
 end
-
-term.clear()
-term.setCursorPos(1, 1)
-print("VS Receiver by Manaphoenix")
-print("Press X to exit")
 
 -- intial loading of monitors
 statusMon.clear()
@@ -256,6 +261,30 @@ statusMon.setCursorPos(1, 1)
 tuningMon.setCursorPos(1, 1)
 statusMon.write("Loading...")
 tuningMon.write("Loading...")
+
+do
+    term.clear()
+    term.setCursorPos(1, 1)
+    local cx, cy  = term.getSize()
+
+    -- make header
+    -- blit has to have all 3 params match in lengths
+    local title   = "VS Receiver by Manaphoenix v" .. version
+    local width   = #title
+    local padding = (cx - width) / 2
+
+    -- make header bar
+    term.setCursorPos(1, 1)
+    term.blit((" "):rep(cx), ("b"):rep(cx), ("b"):rep(cx))
+
+    -- center the title
+    term.setCursorPos(padding, 1)
+    term.blit(title, ("0"):rep(width), ("b"):rep(width))
+
+    -- exit
+    term.setCursorPos(1, 1)
+    term.blit("Exit", ("0"):rep(4), ("b"):rep(4))
+end
 
 while running do
     local ev = { os.pullEvent() }
