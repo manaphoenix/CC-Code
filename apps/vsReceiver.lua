@@ -62,7 +62,7 @@ local lockText            = "Locked"
 -- Tuning Monitor
 local tuningColors        = {}
 
-local dbgMessages         = true -- should it print the debug message(s)
+local dbgMessages         = false -- should it print the debug message(s)
 
 --====================================================================--
 --===                    MAIN CODE (DO NOT MODIFY)                 ===--
@@ -73,7 +73,7 @@ local enderModem          = peripheral.wrap(ender_modem_side)
 local statusMon           = peripheral.wrap(status_monitor_side)
 local tuningMon           = peripheral.wrap(tuning_monitor_side)
 local fueltog             = false
-local version             = "1.0.9"
+local version             = "1.1.0"
 
 local running             = true -- used to control the main loop
 local lastReceived        = os.clock()
@@ -157,6 +157,7 @@ local function drawLockScreen()
     term.clear()
     term.setCursorPos(mx / 2 - #lockText / 2, my / 2)
     term.write(lockText)
+    term.setBackgroundColor(colors.black)
 end
 
 local function updateStatusMonitor()
