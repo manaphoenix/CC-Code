@@ -1,5 +1,5 @@
 -- VS Engine by Manaphoenix
--- Version: 1.1.0
+-- Version: 1.1.1
 
 local output_side = "right"
 -- side that the output relay is on, if your using a modem and leaving the redstone relay somewhere else, use its name
@@ -36,7 +36,7 @@ local securityKey = "dogs"
 local fuelCapacity = 24000
 -- max amount the tank can handle (this has to be hard coded there is no way to detect tank size)
 
-local fuelUpdate = 3 -- how often in seconds should we check the fuel?
+local fuelUpdate = 0.5 -- how often in seconds should we check the fuel?
 
 local defGearSpeeds = {
     G1 = 65,  -- Gear 1
