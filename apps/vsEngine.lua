@@ -1,5 +1,5 @@
 -- VS Engine by Manaphoenix
--- Version: 1.1.1
+-- Version: 1.1.2
 
 local output_side = "right"
 -- side that the output relay is on, if your using a modem and leaving the redstone relay somewhere else, use its name
@@ -48,7 +48,7 @@ local defGearSpeeds = {
 -- controller is which; once it figures them out the first time it will be
 -- saved to a config though.
 
-local dbgMessages = true -- should it print the debug message(s)
+local dbgMessages = false -- should it print the debug message(s)
 
 --== MAIN CODE (DO NOT MODIFY) ==--
 
@@ -130,6 +130,7 @@ enderModem.open(modemCode)
 
 local stateFileName = "vsengineState.dat"
 local activeTimer   = -1 -- used to track the active timer
+local cx, cy        = term.getSize()
 
 -- state
 local lastStates    = {
@@ -266,6 +267,17 @@ local function handleTimer()
     sendStateMessage()
 end
 
+local function handleMouseClick(button, x, y)
+    if y == cy then
+        if x >= 1 and x <= 5 then
+            if fs.exists("config/vsengine.cfg") then
+                fs.delete("config/vsengine.cfg")
+            end
+            running = false
+        end
+    end
+end
+
 local function handleEvent(evTable)
     local ev = evTable[1]
     -- local args = { select(2, unpack(evTable)) } -- not currently used, handler is just setup to allow for more events in the future
@@ -285,6 +297,8 @@ local function handleEvent(evTable)
         handleMessage(data)
     elseif ev == "timer" then
         handleTimer()
+    elseif ev == "mouse_click" then
+        handleMouseClick(evTable[2], evTable[3], evTable[4])
     end
     os.cancelTimer(activeTimer)
     activeTimer = os.startTimer(fuelUpdate)
@@ -300,6 +314,9 @@ term.setCursorPos(1, 1)
 print("VS Engine by Manaphoenix")
 print("Press X to exit")
 activeTimer = os.startTimer(fuelUpdate)
+
+term.setCursorPos(1, cy)
+term.blit("Reset", "00000", "eeeee")
 
 while running do
     local pull = { os.pullEvent() }
