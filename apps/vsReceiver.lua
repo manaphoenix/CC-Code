@@ -1,5 +1,5 @@
 -- VS Receiver by Manaphoenix
--- Version: 1.0.5
+-- Version: 1.0.6
 
 --====================================================================--
 -- CONFIGURATION (EDIT THESE)
@@ -63,7 +63,7 @@ local statusColors        = {
 -- Tuning Monitor
 local tuningColors = {}
 
-local dbgMessages  = false -- should it print the debug message(s)
+local dbgMessages  = true -- should it print the debug message(s)
 
 --====================================================================--
 --===                    MAIN CODE (DO NOT MODIFY)                 ===--
@@ -128,7 +128,7 @@ local function updateStatusMonitor()
     statusMon.setCursorPos(1, 1)
 
 
-    if not statusConfig.isOff then
+    if statusConfig.isOff == false then
         statusColors = {
             inactive       = colors.gray, -- Inactive gears
             active         = colors.gray, -- Active gears
@@ -198,25 +198,28 @@ local function updateTuningMonitor()
 end
 
 local function handleMessage(data)
-    if data.activeGear then
-        for i = 1, 4 do
-            statusConfig.activeGear[i] = data.activeGear[i]
+    if data.isOff == true then
+        statusConfig.isOff = data.isOff
+        if data.activeGear then
+            for i = 1, 4 do
+                statusConfig.activeGear[i] = data.activeGear[i]
+            end
         end
-    end
-    if data.speed then
-        statusConfig.speed = data.speed
-    end
-    if data.usedStress then
-        statusConfig.usedStress = data.usedStress
-    end
-    if data.stressCapacity then
-        statusConfig.stressCapacity = data.stressCapacity
-    end
-    if data.currentFuel then
-        statusConfig.currentFuel = data.currentFuel
-    end
-    if data.capacityFuel then
-        statusConfig.capacityFuel = data.capacityFuel
+        if data.speed then
+            statusConfig.speed = data.speed
+        end
+        if data.usedStress then
+            statusConfig.usedStress = data.usedStress
+        end
+        if data.stressCapacity then
+            statusConfig.stressCapacity = data.stressCapacity
+        end
+        if data.currentFuel then
+            statusConfig.currentFuel = data.currentFuel
+        end
+        if data.capacityFuel then
+            statusConfig.capacityFuel = data.capacityFuel
+        end
     end
     if statusConfig.isOff ~= data.isOff then
         statusConfig.isOff = data.isOff
