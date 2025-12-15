@@ -1,5 +1,5 @@
 -- VS Engine by Manaphoenix
--- Version: 1.1.2
+-- Version: 1.1.3
 
 local output_side = "right"
 -- side that the output relay is on, if your using a modem and leaving the redstone relay somewhere else, use its name
@@ -268,8 +268,10 @@ local function handleTimer()
 end
 
 local function handleMouseClick(button, x, y)
-    if y == cy then
-        if x >= 1 and x <= 5 then
+    if y == 1 then
+        if x >= 1 and x <= 4 then
+            running = false
+        elseif x >= cx - 4 and x <= cx then
             if fs.exists("config/vsengine.cfg") then
                 fs.delete("config/vsengine.cfg")
             end
@@ -285,9 +287,7 @@ local function handleEvent(evTable)
         handle_redstone()
     elseif ev == "key" then
         local key = evTable[2]
-        if key == keys.x then
-            running = false
-        end
+        -- do nothing
     elseif ev == "modem_message" then
         local _, _, _, message, _ = evTable[2], evTable[3], evTable[4], evTable[5], evTable[6]
         if not message.key or message.key ~= securityKey then
@@ -311,12 +311,31 @@ updateState()
 term.clear()
 term.setCursorPos(1, 1)
 
-print("VS Engine by Manaphoenix")
-print("Press X to exit")
-activeTimer = os.startTimer(fuelUpdate)
+-- make header
+do
+    -- blit has to have all 3 params match in lengths
+    local title = "VS Engine by Manaphoenix"
+    local width = #title
+    local padding = (cx - width) / 2
 
-term.setCursorPos(1, cy)
-term.blit("Reset", "00000", "eeeee")
+    -- make header bar
+    term.setCursorPos(1, 1)
+    term.blit((" "):rep(cx), ("b"):rep(cx), ("b"):rep(cx))
+
+    -- center the title
+    term.setCursorPos(padding, 1)
+    term.blit(title, ("0"):rep(width), ("b"):rep(width))
+
+    -- reset
+    term.setCursorPos(cx - 4, 1)
+    term.blit("Reset", ("e"):rep(5), ("b"):rep(5))
+
+    -- exit
+    term.setCursorPos(1, 1)
+    term.blit("Exit", ("0"):rep(4), ("b"):rep(4))
+end
+
+activeTimer = os.startTimer(fuelUpdate)
 
 while running do
     local pull = { os.pullEvent() }
