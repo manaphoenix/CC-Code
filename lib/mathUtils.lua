@@ -47,4 +47,12 @@ function mathExt.round(num, idp)
     return math.floor(num * mult + 0.5) / mult
 end
 
+--- Clamp a number between a min and a max (inclusive)
+function mathExt.clamp(num, min, max)
+    assertNumber(num, "num")
+    assertNumber(min, "min")
+    assertNumber(max, "max")
+    return math.min(max, math.max(min, num))
+end
+
 return mathExt
