@@ -125,6 +125,7 @@ assert(stressometer, "stressometer not found!")
 assert(speedometer, "speedometer not found!")
 assert(tank, "Fuel tank not found!")
 assert(latch_relay, "Latch relay not found!")
+assert(accumlator, "Accumlator not found!")
 
 local running = true -- used to control the main loop
 enderModem.open(modemCode)
