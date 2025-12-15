@@ -26,7 +26,7 @@ local gearSides = { -- how does each side of the input relay map to the rotation
     [4] = "front"
 }
 
-local isOffSide = "right" -- what side the latch give redstone power to to signify the machine being off
+local isOffSide = "front" -- what side the latch give redstone power to to signify the machine being off
 
 local modemCode = 1337
 -- This is the channel the ender modem operates on (IE. the channel it will receive messages on)
@@ -36,9 +36,19 @@ local securityKey = "dogs"
 local fuelCapacity = 24000
 -- max amount the tank can handle (this has to be hard coded there is no way to detect tank size)
 
-local fuelUpdate = 3      -- how often in seconds should we check the fuel?
+local fuelUpdate = 3 -- how often in seconds should we check the fuel?
 
-local dbgMessages = false -- should it print the debug message(s)
+local defGearSpeeds = {
+    G1 = 65,  -- Gear 1
+    G2 = 128, -- Gear 2
+    G3 = 256, -- Gear 3
+    GR = -30, -- Gear Reverse
+    GS = 1,   -- Gear Suspension Controller
+}             -- NOTE: these are used to determine which
+-- controller is which; once it figures them out the first time it will be
+-- saved to a config though.
+
+local dbgMessages = true -- should it print the debug message(s)
 
 --== MAIN CODE (DO NOT MODIFY) ==--
 
@@ -49,8 +59,15 @@ local enderModem = peripheral.wrap(ender_modem_side)
 local stressometer = peripheral.find("Create_Stressometer")
 local speedometer = peripheral.find("Create_Speedometer")
 local tank = peripheral.find("fluid_storage")
-local speedControllers = { peripheral.find("Create_RotationSpeedController") }
+
 local latch_relay = nil
+local controllers = {
+    G1 = -1, -- Gear 1
+    G2 = -1, -- Gear 2
+    G3 = -1, -- Gear 3
+    GR = -1, -- Gear Reverse
+    GS = -1, -- Gear Suspension Controller
+}
 
 do
     local relays = { peripheral.find("redstone_relay") }
@@ -58,6 +75,44 @@ do
         if v ~= input_relay and v ~= output_relay then
             latch_relay = v
             break
+        end
+    end
+
+    if not fs.exists("config/vsengine.cfg") then
+        local speedControllers = { peripheral.find("Create_RotationSpeedController") }
+        for _, controller in pairs(speedControllers) do
+            local speed = controller.getTargetSpeed()
+            for Gear, DefSpeed in pairs(defGearSpeeds) do
+                if speed == DefSpeed then
+                    controllers[Gear] = controller
+                    break
+                end
+            end
+        end
+
+        -- check for nil
+        for ID, controller in pairs(controllers) do
+            if controller == -1 then
+                error("Controller " .. ID .. " not found!", 0)
+            end
+        end
+
+        local file = fs.open("config/vsengine.cfg", "w")
+        local stable = {}
+        for ID, controller in pairs(controllers) do
+            stable[ID] = peripheral.getName(controller)
+        end
+
+        file.write(textutils.serialize(stable))
+        file.close()
+    else
+        local file = fs.open("config/vsengine.cfg", "r")
+        local doc = file.readAll()
+        file.close()
+
+        local ustable = textutils.unserialize(doc)
+        for ID, controllerName in pairs(ustable) do
+            controllers[ID] = peripheral.wrap(controllerName)
         end
     end
 end
@@ -68,7 +123,6 @@ assert(enderModem, "Ender modem not found on side " .. ender_modem_side)
 assert(stressometer, "stressometer not found!")
 assert(speedometer, "speedometer not found!")
 assert(tank, "Fuel tank not found!")
-assert(#speedControllers > 0, "No speed controllers found!")
 assert(latch_relay, "Latch relay not found!")
 
 local running = true -- used to control the main loop
@@ -88,6 +142,8 @@ local lastStates    = {
     bottom = false,
     isOff = false
 } -- for reloading the computer from chunk reloads
+
+controllers.GS.setTargetSpeed(0)
 
 local function saveState()
     local file = fs.open("data/" .. stateFileName, "w")
