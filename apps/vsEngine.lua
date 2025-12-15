@@ -130,7 +130,6 @@ enderModem.open(modemCode)
 
 local stateFileName = "vsengineState.dat"
 local activeTimer   = -1 -- used to track the active timer
-local cx, cy        = term.getSize()
 
 -- state
 local lastStates    = {
@@ -308,14 +307,15 @@ end
 loadState()
 updateState()
 
-term.clear()
-term.setCursorPos(1, 1)
-
--- make header
 do
+    local cx, cy = term.getSize()
+
+    term.clear()
+    term.setCursorPos(1, 1)
+    -- make header
     -- blit has to have all 3 params match in lengths
-    local title = "VS Engine by Manaphoenix v" .. version
-    local width = #title
+    local title   = "VS Engine by Manaphoenix v" .. version
+    local width   = #title
     local padding = (cx - width) / 2
 
     -- make header bar
