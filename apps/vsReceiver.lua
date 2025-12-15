@@ -73,9 +73,10 @@ local enderModem   = peripheral.wrap(ender_modem_side)
 local statusMon    = peripheral.wrap(status_monitor_side)
 local tuningMon    = peripheral.wrap(tuning_monitor_side)
 local fueltog      = false
-local version      = "1.0.7"
+local version      = "1.0.8"
 
 local running      = true -- used to control the main loop
+local lastReceived = os.clock()
 
 assert(enderModem, "Ender modem not found on side " .. ender_modem_side)
 assert(statusMon, "Status monitor not found on side " .. status_monitor_side)
@@ -224,6 +225,26 @@ local function handleMessage(data)
     if statusConfig.isOff ~= data.isOff then
         statusConfig.isOff = data.isOff
     end
+
+    if dbgMessages then
+        term.setCursorPos(1, 2)
+        print("Gear states:")
+        local format = "\t%s: %s"
+        for i, v in ipairs(statusConfig.activeGear) do
+            print(string.format(format, i, v))
+        end
+        print("Other data:")
+        for i, v in pairs(statusConfig) do
+            if type(v) ~= "table" then
+                print(string.format(format, i, v))
+            end
+        end
+        -- round to nearest 100th of a second
+        local lastRec = os.clock() - lastReceived
+        print("Last received: " .. math.floor(lastRec * 100) / 100 .. " seconds ago")
+        -- time to make sure
+        print("Time: " .. os.date("%I:%M:%S %p"))
+    end
 end
 
 local function handleMouseClick(button, x, y)
@@ -249,6 +270,7 @@ local function handleEvent(event)
         local data = message.payload
         handleMessage(data)
         updateStatusMonitor()
+        lastReceived = os.clock()
     elseif ev == "mouse_click" then
         handleMouseClick(event[2], event[3], event[4])
     end
@@ -284,13 +306,11 @@ do
     -- exit
     term.setCursorPos(1, 1)
     term.blit("Exit", ("0"):rep(4), ("b"):rep(4))
+    term.setCursorPos(1, 2)
 end
 
 while running do
     local ev = { os.pullEvent() }
-    if dbgMessages then
-        print("Current handling event: " .. ev[1], ev[2])
-    end
     handleEvent(ev)
 end
 
