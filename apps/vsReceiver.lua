@@ -73,7 +73,8 @@ local enderModem          = peripheral.wrap(ender_modem_side)
 local statusMon           = peripheral.wrap(status_monitor_side)
 local tuningMon           = peripheral.wrap(tuning_monitor_side)
 local fueltog             = false
-local version             = "1.1.0"
+local version             = "1.1.1"
+local mx, my              = term.getSize()
 
 local running             = true -- used to control the main loop
 local lastReceived        = os.clock()
@@ -128,17 +129,16 @@ end
 local function drawMenu()
     term.clear()
     term.setCursorPos(1, 1)
-    local cx, cy  = term.getSize()
 
     -- make header
     -- blit has to have all 3 params match in lengths
     local title   = "VS Receiver by Manaphoenix v" .. version
     local width   = #title
-    local padding = (cx - width) / 2
+    local padding = (mx - width) / 2
 
     -- make header bar
     term.setCursorPos(1, 1)
-    term.blit((" "):rep(cx), ("b"):rep(cx), ("b"):rep(cx))
+    term.blit((" "):rep(mx), ("b"):rep(mx), ("b"):rep(mx))
 
     -- center the title
     term.setCursorPos(padding, 1)
@@ -147,12 +147,12 @@ local function drawMenu()
     -- exit
     term.setCursorPos(1, 1)
     term.blit("Exit", ("0"):rep(4), ("b"):rep(4))
+    term.setCursorPos(mx - 3, 1)
+    term.blit("Lock", ("0"):rep(4), ("b"):rep(4))
     term.setCursorPos(1, 2)
 end
 
 local function drawLockScreen()
-    local mx, my = term.getSize()
-
     term.setBackgroundColor(colors.blue)
     term.clear()
     term.setCursorPos(mx / 2 - #lockText / 2, my / 2)
@@ -287,6 +287,9 @@ local function handleMouseClick(button, x, y)
     if y == 1 then
         if x >= 1 and x <= 4 then
             running = false
+        elseif x >= mx - 3 and x <= mx then
+            locked = true
+            drawLockScreen()
         end
     end
 end
@@ -295,10 +298,6 @@ local function handleEvent(event)
     local ev = event[1]
     if ev == "key" and not locked then
         local key = event[2]
-        if key == keys.c then
-            locked = true
-            drawLockScreen()
-        end
     elseif ev == "modem_message" then
         local _, _, _, message, _ = event[2], event[3], event[4], event[5], event[6]
         if not message.key or message.key ~= securityKey then
