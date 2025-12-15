@@ -74,7 +74,7 @@ local enderModem          = peripheral.wrap(ender_modem_side)
 local statusMon           = peripheral.wrap(status_monitor_side)
 local tuningMon           = peripheral.wrap(tuning_monitor_side)
 local fueltog             = false
-local version             = "1.1.3"
+local version             = "1.1.4"
 local mx, my              = term.getSize()
 
 local running             = true -- used to control the main loop
@@ -255,7 +255,7 @@ local function updateStatusMonitor()
 
     -- Energy
     statusMon.setCursorPos(1, 9)
-    writeToMonitor(statusMon, "Energy: ", statusColors.energy, colors.black)
+    writeToMonitor(statusMon, "Battery: ", statusColors.energy, colors.black)
     statusMon.setCursorPos(1, 10)
     if statusConfig.isOff == true then
         --- text should 10 characters long, so we need to make sure it is
