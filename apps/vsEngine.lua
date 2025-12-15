@@ -1,5 +1,4 @@
 -- VS Engine by Manaphoenix
--- Version: 1.1.3
 
 local output_side = "right"
 -- side that the output relay is on, if your using a modem and leaving the redstone relay somewhere else, use its name
@@ -59,6 +58,7 @@ local enderModem = peripheral.wrap(ender_modem_side)
 local stressometer = peripheral.find("Create_Stressometer")
 local speedometer = peripheral.find("Create_Speedometer")
 local tank = peripheral.find("fluid_storage")
+local version = "1.1.4"
 
 local latch_relay = nil
 local controllers = {
@@ -314,7 +314,7 @@ term.setCursorPos(1, 1)
 -- make header
 do
     -- blit has to have all 3 params match in lengths
-    local title = "VS Engine by Manaphoenix"
+    local title = "VS Engine by Manaphoenix v" .. version
     local width = #title
     local padding = (cx - width) / 2
 
