@@ -27,7 +27,7 @@ local securityKey         = "dogs" -- Security key used to verify messages
 -- Valid range: 0.5 - 5.0 (increments of 0.5 required)
 
 local statusTextScale     = 1.0 -- Status monitor
-local tuningTextScale     = 1.5 -- Tuning monitor
+local tuningTextScale     = 2   -- Tuning monitor
 
 --====================================================================--
 -- Color Overrides
@@ -74,12 +74,13 @@ local enderModem          = peripheral.wrap(ender_modem_side)
 local statusMon           = peripheral.wrap(status_monitor_side)
 local tuningMon           = peripheral.wrap(tuning_monitor_side)
 local fueltog             = false
-local version             = "1.1.4"
+local version             = "1.1.5"
 local mx, my              = term.getSize()
 
 local running             = true -- used to control the main loop
 local lastReceived        = os.clock()
 local locked              = true
+local tuningState         = 0 -- 0 = locked, 1 = menu, 2 = transmission, 3 = suspension
 
 assert(enderModem, "Ender modem not found on side " .. ender_modem_side)
 assert(statusMon, "Status monitor not found on side " .. status_monitor_side)
@@ -126,8 +127,49 @@ local function writeToMonitor(monitor, text, fg, bg)
     monitor.setBackgroundColor(bg)
     monitor.write(text)
 
-    local cx, cy = monitor.getCursorPos()
-    monitor.setCursorPos(1, cy + 1)
+    local _cx, _cy = monitor.getCursorPos()
+    monitor.setCursorPos(1, _cy + 1)
+end
+
+local function writeToMonitorCentered(monitor, text, fg, bg)
+    local _, _cy = monitor.getCursorPos()
+    local _mx, _ = monitor.getSize()
+
+    local x = math.floor((_mx - #text) / 2) + 1
+    monitor.setCursorPos(x, _cy)
+
+    writeToMonitor(monitor, text, fg, bg)
+end
+
+local function drawTransmissionMenu()
+    tuningMon.clear()
+    tuningMon.setCursorPos(1, 1)
+    writeToMonitor(tuningMon, "<<", colors.blue, colors.black)
+    tuningMon.setCursorPos(1, 1)
+    writeToMonitorCentered(tuningMon, "Transmission Menu", colors.yellow, colors.black)
+
+    tuningMon.setCursorPos(1, 3)
+    for i = 1, 4 do
+        if i < 4 then
+            writeToMonitorCentered(tuningMon, "[Gear " .. i .. "]", colors.blue, colors.black)
+        else
+            writeToMonitorCentered(tuningMon, "[Gear " .. i .. "(R)]", colors.blue, colors.black)
+        end
+    end
+end
+
+local function drawSuspensionMenu()
+    tuningMon.clear()
+    tuningMon.setCursorPos(1, 1)
+    writeToMonitor(tuningMon, "<<", colors.blue, colors.black)
+    tuningMon.setCursorPos(1, 1)
+    writeToMonitorCentered(tuningMon, "Suspension Menu", colors.yellow, colors.black)
+
+    tuningMon.setCursorPos(1, 3)
+    writeToMonitorCentered(tuningMon, "[Increase]", colors.blue, colors.black)
+
+    tuningMon.setCursorPos(1, 4)
+    writeToMonitorCentered(tuningMon, "[Decrease]", colors.blue, colors.black)
 end
 
 local function drawMenu()
@@ -157,16 +199,14 @@ local function drawMenu()
     term.setCursorPos(1, 2)
 
     -- === tuning monitor === --
-    local txt = "Tuning monitor"
-
     tuningMon.clear()
-    tuningMon.setCursorPos(1, 1)
-    tuningMon.blit((" "):rep(tmx), ("b"):rep(tmx), ("b"):rep(tmx))
-    tuningMon.setCursorPos(tmx / 2 - #txt / 2, 1)
-    tuningMon.setBackgroundColor(colors.blue)
-    tuningMon.write(txt)
-    tuningMon.setBackgroundColor(colors.black)
-    tuningMon.setCursorPos(1, 2)
+    tuningMon.setCursorPos(1, tmy / 2 - 1)
+
+    writeToMonitorCentered(tuningMon, "TUNING MENU", colors.yellow, colors.black)
+    tuningMon.setCursorPos(1, tmy / 2 + 1)
+    writeToMonitorCentered(tuningMon, "[Transmission]", colors.blue, colors.black)
+    tuningMon.setCursorPos(1, tmy / 2 + 2)
+    writeToMonitorCentered(tuningMon, "[Suspension]", colors.blue, colors.black)
 end
 
 local function drawLockScreen()
@@ -177,6 +217,7 @@ local function drawLockScreen()
     term.setBackgroundColor(colors.black)
 
     tuningMon.setBackgroundColor(colors.blue)
+    tuningMon.setTextColor(colors.white)
     tuningMon.clear()
     tuningMon.setCursorPos(tmx / 2 - #lockText / 2, tmy / 2)
     tuningMon.write(lockText)
@@ -277,10 +318,6 @@ local function updateStatusMonitor()
     end
 end
 
-local function updateTuningMonitor()
-    -- TODO: program logic for this monitor
-end
-
 local function handleMessage(data)
     if data.isOff == true then
         statusConfig.isOff = data.isOff
@@ -350,6 +387,7 @@ local function handleEvent(event)
         local key = event[2]
         if key == keys.c then
             locked = true
+            tuningState = 0
             drawLockScreen()
         end
     elseif ev == "modem_message" then
@@ -363,9 +401,34 @@ local function handleEvent(event)
         lastReceived = os.clock()
     elseif ev == "mouse_click" and not locked then
         handleMouseClick(event[2], event[3], event[4])
+    elseif ev == "monitor_touch" and not locked then
+        local side, x, y = event[2], event[3], event[4]
+        local yposCentered = math.floor(tmy / 2)
+        if side == tuning_monitor_side then
+            if tuningState == 1 then -- main menu
+                if y == yposCentered + 1 then
+                    tuningState = 2
+                    drawTransmissionMenu()
+                elseif y == yposCentered + 2 then
+                    tuningState = 3
+                    drawSuspensionMenu()
+                end
+            elseif tuningState == 2 then -- transmission menu
+                if y == 1 and x <= 2 then
+                    tuningState = 1
+                    drawMenu()
+                end
+            elseif tuningState == 3 then -- suspension menu
+                if y == 1 and x <= 2 then
+                    tuningState = 1
+                    drawMenu()
+                end
+            end
+        end
     elseif ev == "redstone" and locked then
         if rs.getInput("left") then
             locked = false
+            tuningState = 1
             drawMenu()
         end
     end
