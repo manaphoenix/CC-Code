@@ -59,7 +59,7 @@ local stressometer = peripheral.find("Create_Stressometer")
 local speedometer = peripheral.find("Create_Speedometer")
 local tank = peripheral.find("fluid_storage")
 local accumlator = peripheral.find("modular_accumulator")
-local version = "1.1.6"
+local version = "1.1.7"
 
 local latch_relay = nil
 local controllers = {
@@ -133,6 +133,8 @@ enderModem.open(modemCode)
 local stateFileName = "vsengineState.dat"
 local activeTimer   = -1 -- used to track the active timer
 local lastSent      = os.clock()
+
+local mx, my        = term.getSize()
 
 -- state
 local lastStates    = {
@@ -291,7 +293,7 @@ local function handleMouseClick(button, x, y)
     if y == 1 then
         if x >= 1 and x <= 4 then
             running = false
-        elseif x >= cx - 4 and x <= cx then
+        elseif x >= mx - 4 then
             if fs.exists("config/vsengine.cfg") then
                 fs.delete("config/vsengine.cfg")
             end
