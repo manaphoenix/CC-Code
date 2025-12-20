@@ -47,11 +47,6 @@ All startup options are stored in `config/startup.cfg`.
 * Get theme metadata (name, author, version, description)
 * Download themes from raw URLs or GitHub
 
-### Apps
-
-* **Theme Picker:** `apps/theme_picker.lua` — interactively choose and apply a theme
-* **Theme Downloader:** `apps/theme_downloader.lua` — download new themes from URLs or GitHub
-
 ---
 
 ## Folder Structure
@@ -74,21 +69,11 @@ CC-Code/
 
 ## Usage
 
-* **Apply a theme manually:**
+* **Apply a theme programmatically:**
 
   ```lua
   local ThemeManager = dofile("lib/theme_manager.lua")
   ThemeManager.applyTheme(term, "default")
-  ```
-* **Run the theme picker:**
-
-  ```lua
-  dofile("apps/theme_picker.lua")
-  ```
-* **Download a new theme:**
-
-  ```lua
-  dofile("apps/theme_downloader.lua")
   ```
 
 ---
