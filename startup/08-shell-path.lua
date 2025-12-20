@@ -1,1 +1,3 @@
-shell.setPath(shell.path() .. ";/apps;/bin")
+local extension = ";/apps"
+
+shell.setPath(shell.path() .. extension)
