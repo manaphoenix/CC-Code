@@ -37,14 +37,23 @@ function ThemeManager.applyTheme(device, themeName)
     device.setCursorPos(1, 1)
 end
 
---- List all installed themes
----@return table List of theme names
+--- List all installed themes with metadata
+---@return table List of theme tables { filename=string, meta=table, colors=table }
 function ThemeManager.listThemes()
     local themes = {}
     if fs.exists(ThemeManager.themePath) then
         for _, file in ipairs(fs.list(ThemeManager.themePath)) do
             local name = file:match("^(.-)%.lua$")
-            if name then table.insert(themes, name) end
+            if name then
+                local theme = loadThemeFile(name)
+                if theme then
+                    table.insert(themes, {
+                        filename = name,
+                        meta     = theme.meta or {},
+                        colors   = theme.colors
+                    })
+                end
+            end
         end
     end
     return themes
