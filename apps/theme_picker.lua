@@ -68,7 +68,7 @@ print("Theme '" .. (selected.meta.name or selectedName) .. "' applied and saved 
 
 -- Apply live
 ThemeManager.applyTheme(term.current(), selectedName)
-local monitors = peripheral.find("monitor", true) or {}
+local monitors = peripheral.find("monitor") or {}
 for _, mon in ipairs(monitors) do
     ThemeManager.applyTheme(mon, selectedName)
 end
