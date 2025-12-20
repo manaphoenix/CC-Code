@@ -1,101 +1,106 @@
 # CC-Code Repository
 
-A repository for all the code developed for ComputerCraft, including addons and forks.
+A repository for all the code developed for **ComputerCraft / CC:Tweaked**, including startup scripts, libraries, and apps for easier setup, theming, and management.
 
 ---
 
-## gfetch App
+## Installation
 
-A powerful GitHub fetch utility for ComputerCraft that supports aliases, batch downloads, automatic base64 decoding, and tab completions.
-
-### 🔧 Installation
-
-```bash
-wget https://raw.githubusercontent.com/manaphoenix/CC-Code/refs/heads/main/apps/gfetch.lua gfetch.lua
-```
-
----
-
-## 📦 Usage
-
-### Basic File Download
-
-```bash
-gfetch owner/repo/branch/path/to/file.lua [output_path]
-```
-
-* **owner/repo/branch/path** — Required. Full path to the GitHub file.
-* **output\_path** — Optional. Defaults to saving at the same relative path locally.
-
-### Using Aliases
-
-You can define repository aliases in `.gfetch.conf`:
+You can install CC-Code on a new computer using the installer:
 
 ```lua
-{
-  gfetch_dir = "config",
-  aliases = {
-    cc = "manaphoenix/CC-Code/main"
-  }
-}
+wget run https://raw.githubusercontent.com/manaphoenix/CC-Code/main/installer.lua
 ```
 
-Then fetch files like so:
+This will automatically download:
 
-```bash
-gfetch cc/lib/linq.lua
-```
-
-### Batch Mode
-
-Use a `.gfetch` batch file to define multiple files to download:
-
-```gfetch
-# manaphoenix/CC-Code/main
-./lib/linq.lua lib/linq.lua
-./utils/parallelActions.lua utils/parallelActions.lua
-```
-
-Run with:
-
-```bash
-gfetch --batch myfiles.gfetch
-```
-
-Remote URLs for `.gfetch` files are also supported.
+* All `startup/` scripts
+* `lib/theme_manager.lua`
+* `themes/default.lua`
 
 ---
 
-### Alias Management
+## Startup System
 
-```bash
-gfetch --alias add myalias owner/repo/branch
-gfetch --alias remove myalias
+The modular startup scripts handle:
+
+* Folder creation (`apps/`, `assets/`, `config/`, `data/`, `lib/`, `logs/`, `startup/`, `tmp/`)
+* Temporary folder cleanup (`tmp/`)
+* Default ComputerCraft settings (MOTD, shell path, etc.)
+* Automatic peripheral management (`components` global)
+* Aliases for all Lua scripts in `apps/`
+
+All startup options are stored in `config/startup.cfg`.
+
+---
+
+## Theme Manager
+
+`lib/theme_manager.lua` allows easy management of color themes:
+
+* Apply themes to the terminal or monitors independently
+* List installed themes:
+
+  ```lua
+  ThemeManager.listThemes()
+  ```
+* Get theme metadata (name, author, version, description)
+* Download themes from raw URLs or GitHub
+
+### Apps
+
+* **Theme Picker:** `apps/theme_picker.lua` — interactively choose and apply a theme
+* **Theme Downloader:** `apps/theme_downloader.lua` — download new themes from URLs or GitHub
+
+---
+
+## Folder Structure
+
 ```
-
-Adds or removes entries from your `.gfetch.conf`.
-
----
-
-## 🧠 Features
-
-* ✅ Raw GitHub file fetching via GitHub API
-* ✅ Aliases for reusable repo+branch targets
-* ✅ `.gfetch` batch files for grouped installs
-* ✅ Remote or local batch file support
-* ✅ Auto base64 decoding of file contents
-* ✅ Smart path resolution & completions support
-
-Completions work in the ComputerCraft shell when `gfetch` is run directly.
-
----
-
-### 🔗 Example
-
-```bash
-gfetch manaphoenix/CC-Code/main/lib/linq.lua lib/linq.lua
+CC-Code/
+├─ apps/         # User-run programs
+├─ assets/       # Non-code resources
+├─ config/       # Startup config file
+├─ data/         # Persistent runtime state
+├─ lib/          # Libraries (theme_manager.lua)
+├─ logs/         # Logs (optional)
+├─ startup/      # Modular startup scripts
+├─ themes/       # Installed themes
+├─ tmp/          # Temporary files
+└─ tasks/        # Task definitions (future)
 ```
 
 ---
 
-Visit the project page: [CC-Code](https://manaphoenix.github.io/CC-Code/)
+## Usage
+
+* **Apply a theme manually:**
+
+  ```lua
+  local ThemeManager = dofile("lib/theme_manager.lua")
+  ThemeManager.applyTheme(term, "default")
+  ```
+* **Run the theme picker:**
+
+  ```lua
+  dofile("apps/theme_picker.lua")
+  ```
+* **Download a new theme:**
+
+  ```lua
+  dofile("apps/theme_downloader.lua")
+  ```
+
+---
+
+## Contributing
+
+* Add new themes under `themes/` with `colors` and `meta` tables.
+* Pull requests for new apps or improvements are welcome.
+
+---
+
+## License
+
+CC0 / Public Domain
+
