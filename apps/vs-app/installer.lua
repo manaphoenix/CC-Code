@@ -107,7 +107,7 @@ local function drawMenu(selected)
             print("  " .. name .. "  ")
         end
     end
-    print("\nUse Up/Down arrows or mouse click to select, Enter to install, Esc to exit.")
+    print("\nUse Up/Down arrows or mouse click to select, Enter to install, Q to exit.")
 end
 
 --========================
@@ -135,7 +135,7 @@ while true do
         elseif key == keys.enter then
             installProgram(program_list[selected], programs[program_list[selected]])
             break
-        elseif key == keys.esc then
+        elseif key == keys.q then
             term.clear()
             term.setCursorPos(1, 1)
             print("Installer cancelled.")
