@@ -6,6 +6,7 @@
 -- CONFIG
 --========================
 local github_base = "https://raw.githubusercontent.com/manaphoenix/CC_OC-Code/main/apps/vs-app"
+local program_list = {}
 
 local programs = {
     ["Engine"] = {
@@ -113,7 +114,6 @@ end
 -- MAIN LOOP
 --========================
 
-local program_list = {}
 for name, _ in pairs(programs) do table.insert(program_list, name) end
 
 local selected = 1
