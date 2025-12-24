@@ -142,7 +142,7 @@ while true do
             break
         end
     elseif event[1] == "mouse_click" then
-        local _, x, y = table.unpack(event)
+        local _, btn, x, y = table.unpack(event)
         -- header + separator lines = 2
         -- menu starts at line 3
         local menu_y = y - 2
