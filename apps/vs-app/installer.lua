@@ -40,7 +40,7 @@ local programs = {
 }
 
 local shared_files = {
-    "shared/lib/util.lua"
+    "lib/util.lua"
 }
 
 --========================
@@ -66,6 +66,44 @@ local function createFolders(base, files)
     end
 end
 
+-- Add this function somewhere after installProgram
+local function askStartup(folder)
+    term.setCursorPos(1, term.getCursorPos() + 1)
+    print("\nDo you want to automatically run this program on startup? (Y/N)")
+
+    while true do
+        local ev, key = os.pullEvent("key")
+        if key == keys.y then
+            if fs.exists("startup.lua") then
+                print("A startup.lua already exists! Overwrite? (Y/N)")
+                while true do
+                    local _, overwriteKey = os.pullEvent("key")
+                    if overwriteKey == keys.n then
+                        print("Skipped creating startup.lua.")
+                        return
+                    elseif overwriteKey == keys.y then
+                        break
+                    end
+                end
+            end
+            local ok, err = pcall(function()
+                local file = fs.open("startup.lua", "w")
+                file.write("shell.run('" .. folder .. "/main.lua')")
+                file.close()
+            end)
+            if ok then
+                print("startup.lua created! Program will run on boot.")
+            else
+                print("Failed to create startup.lua: " .. tostring(err))
+            end
+            break
+        elseif key == keys.n then
+            print("Skipped creating startup.lua.")
+            break
+        end
+    end
+end
+
 local function installProgram(name, info)
     local base = info.folder
 
@@ -79,16 +117,20 @@ local function installProgram(name, info)
         wget_file(url, dest)
     end
 
-    -- download shared files into lib/
+    -- download shared files into proper folder
     for _, file in ipairs(shared_files) do
-        local dest_lib = fs.combine(base, "lib/" .. file:match(".+/([^/]+)$"))
-        wget_file(github_base .. "/" .. file, dest_lib)
+        local dest_lib = fs.combine(base, file) -- target path inside program folder
+        local github_path = "shared/" .. file   -- path on GitHub
+        wget_file(github_base .. "/" .. github_path, dest_lib)
     end
 
     term.clear()
     term.setCursorPos(1, 1)
     print("Installation complete! Run with:")
-    print("shell.run('" .. base .. "/main.lua')")
+    print(base .. "/main.lua")
+
+    -- ask about startup
+    askStartup(base)
 end
 
 local function drawMenu(selected)
