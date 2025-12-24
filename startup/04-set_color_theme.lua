@@ -21,7 +21,7 @@ end
 
 -- Apply theme to all monitors if enabled
 if cfg.applyColorThemeToMonitors then
-    local monitors = peripheral.find("monitor") or {}
+    local monitors = { peripheral.find("monitor") } or {}
     for _, monitor in ipairs(monitors) do
         ThemeManager.applyTheme(monitor, cfg.defaultTheme)
     end
