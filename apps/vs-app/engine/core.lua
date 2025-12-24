@@ -1,32 +1,36 @@
---- Core Code
---- Handles initialization and main loop
+-- core.lua
+-- Handles initialization and wiring
 
 local core = {}
 
-function core.run()
-    -- start by loading utilities
-    local util = require("lib.util")
-
-    -- then load the config
-    local config = require("config.defaults")
-
-    -- finally load the rest of the libs, in a sensical order
+function core.init()
+    -- Load modules
+    local util        = require("lib.util")
+    local config      = require("config.defaults")
     local peripherals = require("lib.peripherals")
-    local state = require("lib.state")
-    local net = require("lib.net")
-    local protocol = require("lib.protocol")
-    local snapshot = require("lib.snapshot")
-    local apply = require("lib.apply")
+    local state       = require("lib.state")
+    local net         = require("lib.net")
+    local protocol    = require("lib.protocol")
+    local snapshot    = require("lib.snapshot")
+    local apply       = require("lib.apply")
 
-    -- if all requires don't error, add them to the core
-    core.util = util
-    core.config = config
-    core.peripherals = peripherals
-    core.state = state
-    core.net = net
-    core.protocol = protocol
-    core.snapshot = snapshot
-    core.apply = apply
+    -- Store modules inside core for easy access
+    core.util         = util
+    core.config       = config
+    core.peripherals  = peripherals
+    core.state        = state
+    core.net          = net
+    core.protocol     = protocol
+    core.snapshot     = snapshot
+    core.apply        = apply
+
+    -- Load saved state (if any)
+    local savedState  = snapshot.load()
+    if savedState then
+        state.set(savedState)
+    end
+
+    return core
 end
 
 return core
