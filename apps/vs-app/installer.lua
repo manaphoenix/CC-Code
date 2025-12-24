@@ -113,7 +113,7 @@ end
 -- MAIN LOOP
 --========================
 
-program_list = {}
+local program_list = {}
 for name, _ in pairs(programs) do table.insert(program_list, name) end
 
 local selected = 1
