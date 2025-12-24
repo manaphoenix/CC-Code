@@ -1,11 +1,15 @@
--- VS-Dashboard Main Entry Point
--- Loads core and starts dashboard
+term.clear()
+term.setCursorPos(1, 1)
 
-local ok, err = pcall(function()
-    local core = require("core")
+local core = {} -- initialize so it can be used
+
+local suc, err = pcall(function()
+    core = require("core")
     core.run()
 end)
 
-if not ok then
-    print("Error starting VS-Dashboard: " .. tostring(err))
+if not suc then
+    print("Error starting VS-Dashboard: " .. err)
+else
+    print("Starting VS-Dashboard Successfully Loaded.")
 end
