@@ -1,44 +1,71 @@
 ---@meta
 
 ---@class Enchantment
----@field level number the level of the enchantment
----@field name string the name of the enchantment
----@field displayName string the localized name of the enchantment
+---@field level number The level of the enchantment
+---@field name string The name of the enchantment
+---@field displayName string The localized name of the enchantment
 
 ---@class itemGroup
----@field displayName string the localized name of the item group
----@field id string the id of the item group
+---@field displayName string The localized name of the item group
+---@field id string The id of the item group
 
 ---@class simpleItem
----@field count number the amount of items in the current slot
----@field name string the name of the item
----@field nbt? string the nbt hash of the item
+---@field count number The amount of items in the current slot
+---@field name string The name of the item
+---@field nbt? string The NBT hash of the item
 
----@class detailedItem:simpleItem
----@field displayName string the localized name of the item
----@field itemGroups? table<number, itemGroup> the list of item groups the item is in (seems to be creative tab)
----@field tags? table<string, boolean> the tags the item has, boolean is useless?
----@field maxCount number the max stack size of the item
----@field damage? number the amount of the damage the item has (durability uses this as an example)
----@field maxDamage? number the max damage the item can have before it breaks (disappears)
----@field enchantments? table<number, Enchantment> the list of enchantments the item has
----@field mapColor? number the number that represents how its tinted when in a particular biome
----@field mapColour? number same as mapColor
+---@class detailedItem: simpleItem
+---@field displayName string The localized name of the item
+---@field itemGroups? table<number, itemGroup> List of item groups the item is in (e.g., creative tabs)
+---@field tags? table<string, boolean> The tags the item has
+---@field maxCount number Max stack size of the item
+---@field damage? number Current damage/durability
+---@field maxDamage? number Max damage before breaking
+---@field enchantments? table<number, Enchantment> List of enchantments
+---@field mapColor? number Color tint for maps
+---@field mapColour? number Alias for mapColor
 
 ---@class inventory
----@field size fun(): number Gets the size of this inventory.
----@field list fun(): table<number, simpleItem> List all items in this inventory.
----@field getItemDetail fun(slot: number): detailedItem Gets detailed information about an item.
----@field getItemLimit fun(slot: number): number Gets the maximum number of items which can be stored in this slot.
----@field pushItems fun(toName: string, fromSlot: number, limit?: number, toSlot?: number): number Push items from one inventory to another connected one.
----@field pullItems fun(fromName: string, fromSlot: number, limit?: number, toSlot?: number): number Pull items from a connected inventory into this one.
-local inventory = {
-    size = function() end,
-    list = function() end,
-    getItemDetail = function() end,
-    getItemLimit = function() end,
-    pushItems = function() end,
-    pullItems = function() end,
-}
+local inventory = {}
+
+--- Gets the size of this inventory.
+---@return number
+function inventory.size()
+end
+
+--- Lists all items in this inventory.
+---@return table<number, simpleItem>
+function inventory.list()
+end
+
+--- Gets detailed information about an item.
+---@param slot number
+---@return detailedItem
+function inventory.getItemDetail(slot)
+end
+
+--- Gets the maximum number of items which can be stored in this slot.
+---@param slot number
+---@return number
+function inventory.getItemLimit(slot)
+end
+
+--- Push items from one inventory to another connected inventory.
+---@param toName string
+---@param fromSlot number
+---@param limit? number
+---@param toSlot? number
+---@return number Amount transferred
+function inventory.pushItems(toName, fromSlot, limit, toSlot)
+end
+
+--- Pull items from a connected inventory into this one.
+---@param fromName string
+---@param fromSlot number
+---@param limit? number
+---@param toSlot? number
+---@return number Amount transferred
+function inventory.pullItems(fromName, fromSlot, limit, toSlot)
+end
 
 return inventory
