@@ -1,15 +1,17 @@
--- Core filesystem layout
--- These folders define ownership and responsibility, not file type.
+-- Folder layout
+-- Organized by ownership and responsibility
 --
--- apps/    → User-run programs (CLI, menu, GUI — all the same in CC)
--- assets/  → Non-code resources (UI data, templates, text, etc.)
--- config/  → User-editable configuration (written once, edited later)
--- data/    → Persistent runtime state (saves, caches, install state)
--- lib/     → Shared libraries and internal modules (not run directly)
--- logs/    → Diagnostic output and execution logs
--- startup/ → Modular startup scripts loaded automatically on boot (CraftOS)
--- tmp/     → Temporary files (safe to delete on reboot)
--- tasks/   → Task definitions for the task runner (added when implemented)
+-- apps/     User-run programs
+-- assets/   Non-code resources
+-- config/   User-editable configuration
+-- data/     Persistent runtime state
+-- lib/      Shared libraries and internal modules
+-- logs/     Diagnostic output and execution logs
+-- startup/  Modular startup scripts
+-- tmp/      Temporary files
+-- themes/   Theme assets
+-- tasks/    Task definitions (future-facing, harmless to create early)
+-- types/    Type definitions (for the type system)
 
 local folders = {
     "apps",
@@ -21,7 +23,8 @@ local folders = {
     "startup",
     "themes",
     "tmp",
-    "tasks", -- future-facing, harmless to create early
+    "tasks",
+    "types",
 }
 
 for _, name in ipairs(folders) do
