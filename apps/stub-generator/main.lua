@@ -75,33 +75,26 @@ local function generateClassStub(doc, className, methods, properties, inherit)
     doc:appendLine()
     doc:appendFormatWithNewLine("---@class %s%s", className, inherit)
 
-    -- fields for methods
-    for _, name in pairs(methods or {}) do
-        doc:appendFormatWithNewLine("---@field %s fun(): any", name)
-    end
-
-    -- fields for properties
+    -- annotate properties (no dummy assignment)
     for _, name in pairs(properties or {}) do
-        doc:appendFormatWithNewLine("---@field %s %s", name, "any") -- or type detection
+        doc:appendFormatWithNewLine("---@field %s any", name)
     end
 
     -- requireable table
-    if (#methods > 0) or (#properties > 0) then
-        doc:appendFormatWithNewLine("local %s = {", className)
+    doc:appendFormatWithNewLine("local %s = {}", className)
+    doc:appendLine()
 
-        for _, name in pairs(methods or {}) do
-            doc:appendFormatWithNewLine("\t%s = function() end,", name)
-        end
-
-        for _, name in pairs(properties or {}) do
-            doc:appendFormatWithNewLine("\t%s = nil,", name) -- default dummy value
-        end
-
-        doc:appendLine("}")
+    -- generate real function definitions for methods
+    for _, name in pairs(methods or {}) do
+        doc:appendFormatWithNewLine("--- TODO: Add description for %s", name)
+        doc:appendFormatWithNewLine("function %s.%s()", className, name)
+        doc:appendLine("end")
         doc:appendLine()
-        doc:appendFormatWithNewLine("return %s", className)
     end
+
+    doc:appendFormatWithNewLine("return %s", className)
 end
+
 
 
 local class = steralizeClassName(types[1]) -- type[1] is always the class name
