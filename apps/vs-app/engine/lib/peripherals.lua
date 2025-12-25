@@ -22,7 +22,7 @@ end
 peripherals.stressometer = peripheral.find("Create_Stressometer")
 peripherals.speedometer = peripheral.find("Create_Speedometer")
 peripherals.tank = peripheral.find("fluid_storage")
-peripherals.accumlator = peripheral.find("modular_accumulator")
+peripherals.accumulator = peripheral.find("modular_accumulator")
 
 -- sanity checks
 assert(peripherals.input_relay, "Input relay not found on side " .. config.input_side)
@@ -32,6 +32,6 @@ assert(peripherals.latch_relay, "Latch relay not found")
 assert(peripherals.stressometer, "Stressometer not found")
 assert(peripherals.speedometer, "Speedometer not found")
 assert(peripherals.tank, "Fuel tank not found")
-assert(peripherals.accumlator, "Accumulator not found")
+assert(peripherals.accumulator, "Accumulator not found")
 
 return peripherals

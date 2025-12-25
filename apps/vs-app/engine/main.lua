@@ -61,7 +61,7 @@ local function sendTelemetry()
         stressCapacity = peripherals.stressometer.getStressCapacity(),
         currentFuel = (peripherals.tank.tanks()[1] or { amount = 0 }).amount,
         capacityFuel = config.fuelCapacity,
-        energyPercent = peripherals.accumlator.getPercent()
+        energyPercent = peripherals.accumulator.getPercent()
     }
 
     local msg = protocol.buildStatus(state.get(), sensors)
