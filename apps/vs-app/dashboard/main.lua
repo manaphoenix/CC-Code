@@ -1,15 +1,23 @@
-term.clear()
-term.setCursorPos(1, 1)
+-- VS-Dashboard main.lua
+-- Entry point
 
-local core = {} -- initialize so it can be used
+local core        = require("core").init()
+local input       = core.input
+local display     = core.display
+local state       = core.state
+local config      = core.config
+local peripherals = core.peripherals
 
-local suc, err = pcall(function()
-    core = require("core")
-    core.run()
-end)
+-- Initialize monitors and display
+display.drawLockScreen(config.lockText)
 
-if not suc then
-    print("Error starting VS-Dashboard: " .. err)
-else
-    print("Starting VS-Dashboard Successfully Loaded.")
+local running = true
+
+-- Main event loop
+while running do
+    local event = { os.pullEventRaw() }
+    running = input.handleEvent(event)
 end
+
+-- Cleanup on exit
+peripherals.clearAll()

@@ -1,32 +1,28 @@
---- Core Code
---- Handles initialization and main loop
-
 local core = {}
 
-function core.run()
-    -- start by loading utilities
-    local util = require("lib.util")
-
-    -- then load the config
-    local config = require("config.defaults")
-
-    -- finally load the rest of the libs, in a sensical order
+function core.init()
+    local config      = require("config.defaults")
+    local display     = require("lib.display")
+    local input       = require("lib.input")
+    local net         = require("lib.net")
     local peripherals = require("lib.peripherals")
-    local state = require("lib.state")
-    local net = require("lib.net")
-    local protocol = require("lib.protocol")
-    local display = require("lib.display")
-    local input = require("lib.input")
+    local protocol    = require("lib.protocol")
+    local state       = require("lib.state")
+    local util        = require("lib.util")
 
-    -- if all requires don't error, add them to the core
-    core.util = util
-    core.config = config
-    core.peripherals = peripherals
-    core.state = state
-    core.net = net
-    core.protocol = protocol
-    core.display = display
-    core.input = input
+    core.config       = config
+    core.display      = display
+    core.input        = input
+    core.net          = net
+    core.peripherals  = peripherals
+    core.protocol     = protocol
+    core.state        = state
+    core.util         = util
+
+    peripherals.init(config)
+    display.init(config)
+
+    return core
 end
 
 return core
