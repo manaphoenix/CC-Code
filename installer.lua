@@ -5,6 +5,7 @@ local branch = "main"
 
 local targets = {
     "startup",               -- all files in startup/
+    "types",
     "lib/theme_manager.lua", -- specific lib file
     "themes/default.lua"     -- specific theme file
 }
