@@ -321,6 +321,8 @@ local function handleEvent(evTable)
         handleTimer()
     elseif ev == "mouse_click" then
         handleMouseClick(evTable[2], evTable[3], evTable[4])
+    else
+        return -- ignore other events
     end
     os.cancelTimer(activeTimer)
     activeTimer = os.startTimer(fuelUpdate)
