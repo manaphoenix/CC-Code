@@ -28,19 +28,13 @@ local programs = {
         files = {
             "main.lua",
             "core.lua",
-            "config/defaults.lua",
+            "config.lua",
             "lib/peripherals.lua",
-            "lib/state.lua",
-            "lib/net.lua",
+            "lib/status.lua",
             "lib/display.lua",
-            "lib/input.lua",
-            "lib/protocol.lua"
+            "lib/events.lua"
         }
     }
-}
-
-local shared_files = {
-    "lib/util.lua"
 }
 
 --========================
@@ -108,20 +102,12 @@ local function installProgram(name, info)
     local base = info.folder
 
     createFolders(base, info.files)
-    createFolders(base, shared_files)
 
     -- download program files
     for _, file in ipairs(info.files) do
         local url = github_base .. "/" .. name:lower() .. "/" .. file
         local dest = fs.combine(base, file)
         wget_file(url, dest)
-    end
-
-    -- download shared files into proper folder
-    for _, file in ipairs(shared_files) do
-        local dest_lib = fs.combine(base, file) -- target path inside program folder
-        local github_path = "shared/" .. file   -- path on GitHub
-        wget_file(github_base .. "/" .. github_path, dest_lib)
     end
 
     term.clear()
