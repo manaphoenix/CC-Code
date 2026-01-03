@@ -15,7 +15,8 @@ local programs = {
             "main.lua",
             "core.lua",
             "config/config.lua",
-            "lib/utils.lua"
+            "lib/utils.lua",
+            "startup.lua"
         }
     },
     ["Dashboard"] = {
@@ -27,7 +28,8 @@ local programs = {
             "lib/peripherals.lua",
             "lib/status.lua",
             "lib/display.lua",
-            "lib/events.lua"
+            "lib/events.lua",
+            "startup.lua"
         }
     }
 }
@@ -77,7 +79,7 @@ local function askStartup(folder)
             end
             local ok, err = pcall(function()
                 local file = fs.open("startup.lua", "w")
-                file.write("shell.run('" .. folder .. "/main.lua')")
+                file.write("shell.run('" .. folder .. "/startup.lua')")
                 file.close()
             end)
             if ok then
@@ -108,6 +110,8 @@ local function installProgram(name, info)
     term.clear()
     term.setCursorPos(1, 1)
     print("Installation complete! Run with:")
+    print(base .. "/startup.lua")
+    print("or directly with:")
     print(base .. "/main.lua")
 
     -- ask about startup
