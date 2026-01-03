@@ -14,13 +14,8 @@ local programs = {
         files = {
             "main.lua",
             "core.lua",
-            "config/defaults.lua",
-            "lib/peripherals.lua",
-            "lib/state.lua",
-            "lib/apply.lua",
-            "lib/net.lua",
-            "lib/protocol.lua",
-            "lib/snapshot.lua"
+            "config/config.lua",
+            "lib/utils.lua"
         }
     },
     ["Dashboard"] = {
