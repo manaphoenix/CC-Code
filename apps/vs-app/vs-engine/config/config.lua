@@ -4,8 +4,8 @@
 local config = {}
 
 -- Peripheral side configurations
-config.input_side = "right"
-config.output_side = "left"
+config.input_side = "left"
+config.output_side = "right"
 config.ender_modem_side = "top"
 
 -- Output side mapping (overrides default side mapping)

@@ -251,8 +251,6 @@ end
 function core.handleTimer()
     core.checkOff()
     core.sendStateMessage()
-    os.cancelTimer(activeTimer)
-    activeTimer = os.startTimer(config.fuel_update)
 end
 
 -- Handle modem messages
@@ -297,6 +295,8 @@ function core.handleEvent(evTable)
     else
         return -- ignore other events
     end
+    os.cancelTimer(activeTimer)
+    activeTimer = os.startTimer(config.fuel_update)
 end
 
 -- Draw the UI header
