@@ -108,7 +108,6 @@ local function installProgram(name, info)
         wget_file(url, dest)
     end
 
-    read()
     term.clear()
     term.setCursorPos(1, 1)
     print("Installation complete! Run with:")
