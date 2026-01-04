@@ -48,9 +48,9 @@ config.def_gear_speeds = {
 }
 
 -- Debug settings
-config.debug_messages = true -- should it print the debug message(s)
+config.debug_messages = false -- should it print the debug message(s)
 
 -- Version information
-config.version = "1.1.7"
+config.version = "2.0.0"
 
 return config

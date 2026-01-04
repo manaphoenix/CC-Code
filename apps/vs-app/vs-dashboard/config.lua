@@ -57,8 +57,8 @@ function Config.getDefault()
 
         -- Display Settings
         lockText = "Locked",
-        dbgMessages = true,
-        version = "1.1.5"
+        dbgMessages = false,
+        version = "2.0.0"
     }
 end
 
