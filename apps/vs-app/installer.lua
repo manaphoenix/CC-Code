@@ -9,7 +9,7 @@ local github_base = "https://raw.githubusercontent.com/manaphoenix/CC_OC-Code/ma
 local program_list = {}
 
 local programs = {
-    ["Engine"] = {
+    ["vs-engine"] = {
         folder = "vs-engine",
         files = {
             "main.lua",
@@ -19,7 +19,7 @@ local programs = {
             "startup.lua"
         }
     },
-    ["Dashboard"] = {
+    ["vs-dashboard"] = {
         folder = "vs-dashboard",
         files = {
             "main.lua",
@@ -41,6 +41,7 @@ local programs = {
 local function wget_file(url, dest)
     print("Downloading " .. url .. " → " .. dest)
     local ok, err = pcall(shell.run, "wget", url, dest)
+    print(ok, err)
     if not ok then
         print("ERROR downloading file: " .. tostring(err))
         return false
@@ -107,6 +108,7 @@ local function installProgram(name, info)
         wget_file(url, dest)
     end
 
+    read()
     term.clear()
     term.setCursorPos(1, 1)
     print("Installation complete! Run with:")
