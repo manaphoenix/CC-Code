@@ -61,11 +61,6 @@ end
 --- @param fg number Foreground color
 --- @param bg number Background color
 local function writeToMonitor(monitor, text, fg, bg)
-    local file = fs.open("test.txt", "w")
-    if not file then return end
-    file.writeLine((tostring(monitor) or "nil") .. ":" .. (text or "nil") .. ":" .. (fg or "nil") .. ":" .. (bg or "nil"))
-    file.close()
-
     monitor.setTextColor(fg)
     monitor.setBackgroundColor(bg)
     monitor.write(text)
@@ -217,14 +212,14 @@ function Display:updateStatusMonitor(statusData, fuelToggle)
     local scolors = self.config.statusColors
     if not statusData.isOff then
         scolors = {
-            inactive = scolors.gray,
-            active = scolors.gray,
-            fuel = scolors.gray,
-            stress = scolors.gray,
-            speed = scolors.gray,
-            refillInactive = scolors.gray,
-            refillActive = scolors.gray,
-            energy = scolors.gray,
+            inactive = colors.gray,
+            active = colors.gray,
+            fuel = colors.gray,
+            stress = colors.gray,
+            speed = colors.gray,
+            refillInactive = colors.gray,
+            refillActive = colors.gray,
+            energy = colors.gray,
         }
     end
 
