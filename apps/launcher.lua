@@ -1,319 +1,257 @@
--- ComputerCraft Program Launcher (Refactored)
--- Single-player, disk-edited, CC:Tweaked-friendly
+-- =========================
+-- Paging-enabled CC Launcher
+-- =========================
 
-local term, fs, shell, colors, keys =
-    term, fs, shell, colors, keys
+---@class App
+---@field name string
+---@field path string
 
--- ======================
--- Configuration
--- ======================
-local CONFIG = {
-    searchPaths = { "/apps" },
-    extensions = { ".lua", ".out" },
-    showHidden = false,
-}
+---@class Button
+---@field app App
+---@field x number
+---@field y number
+---@field w number
+---@field h number
 
--- ======================
--- UI Theme
--- ======================
-local UI = {
-    bg       = colors.black,
-    fg       = colors.white,
-    selected = colors.blue,
-    border   = colors.gray,
-    title    = colors.yellow,
-    success  = colors.green,
-    error    = colors.red,
-    dim      = colors.lightGray,
-}
+local APP_DIR = "apps"
+local SELF_NAME = "launcher.lua"
 
--- ======================
--- State
--- ======================
-local state = {
-    apps     = {},
-    filtered = {},
-    search   = "",
-    selected = 1,
-    page     = 1,
-}
+local apps = {}
+local buttons = {}
 
--- ======================
--- Utilities
--- ======================
-local function hasExt(name)
-    for _, ext in ipairs(CONFIG.extensions) do
-        if name:sub(- #ext) == ext then
-            return true
-        end
-    end
+-- =========================
+-- Paging state
+-- =========================
+
+local page = 1
+local cols = 3
+local rows = 3
+local perPage = cols * rows
+
+-- =========================
+-- Utility
+-- =========================
+
+local function clamp(v, min, max)
+    return math.max(min, math.min(max, v))
 end
 
-local function isHidden(name)
-    return name:sub(1, 1) == "."
+local function center(w, text)
+    return math.floor((w - #text) / 2)
 end
 
-local function termSize()
-    return term.getSize()
+local function stripLua(name)
+    return (name:gsub("%.lua$", ""))
 end
 
-local function clear()
-    term.setBackgroundColor(UI.bg)
-    term.setTextColor(UI.fg)
-    term.clear()
-    term.setCursorPos(1, 1)
-end
+-- =========================
+-- Load apps
+-- =========================
 
-local function writeAt(x, y, text, fg, bg)
-    if fg then term.setTextColor(fg) end
-    if bg then term.setBackgroundColor(bg) end
-    term.setCursorPos(x, y)
-    term.write(text)
-end
+local function loadApps()
+    local files = fs.list(APP_DIR)
+    local result = {}
 
--- ======================
--- App Discovery
--- ======================
-local function discover()
-    state.apps = {}
-
-    for _, root in ipairs(CONFIG.searchPaths) do
-        if fs.exists(root) and fs.isDir(root) then
-            for _, name in ipairs(fs.list(root)) do
-                if not (isHidden(name) and not CONFIG.showHidden) then
-                    local full = fs.combine(root, name)
-
-                    if fs.isDir(full) then
-                        local entry, entryType
-
-                        if fs.exists(fs.combine(full, "startup")) then
-                            entry = fs.combine(full, "startup")
-                            entryType = "startup"
-                        else
-                            for _, main in ipairs({ "main.lua", "init.lua" }) do
-                                local p = fs.combine(full, main)
-                                if fs.exists(p) then
-                                    entry = p
-                                    entryType = main
-                                    break
-                                end
-                            end
-                        end
-
-                        table.insert(state.apps, {
-                            name      = name,
-                            display   = name,
-                            path      = entry,
-                            isDir     = true,
-                            entryType = entryType,
-                        })
-                    elseif hasExt(name) then
-                        table.insert(state.apps, {
-                            name    = name,
-                            display = name:gsub("%.lua$", ""):gsub("%.out$", ""),
-                            path    = full,
-                            isDir   = false,
-                        })
-                    end
-                end
+    for _, file in ipairs(files) do
+        if not fs.isDir(fs.combine(APP_DIR, file)) then
+            if file ~= SELF_NAME then
+                table.insert(result, {
+                    name = stripLua(file),
+                    path = fs.combine(APP_DIR, file)
+                })
             end
         end
     end
 
-    table.sort(state.apps, function(a, b)
-        return a.display:lower() < b.display:lower()
+    table.sort(result, function(a, b)
+        return a.name:lower() < b.name:lower()
     end)
 
-    state.filtered = state.apps
-    state.selected = 1
-    state.page = 1
+    return result
 end
 
--- ======================
--- Filtering
--- ======================
-local function applyFilter()
-    if state.search == "" then
-        state.filtered = state.apps
-    else
-        local s = state.search:lower()
-        state.filtered = {}
-        for _, app in ipairs(state.apps) do
-            if app.display:lower():find(s, 1, true) then
-                table.insert(state.filtered, app)
-            end
-        end
-    end
-    state.selected = 1
-    state.page = 1
-end
+-- =========================
+-- Layout engine (PAGED)
+-- =========================
 
--- ======================
--- Layout Metrics
--- ======================
 local function layout()
-    local w, h = termSize()
-    local listTop = 5
-    local listHeight = h - listTop - 3
-    return w, h, listTop, listHeight
-end
+    buttons = {}
 
--- ======================
--- Drawing
--- ======================
-local function drawTitle(w)
-    local title = "=== ComputerCraft Launcher ==="
-    writeAt(math.floor((w - #title) / 2) + 1, 1, title, UI.title)
-end
+    local sw, sh = term.getSize()
 
-local function drawSearch(w)
-    writeAt(1, 3, "Search: " .. state.search)
-    writeAt(1 + 8 + #state.search, 3, string.rep(" ", w))
-end
+    local winW = math.floor(sw * 0.8)
+    local winH = math.floor(sh * 0.8)
+    local winX = center(sw, "") + 1
+    local winY = center(sh, "") + 1
 
-local function drawList()
-    local w, h, top, height = layout()
-    local pageSize = height
-    local start = (state.page - 1) * pageSize + 1
-    local finish = math.min(start + pageSize - 1, #state.filtered)
+    winX = math.floor((sw - winW) / 2)
+    winY = math.floor((sh - winH) / 2)
+
+    local pad = 2
+
+    local cellW = math.floor((winW - (pad * (cols + 1))) / cols)
+    local cellH = 5
+
+    local start = (page - 1) * perPage + 1
+    local finish = math.min(#apps, page * perPage)
+
+    local index = 0
 
     for i = start, finish do
-        local y = top + (i - start)
-        local app = state.filtered[i]
-        local selected = (i == state.selected)
+        local app = apps[i]
+        index = index + 1
 
-        local label = app.display
-        if app.isDir then
-            label = label .. (app.entryType and " [DIR]" or " [DIR*]")
-        end
+        local col = (index - 1) % cols
+        local row = math.floor((index - 1) / cols)
 
-        term.setCursorPos(2, y)
-        term.setBackgroundColor(selected and UI.selected or UI.bg)
-        term.write((selected and "\26\128 " or "  ") .. label)
-        term.write(string.rep(" ", w - #label - 4))
+        local x = winX + pad + col * (cellW + pad)
+        local y = winY + 3 + row * (cellH + pad)
+
+        table.insert(buttons, {
+            app = app,
+            x = x,
+            y = y,
+            w = cellW,
+            h = cellH
+        })
     end
 
-    term.setBackgroundColor(UI.bg)
+    local maxPage = math.max(1, math.ceil(#apps / perPage))
+    page = clamp(page, 1, maxPage)
+
+    return winX, winY, winW, winH, maxPage
 end
 
-local function drawStatus(w, h)
-    writeAt(1, h - 1, string.rep("\140", w), UI.border)
+-- =========================
+-- Rendering
+-- =========================
 
-    local pages = math.max(1, math.ceil(#state.filtered / (h - 8)))
-    local msg = string.format(
-        "Page %d/%d | %d items | \24\25 Move | Enter Run | S Search | R Refresh | Q Quit",
-        state.page, pages, #state.filtered
-    )
+local function drawBox(x, y, w, h, bg)
+    term.setBackgroundColor(bg)
 
-    writeAt(math.floor((w - #msg) / 2) + 1, h, msg)
+    for dy = 0, h - 1 do
+        term.setCursorPos(x, y + dy)
+        write(string.rep(" ", w))
+    end
 end
 
-local function render()
-    clear()
-    local w, h = termSize()
-    drawTitle(w)
-    drawSearch(w)
-    drawList()
-    drawStatus(w, h)
-end
+local function drawButton(btn, hovered)
+    local bg = hovered and colors.gray or colors.lightGray
+    local fg = hovered and colors.white or colors.black
 
--- ======================
--- Execution
--- ======================
-local function run(app)
-    clear()
-    writeAt(1, 1, "Running: " .. app.display, UI.success)
-    writeAt(1, 3, "Path: " .. (app.path or "<none>"))
+    drawBox(btn.x, btn.y, btn.w, btn.h, bg)
 
-    os.pullEvent("key")
-    clear()
+    term.setTextColor(fg)
 
-    if app.path and fs.exists(app.path) then
-        shell.run(app.path)
-    else
-        writeAt(1, 1, "Error: No runnable entrypoint", UI.error)
-        os.pullEvent("key")
+    local label = btn.app.name
+    if #label > btn.w - 2 then
+        label = label:sub(1, btn.w - 5) .. "..."
     end
 
-    discover()
+    local lx = btn.x + math.floor((btn.w - #label) / 2)
+    local ly = btn.y + math.floor(btn.h / 2)
+
+    term.setCursorPos(lx, ly)
+    write(label)
 end
 
--- ======================
--- Input
--- ======================
-local function handleKey()
-    if #state.filtered == 0 then
-        os.pullEvent("key")
-        return true
+local function draw(mx, my)
+    term.setBackgroundColor(colors.black)
+    term.clear()
+
+    local sw, sh = term.getSize()
+    local winX, winY, winW, winH, maxPage = layout()
+
+    drawBox(winX, winY, winW, winH, colors.black)
+
+    term.setTextColor(colors.white)
+    term.setCursorPos(winX + 2, winY + 1)
+    write("App Launcher")
+
+    term.setCursorPos(winX + winW - 20, winY + 1)
+    write("Page " .. page .. "/" .. maxPage)
+
+    for _, btn in ipairs(buttons) do
+        local hovered =
+            mx and my and
+            mx >= btn.x and mx < btn.x + btn.w and
+            my >= btn.y and my < btn.y + btn.h
+
+        drawButton(btn, hovered)
     end
+end
 
-    local _, key = os.pullEvent("key")
-    local _, _, _, height = layout()
-    local pageSize = height
+-- =========================
+-- Interaction
+-- =========================
 
-    if key == keys.q or key == keys.escape then
-        return false
-    elseif key == keys.up then
-        state.selected = math.max(1, state.selected - 1)
-    elseif key == keys.down then
-        state.selected = math.min(#state.filtered, state.selected + 1)
-    elseif key == keys.left then
-        state.page = math.max(1, state.page - 1)
-        state.selected = (state.page - 1) * pageSize + 1
-    elseif key == keys.right then
-        state.page = math.min(
-            math.ceil(#state.filtered / pageSize),
-            state.page + 1
-        )
-        state.selected = (state.page - 1) * pageSize + 1
-    elseif key == keys.enter then
-        run(state.filtered[state.selected])
-    elseif key == keys.r then
-        discover()
-    elseif key == keys.s then
-        local original = state.search
-        state.search = ""
-
-        while true do
-            render()
-            term.setCursorPos(9 + #state.search, 3)
-
-            local e, p = os.pullEventRaw()
-
-            if e == "char" then
-                state.search = state.search .. p
-                applyFilter()
-            elseif e == "key" then
-                if p == keys.backspace then
-                    state.search = state.search:sub(1, -2)
-                    applyFilter()
-                elseif p == keys.enter then
-                    -- Accept search
-                    break
-                elseif p == keys.q then
-                    -- Explicit quit shortcut
-                    state.search = original
-                    applyFilter()
-                    break
-                end
-            end
+local function getButtonAt(x, y)
+    for _, btn in ipairs(buttons) do
+        if x >= btn.x and x < btn.x + btn.w and
+           y >= btn.y and y < btn.y + btn.h then
+            return btn
         end
     end
-
-    state.page = math.ceil(state.selected / pageSize)
-    return true
 end
 
--- ======================
--- Main
--- ======================
-local function main()
-    discover()
-    while true do
-        render()
-        if not handleKey() then break end
+local function launch(btn)
+    term.setBackgroundColor(colors.black)
+    term.clear()
+    term.setCursorPos(1, 1)
+
+    print("Launching: " .. btn.app.name .. "...\n")
+
+    shell.run(btn.app.path)
+
+    term.setBackgroundColor(colors.black)
+    term.clear()
+    term.setCursorPos(1, 1)
+
+    print("App finished.")
+    print("Returning to launcher...")
+    print("\nPress any key to continue")
+
+    os.pullEvent()
+end
+
+-- =========================
+-- Main loop
+-- =========================
+
+apps = loadApps()
+
+local mx, my = nil, nil
+
+while true do
+    draw(mx, my)
+
+    local event, a, b, c = os.pullEvent()
+
+    if event == "mouse_click" then
+        local btn = getButtonAt(b, c)
+        if btn then
+            launch(btn)
+        end
+
+    elseif event == "monitor_touch" then
+        local btn = getButtonAt(b, c)
+        if btn then
+            launch(btn)
+        end
+
+    elseif event == "key" then
+        if a == keys.q then
+            term.setBackgroundColor(colors.black)
+            term.clear()
+            term.setCursorPos(1, 1)
+            return
+
+        elseif a == keys.left then
+            page = math.max(1, page - 1)
+
+        elseif a == keys.right then
+            local maxPage = math.max(1, math.ceil(#apps / perPage))
+            page = math.min(maxPage, page + 1)
+        end
     end
-    clear()
 end
-
-pcall(main)
