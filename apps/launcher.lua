@@ -188,30 +188,33 @@ end
 local function getButtonAt(x, y)
     for _, btn in ipairs(buttons) do
         if x >= btn.x and x < btn.x + btn.w and
-           y >= btn.y and y < btn.y + btn.h then
+            y >= btn.y and y < btn.y + btn.h then
             return btn
         end
     end
 end
 
-local function launch(btn)
+local function clearScreen()
     term.setBackgroundColor(colors.black)
+    term.setTextColour(colors.white)
     term.clear()
     term.setCursorPos(1, 1)
+end
+
+local function launch(btn)
+    clearScreen()
 
     print("Launching: " .. btn.app.name .. "...\n")
 
     shell.run(btn.app.path)
 
-    term.setBackgroundColor(colors.black)
-    term.clear()
-    term.setCursorPos(1, 1)
+    clearScreen()
 
-    print("App finished.")
+    term.write("App finished.")
     print("Returning to launcher...")
     print("\nPress any key to continue")
 
-    os.pullEvent()
+    os.pullEvent("key")
 end
 
 -- =========================
@@ -232,23 +235,18 @@ while true do
         if btn then
             launch(btn)
         end
-
     elseif event == "monitor_touch" then
         local btn = getButtonAt(b, c)
         if btn then
             launch(btn)
         end
-
     elseif event == "key" then
         if a == keys.q then
-            term.setBackgroundColor(colors.black)
-            term.clear()
-            term.setCursorPos(1, 1)
+            clearScreen()
+            sleep()
             return
-
         elseif a == keys.left then
             page = math.max(1, page - 1)
-
         elseif a == keys.right then
             local maxPage = math.max(1, math.ceil(#apps / perPage))
             page = math.min(maxPage, page + 1)
