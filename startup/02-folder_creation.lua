@@ -1,17 +1,18 @@
 -- Folder layout
 -- Organized by ownership and responsibility
 --
--- apps/     User-run programs
--- assets/   Non-code resources
--- config/   User-editable configuration
--- data/     Persistent runtime state
--- lib/      Shared libraries and internal modules
--- logs/     Diagnostic output and execution logs
--- startup/  Modular startup scripts
--- tmp/      Temporary files
--- themes/   Theme assets
--- tasks/    Task definitions (future-facing, harmless to create early)
--- types/    Type definitions (for the type system)
+-- apps/       User-run programs
+-- assets/     Non-code resources
+-- config/     User-editable configuration
+-- data/       Persistent runtime state
+-- lib/        Shared libraries and internal modules
+-- logs/       Diagnostic output and execution logs
+-- startup/    Modular startup scripts
+-- tmp/        Temporary files
+-- themes/     Theme assets
+-- tasks/      Task definitions (future-facing, harmless to create early)
+-- types/      Type definitions (for the type system)
+-- templates/  program templates for creating new apps
 
 local folders = {
     "apps",
@@ -25,6 +26,7 @@ local folders = {
     "tmp",
     "tasks",
     "types",
+    "templates"
 }
 
 for _, name in ipairs(folders) do
