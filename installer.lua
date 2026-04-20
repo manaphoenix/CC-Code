@@ -6,8 +6,13 @@ local branch = "main"
 local targets = {
     "startup",               -- all files in startup/
     "types",
+    "templates",             -- -- all files in templates/
     "lib/theme_manager.lua", -- specific lib file
-    "themes/default.lua"     -- specific theme file
+    "lib/ledger.lua",        -- specific lib file
+    "lib/cli.lua",           -- specific lib file
+    "lib/input.lua",          -- specific lib file
+    "themes/default.lua",    -- specific theme file
+    "apps/newapp.lua"        -- app generator
 }
 
 local function ensureFolder(path)
