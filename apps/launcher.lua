@@ -217,6 +217,22 @@ local function launch(btn)
     os.pullEvent("key")
 end
 
+local function editLauncher(btn)
+    clearScreen()
+
+    if fs.exists("apps/cosu.lua") then
+        shell.run("apps/cosu.lua", btn.app.path)
+    else
+        shell.run("edit", btn.app.path)
+    end
+
+    print("Editing launcher...")
+    print("This is a placeholder for future functionality.")
+    print("\nPress any key to continue")
+
+    os.pullEvent("key")
+end
+
 -- =========================
 -- Main loop
 -- =========================
@@ -233,7 +249,11 @@ while true do
     if event == "mouse_click" then
         local btn = getButtonAt(b, c)
         if btn then
-            launch(btn)
+            if a == 1 then     -- left click
+                launch(btn)
+            elseif a == 2 then -- right click
+                editLauncher(btn)
+            end
         end
     elseif event == "monitor_touch" then
         local btn = getButtonAt(b, c)
