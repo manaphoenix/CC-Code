@@ -14,7 +14,7 @@
 ---@field h number
 
 local APP_DIR = "apps"
-local SELF_NAME = "launcher.lua"
+local SELF_NAME = "app_launcher.lua"
 
 local apps = {}
 local buttons = {}
@@ -56,7 +56,7 @@ local function loadApps()
         if not fs.isDir(fs.combine(APP_DIR, file)) then
             if file ~= SELF_NAME then
                 table.insert(result, {
-                    name = stripLua(file),
+                    name = stripLua(file):gsub("_", " "),
                     path = fs.combine(APP_DIR, file)
                 })
             end
@@ -179,6 +179,8 @@ local function draw(mx, my)
 
         drawButton(btn, hovered)
     end
+
+    term.setTextColour(colors.white)
 end
 
 -- =========================
@@ -210,24 +212,8 @@ local function launch(btn)
 
     clearScreen()
 
-    term.write("App finished.")
+    print("App finished.")
     print("Returning to launcher...")
-    print("\nPress any key to continue")
-
-    os.pullEvent("key")
-end
-
-local function editLauncher(btn)
-    clearScreen()
-
-    if fs.exists("apps/cosu.lua") then
-        shell.run("apps/cosu.lua", btn.app.path)
-    else
-        shell.run("edit", btn.app.path)
-    end
-
-    print("Editing launcher...")
-    print("This is a placeholder for future functionality.")
     print("\nPress any key to continue")
 
     os.pullEvent("key")
@@ -249,11 +235,7 @@ while true do
     if event == "mouse_click" then
         local btn = getButtonAt(b, c)
         if btn then
-            if a == 1 then     -- left click
-                launch(btn)
-            elseif a == 2 then -- right click
-                editLauncher(btn)
-            end
+            launch(btn)
         end
     elseif event == "monitor_touch" then
         local btn = getButtonAt(b, c)
