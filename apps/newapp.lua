@@ -4,23 +4,18 @@
 local args = { ... }
 
 local name = args[1]
-local type = args[2] or "script"
+local type = args[2]
 
-local base = fs.combine("apps", name or "")
-
-local valid = {
-    script = true,
-    cli = true,
-    loop = true,
-    ui = true
-}
+-- =========================
+-- Template discovery
+-- =========================
 
 local function getTemplates()
     local list = {}
 
     if fs.exists("templates") then
         for _, file in ipairs(fs.list("templates")) do
-            if file:sub(-4) == ".lua" then
+            if file:match("%.lua$") then
                 list[#list + 1] = file:gsub("%.lua$", "")
             end
         end
@@ -29,6 +24,17 @@ local function getTemplates()
     table.sort(list)
     return list
 end
+
+local function templateExists(t)
+    for _, v in ipairs(getTemplates()) do
+        if v == t then return true end
+    end
+    return false
+end
+
+-- =========================
+-- Help
+-- =========================
 
 local function usage()
     print("Usage: newapp <name> <type>")
@@ -40,36 +46,46 @@ local function usage()
     end
 end
 
-if not name then
+-- =========================
+-- Validation
+-- =========================
+
+if not name or not type then
     return usage()
 end
 
-if not valid[type] then
+if not templateExists(type) then
     return usage()
 end
+
+local base = fs.combine("apps", name)
 
 if fs.exists(base) then
-    return usage()
+    print("App already exists: " .. name)
+    return
 end
 
--- load template
+-- =========================
+-- Load template
+-- =========================
+
 local templatePath = fs.combine("templates", type .. ".lua")
 
-if not fs.exists(templatePath) then
-    return usage()
-end
+local templateFn = dofile(templatePath)
 
-local template = dofile(templatePath)
+-- =========================
+-- Create app folder
+-- =========================
 
 fs.makeDir(base)
 
--- create main.lua 
+-- main entry
 local mainFile = fs.open(fs.combine(base, "main.lua"), "w")
-mainFile.write(template(name))
+mainFile.write(templateFn(name))
 mainFile.close()
 
--- create metadata
-local meta = fs.open(fs.combine(base, "app.lua"), "w")
+-- metadata (clean standard)
+local meta = fs.open(fs.combine(base, "manifest.lua"), "w")
 meta.write([[return {
     name = "]] .. name .. [[",
     type = "]] .. type .. [[",
@@ -78,3 +94,21 @@ meta.write([[return {
 meta.close()
 
 print("Created app: " .. name .. " (" .. type .. ")")
+
+shell.setCompletionFunction("newapp.lua", function(_, index, text)
+    local templates = getTemplates()
+
+    if index == 2 then
+        local out = {}
+
+        for _, t in ipairs(templates) do
+            if t:sub(1, #text) == text then
+                out[#out + 1] = t
+            end
+        end
+
+        return out
+    end
+
+    return {}
+end)

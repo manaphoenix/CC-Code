@@ -49,18 +49,38 @@ end
 -- =========================
 
 local function loadApps()
-    local files = fs.list(APP_DIR)
+    local entries = fs.list(APP_DIR)
     local result = {}
 
-    for _, file in ipairs(files) do
-        if not fs.isDir(fs.combine(APP_DIR, file)) then
-            if file ~= SELF_NAME then
+    for _, entry in ipairs(entries) do
+        local fullPath = fs.combine(APP_DIR, entry)
+
+        -- Skip launcher itself if it ever ends up inside apps/
+        if entry == SELF_NAME then
+            goto continue
+        end
+
+        if fs.isDir(fullPath) then
+            -- Folder-based app (look for main.lua)
+            local mainPath = fs.combine(fullPath, "main.lua")
+
+            if fs.exists(mainPath) then
                 table.insert(result, {
-                    name = stripLua(file):gsub("_", " "),
-                    path = fs.combine(APP_DIR, file)
+                    name = entry:gsub("_", " "),
+                    path = mainPath
+                })
+            end
+        else
+            -- Flat app file
+            if entry:match("%.lua$") then
+                table.insert(result, {
+                    name = stripLua(entry):gsub("_", " "),
+                    path = fullPath
                 })
             end
         end
+
+        ::continue::
     end
 
     table.sort(result, function(a, b)
