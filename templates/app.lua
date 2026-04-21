@@ -34,9 +34,9 @@ end
 -- Event handling
 -- =========================
 
-local function handle(event, a, b, c)
+local function handle(event)
     -- Quit logic lives here (NOT in input lib)
-    if event == "key" and a == keys.q then
+    if event.type == "key" and event.key == keys.q then
         running = false
         return
     end
@@ -53,8 +53,8 @@ ledger.write("Starting ]] .. name .. [[")
 while running do
     draw()
 
-    local event, a, b, c = input.pull()
-    handle(event, a, b, c)
+    local event = input.pull()
+    handle(event)
 end
 
 ledger.write("Exited ]] .. name .. [[")
