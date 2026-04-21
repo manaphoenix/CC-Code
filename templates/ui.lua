@@ -1,5 +1,5 @@
 return function(name)
-return [[
+    return [[
 -- ]] .. name .. [[ (ui app)
 
 local input = dofile("lib/input.lua")
@@ -12,12 +12,30 @@ local running = true
 -- =========================
 
 local state = {}
-
--- Example UI button structure
 local buttons = {}
 
 -- =========================
--- Layout (placeholder)
+-- UI helpers
+-- =========================
+
+local function addButton(label, x, y, w, h, action)
+    buttons[#buttons + 1] = {
+        label = label,
+        x = x,
+        y = y,
+        w = w,
+        h = h,
+        action = action
+    }
+end
+
+local function isInside(btn, x, y)
+    return x >= btn.x and x < btn.x + btn.w and
+           y >= btn.y and y < btn.y + btn.h
+end
+
+-- =========================
+-- Layout
 -- =========================
 
 local function layout()
@@ -25,17 +43,16 @@ local function layout()
 
     local w, h = term.getSize()
 
-    -- simple center button example
-    table.insert(buttons, {
-        label = "Exit",
-        x = math.floor(w / 2) - 2,
-        y = math.floor(h / 2),
-        w = 4,
-        h = 1,
-        action = function()
+    addButton(
+        "Exit",
+        math.floor(w / 2) - 2,
+        math.floor(h / 2),
+        4,
+        1,
+        function()
             running = false
         end
-    })
+    )
 end
 
 -- =========================
@@ -43,33 +60,36 @@ end
 -- =========================
 
 local function draw()
+    term.setBackgroundColor(colors.black)
     term.clear()
-    term.setCursorPos(1,1)
+    term.setCursorPos(1, 1)
 
     print("]] .. name .. [[ UI")
     print("")
-    print("Click 'Exit' or press Q")
+    print("Press Q to quit")
+
+    -- draw buttons (simple fallback rendering)
+    for _, btn in ipairs(buttons) do
+        term.setCursorPos(btn.x, btn.y)
+        term.write(btn.label)
+    end
 end
 
 -- =========================
 -- Input handling
 -- =========================
 
-local function handle(event, a, b, c)
-    -- keyboard quit
-    if event == "key" and a == keys.q then
+local function handle(event)
+    if event.type == "key" and event.key == keys.q then
         running = false
         return
     end
 
-    -- mouse interaction
-    if event == "mouse_click" then
-        local mx, my = b, c
-
+    if event.type == "click" then
         for _, btn in ipairs(buttons) do
-            if mx >= btn.x and mx < btn.x + btn.w and
-               my >= btn.y and my < btn.y + btn.h then
+            if isInside(btn, event.x, event.y) then
                 if btn.action then btn.action() end
+                return
             end
         end
     end
@@ -86,8 +106,8 @@ layout()
 while running do
     draw()
 
-    local event, a, b, c = input.pull()
-    handle(event, a, b, c)
+    local event = input.pull()
+    handle(event)
 end
 
 ledger.write("Exited ]] .. name .. [[ UI")
