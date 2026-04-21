@@ -48,10 +48,6 @@ local function center(w, text)
     return math.floor((w - #text) / 2)
 end
 
-local function stripLua(name)
-    return (name:gsub("%.lua$", ""))
-end
-
 local function loadManifest(path)
     local ok, result = pcall(dofile, path)
     if ok and type(result) == "table" then
@@ -88,15 +84,6 @@ local function isTrusted(entryName, manifest)
     end
 
     return false
-end
-
-local function trustApp(entry)
-    registry[entry] = registry[entry] or {}
-    registry[entry].trusted = true
-
-    local file = fs.open(REGISTRY_PATH, "w")
-    file.write("return " .. textutils.serialize(registry))
-    file.close()
 end
 
 -- =========================
@@ -312,15 +299,6 @@ end
 -- =========================
 -- Interaction
 -- =========================
-
-local function getButtonAt(x, y)
-    for _, btn in ipairs(buttons) do
-        if x >= btn.x and x < btn.x + btn.w and
-            y >= btn.y and y < btn.y + btn.h then
-            return btn
-        end
-    end
-end
 
 local function clearScreen()
     term.setBackgroundColor(colors.black)
