@@ -1,7 +1,7 @@
 local ledger = {} -- public API
 local _ledger = { -- internal state
     terminalEcho = true,
-    filePath = "ledger.log",
+    filePath = "logs/ledger.log",
     sinks = {}
 }
 
