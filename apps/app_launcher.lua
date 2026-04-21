@@ -15,12 +15,17 @@
 
 local APP_DIR = "apps"
 local SELF_NAME = "app_launcher.lua"
+local REGISTRY_PATH = fs.combine("data", "app_registry.lua")
 
 local apps = {}
 local buttons = {}
 
 local ledger = require(".lib.ledger")
 local input = require(".lib.input")
+
+local ALLOWED_RUNTIMES = {
+    app = true
+}
 
 -- =========================
 -- Paging state
@@ -47,6 +52,53 @@ local function stripLua(name)
     return (name:gsub("%.lua$", ""))
 end
 
+local function loadManifest(path)
+    local ok, result = pcall(dofile, path)
+    if ok and type(result) == "table" then
+        return result
+    end
+    return nil
+end
+
+local function loadRegistry()
+    local path = REGISTRY_PATH
+
+    if fs.exists(path) then
+        local ok, data = pcall(dofile, path)
+        if ok and type(data) == "table" then
+            return data
+        end
+    end
+
+    return {}
+end
+
+local registry = loadRegistry()
+
+local function isTrusted(entryName, manifest)
+    local entry = registry[entryName]
+
+    if entry and entry.trusted then
+        return true
+    end
+
+    -- only trust manifest if explicitly declared
+    if manifest and manifest.trusted == true then
+        return true
+    end
+
+    return false
+end
+
+local function trustApp(entry)
+    registry[entry] = registry[entry] or {}
+    registry[entry].trusted = true
+
+    local file = fs.open(REGISTRY_PATH, "w")
+    file.write("return " .. textutils.serialize(registry))
+    file.close()
+end
+
 -- =========================
 -- Load apps
 -- =========================
@@ -58,29 +110,55 @@ local function loadApps()
     for _, entry in ipairs(entries) do
         local fullPath = fs.combine(APP_DIR, entry)
 
-        -- Skip launcher itself if it ever ends up inside apps/
         if entry == SELF_NAME then
             goto continue
         end
 
+        -- =========================
+        -- FOLDER APPS (manifest system)
+        -- =========================
         if fs.isDir(fullPath) then
-            -- Folder-based app (look for main.lua)
+            local manifestPath = fs.combine(fullPath, "manifest.lua")
             local mainPath = fs.combine(fullPath, "main.lua")
 
             if fs.exists(mainPath) then
-                table.insert(result, {
-                    name = entry:gsub("_", " "),
-                    path = mainPath
-                })
+                local manifest = nil
+
+                if fs.exists(manifestPath) then
+                    manifest = loadManifest(manifestPath)
+                end
+
+                local runtime = (manifest and manifest.runtime) or "untrusted"
+
+                -- only filter IF manifest explicitly defines runtime
+                if (not manifest) or ALLOWED_RUNTIMES[runtime] then
+                    local trusted = isTrusted(entry, manifest)
+
+                    table.insert(result, {
+                        name = (manifest and (manifest.displayName or manifest.name)) or entry,
+                        path = mainPath,
+                        manifest = manifest,
+                        runtime = runtime,
+                        trusted = trusted,
+                        source = "folder"
+                    })
+                end
             end
-        else
-            -- Flat app file
-            if entry:match("%.lua$") then
-                table.insert(result, {
-                    name = stripLua(entry):gsub("_", " "),
-                    path = fullPath
-                })
-            end
+
+            -- =========================
+            -- FLAT LUA FILES (legacy tools like COSU editor)
+            -- =========================
+        elseif entry:match("%.lua$") then
+            local trusted = isTrusted(entry, nil)
+
+            table.insert(result, {
+                name = entry:gsub("%.lua$", ""):gsub("_", " "),
+                path = fullPath,
+                manifest = nil,
+                runtime = "script",
+                trusted = trusted,
+                source = "flat"
+            })
         end
 
         ::continue::
@@ -159,18 +237,43 @@ local function drawBox(x, y, w, h, bg)
 end
 
 local function drawButton(btn, hovered)
-    local bg = hovered and colors.gray or colors.lightGray
-    local fg = hovered and colors.white or colors.black
+    -- =========================
+    -- TRUST VISUAL STATE
+    -- =========================
+    local trusted = btn.app.trusted ~= false
+
+    local bg
+    local fg
+
+    if trusted then
+        bg = hovered and colors.gray or colors.lightGray
+        fg = colors.white
+    else
+        -- untrusted apps are visually "weaker"
+        bg = hovered and colors.black or colors.gray
+        fg = colors.lightGray
+    end
 
     drawBox(btn.x, btn.y, btn.w, btn.h, bg)
 
     term.setTextColor(fg)
 
+    -- =========================
+    -- LABEL (with trust marker)
+    -- =========================
     local label = btn.app.name
+
+    if not trusted then
+        label = "? " .. label
+    end
+
     if #label > btn.w - 2 then
         label = label:sub(1, btn.w - 5) .. "..."
     end
 
+    -- =========================
+    -- CENTER TEXT
+    -- =========================
     local lx = btn.x + math.floor((btn.w - #label) / 2)
     local ly = btn.y + math.floor(btn.h / 2)
 
@@ -203,7 +306,7 @@ local function draw(mx, my)
         drawButton(btn, hovered)
     end
 
-    term.setTextColour(colors.white)
+    term.setTextColor(colors.white)
 end
 
 -- =========================
@@ -221,7 +324,7 @@ end
 
 local function clearScreen()
     term.setBackgroundColor(colors.black)
-    term.setTextColour(colors.white)
+    term.setTextColor(colors.white)
     term.clear()
     term.setCursorPos(1, 1)
 end
@@ -230,6 +333,10 @@ local function launch(btn)
     clearScreen()
 
     ledger.write("Launching: " .. btn.app.name .. "...\n")
+
+    if not btn.app.trusted then
+        ledger.write("Tip: Press T to trust this app")
+    end
 
     shell.run(btn.app.path)
 

@@ -115,7 +115,8 @@ local metaTable = {
     displayName = name,
     runtime = template.runtime, -- 🔥 THIS is the key change
     version = "1.0.0",
-    description = ""
+    description = "",
+    trusted = true
 }
 
 local meta = fs.open(fs.combine(base, "manifest.lua"), "w")
