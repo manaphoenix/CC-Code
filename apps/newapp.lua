@@ -36,6 +36,25 @@ end
 -- Help
 -- =========================
 
+shell.setCompletionFunction("apps/newapp.lua", function(_, index, argument, previous)
+    local templates = getTemplates()
+
+    -- Completing <type> (newapp <name> <type>)
+    if index == 2 then
+        local out = {}
+
+        for _, t in ipairs(templates) do
+            if argument == "" or t:sub(1, #argument) == argument then
+                out[#out + 1] = t
+            end
+        end
+
+        return out
+    end
+
+    return {}
+end)
+
 local function usage()
     print("Usage: newapp <name> <type>")
     print("")
@@ -85,30 +104,16 @@ mainFile.write(templateFn(name))
 mainFile.close()
 
 -- metadata (clean standard)
+local metaTable = {
+    name = name,
+    displayName = name,
+    type = type,
+    version = "1.0.0",
+    description = ""
+}
+
 local meta = fs.open(fs.combine(base, "manifest.lua"), "w")
-meta.write([[return {
-    name = "]] .. name .. [[",
-    type = "]] .. type .. [[",
-    version = "1.0.0"
-}]])
+meta.write("return " .. textutils.serialize(metaTable))
 meta.close()
 
 print("Created app: " .. name .. " (" .. type .. ")")
-
-shell.setCompletionFunction("newapp.lua", function(_, index, text)
-    local templates = getTemplates()
-
-    if index == 2 then
-        local out = {}
-
-        for _, t in ipairs(templates) do
-            if t:sub(1, #text) == text then
-                out[#out + 1] = t
-            end
-        end
-
-        return out
-    end
-
-    return {}
-end)
