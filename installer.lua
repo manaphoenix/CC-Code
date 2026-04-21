@@ -68,7 +68,7 @@ term.setCursorPos(1, 1)
 print("Installing CC-Code startup files...\n")
 
 for _, path in ipairs(targets) do
-    if path:sub(-1) == "/" or fs.isDir(path) or path == "startup" or path == "types" then
+    if path:sub(-1) == "/" or fs.isDir(path) or path == "startup" or path == "types" or path == "templates" then
         downloadGitHubFolder(path, path)
     else
         local url = string.format(
