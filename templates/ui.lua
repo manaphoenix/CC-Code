@@ -1,5 +1,8 @@
-return function(name)
-    return [[
+return {
+    runtime = "app",
+
+    generator = function(name)
+        return [[
 -- ]] .. name .. [[ (ui app)
 
 local input = dofile("lib/input.lua")
@@ -68,7 +71,6 @@ local function draw()
     print("")
     print("Press Q to quit")
 
-    -- draw buttons (simple fallback rendering)
     for _, btn in ipairs(buttons) do
         term.setCursorPos(btn.x, btn.y)
         term.write(btn.label)
@@ -112,4 +114,5 @@ end
 
 ledger.write("Exited ]] .. name .. [[ UI")
 ]]
-end
+    end
+}

@@ -1,10 +1,10 @@
 -- newapp.lua
--- App generator for CC-Code system
+-- App generator for CC-Code system (runtime-based)
 
 local args = { ... }
 
 local name = args[1]
-local type = args[2]
+local templateName = args[2]
 
 -- =========================
 -- Template discovery
@@ -16,7 +16,8 @@ local function getTemplates()
     if fs.exists("templates") then
         for _, file in ipairs(fs.list("templates")) do
             if file:match("%.lua$") then
-                list[#list + 1] = file:gsub("%.lua$", "")
+                local id = file:gsub("%.lua$", "")
+                list[#list + 1] = id
             end
         end
     end
@@ -25,40 +26,47 @@ local function getTemplates()
     return list
 end
 
-local function templateExists(t)
-    for _, v in ipairs(getTemplates()) do
-        if v == t then return true end
+local function loadTemplate(name)
+    local path = fs.combine("templates", name .. ".lua")
+
+    if not fs.exists(path) then
+        return nil
     end
-    return false
+
+    local ok, tpl = pcall(dofile, path)
+    if not ok then
+        return nil
+    end
+
+    return tpl
 end
 
 -- =========================
--- Help
+-- Completion
 -- =========================
 
-shell.setCompletionFunction("apps/newapp.lua", function(_, index, argument, previous)
-    local templates = getTemplates()
-
-    -- Completing <type> (newapp <name> <type>)
+shell.setCompletionFunction("apps/newapp.lua", function(_, index, argument)
     if index == 2 then
         local out = {}
-
-        for _, t in ipairs(templates) do
+        for _, t in ipairs(getTemplates()) do
             if argument == "" or t:sub(1, #argument) == argument then
                 out[#out + 1] = t
             end
         end
-
         return out
     end
 
     return {}
 end)
 
+-- =========================
+-- Help
+-- =========================
+
 local function usage()
-    print("Usage: newapp <name> <type>")
+    print("Usage: newapp <name> <template>")
     print("")
-    print("Available types:")
+    print("Available templates:")
 
     for _, t in ipairs(getTemplates()) do
         print("  - " .. t)
@@ -69,11 +77,14 @@ end
 -- Validation
 -- =========================
 
-if not name or not type then
+if not name or not templateName then
     return usage()
 end
 
-if not templateExists(type) then
+local template = loadTemplate(templateName)
+
+if not template or not template.runtime or not template.generator then
+    print("Invalid template: " .. tostring(templateName))
     return usage()
 end
 
@@ -85,14 +96,6 @@ if fs.exists(base) then
 end
 
 -- =========================
--- Load template
--- =========================
-
-local templatePath = fs.combine("templates", type .. ".lua")
-
-local templateFn = dofile(templatePath)
-
--- =========================
 -- Create app folder
 -- =========================
 
@@ -100,14 +103,17 @@ fs.makeDir(base)
 
 -- main entry
 local mainFile = fs.open(fs.combine(base, "main.lua"), "w")
-mainFile.write(templateFn(name))
+mainFile.write(template.generator(name))
 mainFile.close()
 
--- metadata (clean standard)
+-- =========================
+-- Manifest (runtime-driven)
+-- =========================
+
 local metaTable = {
     name = name,
     displayName = name,
-    type = type,
+    runtime = template.runtime, -- 🔥 THIS is the key change
     version = "1.0.0",
     description = ""
 }
@@ -116,4 +122,4 @@ local meta = fs.open(fs.combine(base, "manifest.lua"), "w")
 meta.write("return " .. textutils.serialize(metaTable))
 meta.close()
 
-print("Created app: " .. name .. " (" .. type .. ")")
+print("Created app: " .. name .. " (" .. template.runtime .. ")")

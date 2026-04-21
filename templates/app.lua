@@ -1,5 +1,8 @@
-return function(name)
-return [[
+return {
+    runtime = "app",
+
+    generator = function(name)
+        return [[
 -- ]] .. name .. [[ (app)
 
 local input = dofile("lib/input.lua")
@@ -18,6 +21,7 @@ local state = {}
 -- =========================
 
 local function draw()
+    term.setBackgroundColor(colors.black)
     term.clear()
     term.setCursorPos(1,1)
 
@@ -55,4 +59,5 @@ end
 
 ledger.write("Exited ]] .. name .. [[")
 ]]
-end
+    end
+}

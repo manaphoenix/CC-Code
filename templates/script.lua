@@ -1,5 +1,8 @@
-return function(name)
-return [[
+return {
+    runtime = "script",
+
+    generator = function(name)
+        return [[
 -- ]] .. name .. [[ (script)
 
 local ledger = dofile("lib/ledger.lua")
@@ -23,4 +26,5 @@ ledger.write("Done")
 
 waitForKey()
 ]]
-end
+    end
+}

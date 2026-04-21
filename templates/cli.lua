@@ -1,5 +1,8 @@
-return function(name)
-return [[
+return {
+    runtime = "cli",
+
+    generator = function(name)
+        return [[
 -- ]] .. name .. [[ (cli tool)
 
 local cli = dofile("lib/cli.lua")
@@ -35,4 +38,5 @@ end
 
 ledger.write("Done")
 ]]
-end
+    end
+}

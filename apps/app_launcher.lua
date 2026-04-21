@@ -19,6 +19,9 @@ local SELF_NAME = "app_launcher.lua"
 local apps = {}
 local buttons = {}
 
+local ledger = require(".lib.ledger")
+local input = require(".lib.input")
+
 -- =========================
 -- Paging state
 -- =========================
@@ -226,15 +229,15 @@ end
 local function launch(btn)
     clearScreen()
 
-    print("Launching: " .. btn.app.name .. "...\n")
+    ledger.write("Launching: " .. btn.app.name .. "...\n")
 
     shell.run(btn.app.path)
 
     clearScreen()
 
-    print("App finished.")
-    print("Returning to launcher...")
-    print("\nPress any key to continue")
+    ledger.write("App finished.")
+    ledger.write("Returning to launcher...")
+    ledger.write("\nPress any key to continue")
 
     os.pullEvent("key")
 end
@@ -245,31 +248,27 @@ end
 
 apps = loadApps()
 
-local mx, my = nil, nil
-
 while true do
-    draw(mx, my)
+    draw()
 
-    local event, a, b, c = os.pullEvent()
+    local event = input.pull()
 
-    if event == "mouse_click" then
-        local btn = getButtonAt(b, c)
-        if btn then
-            launch(btn)
+    if event.type == "click" then
+        for _, btn in ipairs(buttons) do
+            if event.x >= btn.x and event.x < btn.x + btn.w and
+                event.y >= btn.y and event.y < btn.y + btn.h then
+                launch(btn)
+            end
         end
-    elseif event == "monitor_touch" then
-        local btn = getButtonAt(b, c)
-        if btn then
-            launch(btn)
-        end
-    elseif event == "key" then
-        if a == keys.q then
+    elseif event.type == "key" then
+        if event.key == keys.q then
             clearScreen()
+            ledger.write("Launcher exited")
             sleep()
             return
-        elseif a == keys.left then
+        elseif event.key == keys.left then
             page = math.max(1, page - 1)
-        elseif a == keys.right then
+        elseif event.key == keys.right then
             local maxPage = math.max(1, math.ceil(#apps / perPage))
             page = math.min(maxPage, page + 1)
         end
