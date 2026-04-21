@@ -48,12 +48,12 @@ end
 local function downloadFile(url, path)
     local content = get(url)
     if not content then
-        print("✗ Failed: " .. path)
+        print("\x2a Failed: " .. path)
         return false
     end
 
     writeFile(path, content)
-    print("✓ " .. path)
+    print("\xbb " .. path)
     return true
 end
 
@@ -67,13 +67,13 @@ local function fetchGithubDir(apiPath, localPath)
 
     local raw = get(url)
     if not raw then
-        print("✗ Folder fetch failed: " .. apiPath)
+        print("\x2a Folder fetch failed: " .. apiPath)
         return
     end
 
     local ok, data = pcall(textutils.unserializeJSON, raw)
     if not ok or type(data) ~= "table" then
-        print("✗ Bad JSON: " .. apiPath)
+        print("\x2a Bad JSON: " .. apiPath)
         return
     end
 
