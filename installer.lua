@@ -53,12 +53,12 @@ end
 local function downloadFile(url, path)
     local content = get(url)
     if not content then
-        print("✗ Failed: " .. path)
+        print("\x13 Failed: " .. path)
         return false
     end
 
     writeFile(path, content)
-    print("✓ " .. path)
+    print("\xBB " .. path)
     return true
 end
 
@@ -71,13 +71,13 @@ local function fetchDir(apiPath, localPath)
     local raw = get(url)
 
     if not raw then
-        print("✗ Folder fetch failed: " .. apiPath)
+        print("\x13 Folder fetch failed: " .. apiPath)
         return
     end
 
     local data = textutils.unserializeJSON(raw)
     if type(data) ~= "table" then
-        print("✗ Bad JSON: " .. apiPath)
+        print("\x13 Bad JSON: " .. apiPath)
         return
     end
 
