@@ -1,40 +1,46 @@
 -- 04-resolver.lua
--- Canonical command entrypoint resolver (startup layer)
 
 local Resolver = {}
 
--- Current resolution strategy
--- This is the ONLY assumption baked in:
--- apps/<name>/main.lua
+-- Default resolution rules (ordered fallback chain)
 local function defaultStrategy(name)
-    return string.format("apps/%s/main.lua", name)
+    return {
+        string.format("apps/%s/main.lua", name), -- Kiln-style
+        string.format("apps/%s.lua", name)       -- flat file fallback
+    }
 end
 
--- Internal strategy pointer (swappable later for Kiln)
 local strategy = defaultStrategy
 
---- Set a new resolution strategy (future Kiln hook)
----@param fn fun(name: string): string
+--- Set custom resolution strategy (Kiln hook)
+---@param fn fun(name: string): string[]
 function Resolver.setStrategy(fn)
     strategy = fn or defaultStrategy
 end
 
---- Resolve a command name to an executable path
+--- Resolve to first existing executable path
 ---@param name string
----@return string
+---@return string|nil
 function Resolver.resolve(name)
-    return strategy(name)
+    local candidates = strategy(name)
+
+    for _, path in ipairs(candidates) do
+        if fs.exists(path) then
+            return path
+        end
+    end
+
+    return nil
 end
 
---- Optional helper: check if resolved file exists
+--- Check if any valid entry exists
 ---@param name string
 ---@return boolean
 function Resolver.exists(name)
-    local path = strategy(name)
-    return fs.exists(path)
+    return Resolver.resolve(name) ~= nil
 end
 
---- Optional helper: list all resolvable apps (convention-based)
+--- List structured apps (Kiln-style only, intentional separation)
 ---@return string[]
 function Resolver.list()
     local apps = {}
@@ -44,17 +50,12 @@ function Resolver.list()
     end
 
     for _, dir in ipairs(fs.list("apps")) do
-        local path = fs.combine("apps", dir, "main.lua")
-        if fs.exists(path) then
+        if fs.exists(fs.combine("apps", dir, "main.lua")) then
             table.insert(apps, dir)
         end
     end
 
     return apps
 end
-
--- Optional global exposure (ONLY for dev convenience)
--- You can remove this later if you want strict locality
-_G.Resolver = Resolver
 
 return Resolver
