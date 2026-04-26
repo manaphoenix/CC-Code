@@ -1,4 +1,4 @@
--- installer.lua (refactored)
+-- installer.lua (boot-aware materializer)
 
 local repoUser = "manaphoenix"
 local repoName = "CC-Code"
@@ -6,14 +6,9 @@ local branch = "main"
 
 local targets = {
     "startup",
-    "types",
-    "templates",
-    "lib/theme_manager.lua",
-    "lib/ledger.lua",
-    "lib/cli.lua",
-    "lib/input.lua",
-    "themes/default.lua",
-    "apps/newapp.lua"
+    "lib",
+    "themes",
+    "apps"
 }
 
 -- =====================
@@ -48,12 +43,12 @@ end
 local function downloadFile(url, path)
     local content = get(url)
     if not content then
-        print("\x2a Failed: " .. path)
+        print("* Failed: " .. path)
         return false
     end
 
     writeFile(path, content)
-    print("\xbb " .. path)
+    print(">> " .. path)
     return true
 end
 
@@ -67,22 +62,19 @@ local function fetchGithubDir(apiPath, localPath)
 
     local raw = get(url)
     if not raw then
-        print("\x2a Folder fetch failed: " .. apiPath)
+        print("* Folder fetch failed: " .. apiPath)
         return
     end
 
     local ok, data = pcall(textutils.unserializeJSON, raw)
     if not ok or type(data) ~= "table" then
-        print("\x2a Bad JSON: " .. apiPath)
+        print("* Bad JSON: " .. apiPath)
         return
     end
 
     for _, item in ipairs(data) do
-        local targetPath = item.path
-
         if item.type == "file" then
-            downloadFile(item.download_url, targetPath)
-
+            downloadFile(item.download_url, item.path)
         elseif item.type == "dir" then
             fetchGithubDir(item.path, item.path)
         end
@@ -95,17 +87,10 @@ end
 
 term.clear()
 term.setCursorPos(1, 1)
-print("Installing CC-Code...\n")
+print("Installing system...\n")
 
 for _, path in ipairs(targets) do
-    if fs.exists(path) or path:sub(-1) == "/" then
-        fetchGithubDir(path, path)
-    else
-        local url = ("https://raw.githubusercontent.com/%s/%s/%s/%s")
-            :format(repoUser, repoName, branch, path)
-
-        downloadFile(url, path)
-    end
+    fetchGithubDir(path, path)
 end
 
 print("\nDone.")
