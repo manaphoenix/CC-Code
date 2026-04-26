@@ -43,19 +43,21 @@ end
 --- List structured apps (Kiln-style only, intentional separation)
 ---@return string[]
 function Resolver.list()
-    local apps = {}
+    local results = {}
 
     if not fs.exists("apps") then
-        return apps
+        return results
     end
 
-    for _, dir in ipairs(fs.list("apps")) do
-        if fs.exists(fs.combine("apps", dir, "main.lua")) then
-            table.insert(apps, dir)
+    for _, entry in ipairs(fs.list("apps")) do
+        local name = entry:gsub("%.lua$", "")
+
+        if Resolver.resolve(name) ~= nil then
+            table.insert(results, name)
         end
     end
 
-    return apps
+    return results
 end
 
 return Resolver
