@@ -1,4 +1,4 @@
--- installer.lua (boot-aware materializer)
+-- installer.lua (refactored)
 
 local repoUser = "manaphoenix"
 local repoName = "CC-Code"
@@ -6,9 +6,12 @@ local branch = "main"
 
 local targets = {
     "startup",
-    "lib",
-    "themes",
-    "apps"
+    "types",
+    "templates",
+    "lib/theme_manager.lua",
+    "lib/ledger.lua",
+    "lib/resolver.lua",
+    "themes/default.lua"
 }
 
 -- =====================
@@ -43,12 +46,12 @@ end
 local function downloadFile(url, path)
     local content = get(url)
     if not content then
-        print("* Failed: " .. path)
+        print("\x2a Failed: " .. path)
         return false
     end
 
     writeFile(path, content)
-    print(">> " .. path)
+    print("\xbb " .. path)
     return true
 end
 
@@ -62,19 +65,21 @@ local function fetchGithubDir(apiPath, localPath)
 
     local raw = get(url)
     if not raw then
-        print("* Folder fetch failed: " .. apiPath)
+        print("\x2a Folder fetch failed: " .. apiPath)
         return
     end
 
     local ok, data = pcall(textutils.unserializeJSON, raw)
     if not ok or type(data) ~= "table" then
-        print("* Bad JSON: " .. apiPath)
+        print("\x2a Bad JSON: " .. apiPath)
         return
     end
 
     for _, item in ipairs(data) do
+        local targetPath = item.path
+
         if item.type == "file" then
-            downloadFile(item.download_url, item.path)
+            downloadFile(item.download_url, targetPath)
         elseif item.type == "dir" then
             fetchGithubDir(item.path, item.path)
         end
@@ -87,10 +92,17 @@ end
 
 term.clear()
 term.setCursorPos(1, 1)
-print("Installing system...\n")
+print("Installing CC-Code...\n")
 
 for _, path in ipairs(targets) do
-    fetchGithubDir(path, path)
+    if fs.exists(path) or path:sub(-1) == "/" then
+        fetchGithubDir(path, path)
+    else
+        local url = ("https://raw.githubusercontent.com/%s/%s/%s/%s")
+            :format(repoUser, repoName, branch, path)
+
+        downloadFile(url, path)
+    end
 end
 
 print("\nDone.")
