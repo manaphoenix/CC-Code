@@ -1,91 +1,195 @@
-# CC-Code Repository
+# CC-Code (Ashgard Runtime Core)
 
-A repository for all the code developed for **ComputerCraft / CC:Tweaked**, including startup scripts, libraries, and apps for easier setup, theming, and management.
+A modular ComputerCraft / CC:Tweaked ecosystem providing:
+
+* runtime libraries
+* startup system
+* utilities and apps
+* theming system
+* experimental Ashgard architecture components
+
+This repository is structured around a **rootfs-based deployment model**, where `rootfs/` represents the filesystem installed onto a ComputerCraft computer.
 
 ---
 
 ## Installation
 
-You can install CC-Code on a new computer using the installer:
+Install on a new ComputerCraft computer:
 
 ```lua
 wget run https://raw.githubusercontent.com/manaphoenix/CC-Code/main/installer.lua
 ```
 
-This will automatically download:
+This installer deploys selected components from `rootfs/` into the local filesystem.
 
-* All `startup/` scripts
-* `lib/theme_manager.lua`
-* `themes/default.lua`
+### Installed Components
+
+By default, the installer includes:
+
+* startup system (`startup/`)
+* core libraries (`lib/`)
+* applications (`apps/`)
+* themes (`themes/`)
+* type definitions (`types/`)
+
+---
+
+## Architecture Overview
+
+### Rootfs Model
+
+All runtime code is stored under:
+
+```
+rootfs/
+```
+
+This represents the **source-of-truth filesystem layout** for CC:Tweaked machines.
+
+Installed output maps to the root filesystem of the ComputerCraft computer:
+
+```
+rootfs/apps/    → /apps/
+rootfs/lib/     → /lib/
+rootfs/startup/ → /startup/
+```
 
 ---
 
 ## Startup System
 
-The modular startup scripts handle:
+The startup system is a sequence of ordered scripts executed on boot.
 
-* Folder creation (`apps/`, `assets/`, `config/`, `data/`, `lib/`, `logs/`, `startup/`, `tmp/`)
-* Temporary folder cleanup (`tmp/`)
-* Default ComputerCraft settings (MOTD, shell path, etc.)
-* Automatic peripheral management (`components` global)
-* Aliases for all Lua scripts in `apps/`
+Typical responsibilities include:
 
-All startup options are stored in `config/startup.cfg`.
+* creating required folders
+* applying configuration defaults
+* initializing terminal state
+* setting up aliases
+* preparing runtime environment
+
+Startup behavior is modular and can be extended by adding new scripts to:
+
+```
+startup/
+```
 
 ---
 
-## Theme Manager
+## Libraries
 
-`lib/theme_manager.lua` allows easy management of color themes:
+Core reusable modules are located in:
 
-* Apply themes to the terminal or monitors independently
-* List installed themes:
+```
+lib/
+```
 
-  ```lua
-  ThemeManager.listThemes()
-  ```
-* Get theme metadata (name, author, version, description)
-* Download themes from raw URLs or GitHub
+These include utilities for:
+
+* CLI handling
+* event systems
+* data structures
+* serialization
+* UI helpers
+* testing utilities
+
+---
+
+## Theme System
+
+Themes are defined in:
+
+```
+themes/
+```
+
+Each theme provides:
+
+* color configuration
+* metadata (name, author, version)
+* optional UI styling overrides
+
+### Example usage
+
+```lua
+local ThemeManager = dofile("lib/theme_manager.lua")
+ThemeManager.applyTheme(term, "default")
+```
 
 ---
 
 ## Folder Structure
 
 ```
-CC-Code/
-├─ apps/         # User-run programs
-├─ assets/       # Non-code resources
-├─ config/       # Startup config file
-├─ data/         # Persistent runtime state
-├─ lib/          # Libraries (theme_manager.lua)
-├─ logs/         # Logs (optional)
-├─ startup/      # Modular startup scripts
-├─ themes/       # Installed themes
-├─ tmp/          # Temporary files
-└─ tasks/        # Task definitions (future)
+rootfs/
+├─ apps/        # User-facing programs
+├─ lib/         # Core libraries
+├─ startup/     # Boot sequence scripts
+├─ themes/      # UI themes
+└─ types/       # Data type definitions
 ```
 
 ---
 
-## Usage
+## Projects
 
-* **Apply a theme programmatically:**
+Larger standalone applications are stored under:
 
-  ```lua
-  local ThemeManager = dofile("lib/theme_manager.lua")
-  ThemeManager.applyTheme(term, "default")
-  ```
+```
+projects/
+```
+
+These are self-contained systems not installed directly by default.
+
+---
+
+## Development
+
+Internal tools and experiments are located in:
+
+```
+dev/
+```
+
+This includes:
+
+* templates
+* tests
+* experimental code
+
+---
+
+## Tools
+
+Host-side utilities (not run inside CC) are located in:
+
+```
+tools/
+```
 
 ---
 
 ## Contributing
 
-* Add new themes under `themes/` with `colors` and `meta` tables.
-* Pull requests for new apps or improvements are welcome.
+* Add runtime code under `rootfs/`
+* Add reusable libraries under `lib/`
+* Add applications under `apps/`
+* Keep systems modular and optional
+
+---
+
+## Philosophy
+
+This project follows Ashgard design principles:
+
+* optional systems over mandatory frameworks
+* capability-based design
+* no global control over applications
+* graceful degradation without dependencies
+* explicit filesystem structure
 
 ---
 
 ## License
 
 CC0 / Public Domain
-
