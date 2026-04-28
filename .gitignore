@@ -1,43 +1,50 @@
-# Ignore documentation generation files
-docgen/
-
-# Ignore node modules
-node_modules/
-
-# Ignore macOS system files
+# =====================
+# OS junk
+# =====================
 .DS_Store
 
-# Ignore log files
+# =====================
+# Logs
+# =====================
 *.log
 
-# Ignore compiled Lua files
+# =====================
+# Lua artifacts
+# =====================
 *.luac
 
-# Ignore temporary files
+# =====================
+# Temporary files
+# =====================
 *.tmp
 *.temp
 *.swp
 *.swo
-
-# Ignore environment files
-.env
-
-# Ignore backup files
 *~
 *.bak
 
-# Ignore local Jekyll files and folders
-.jekyll-cache
+# =====================
+# Environment files
+# =====================
+.env
 
-# Ignore Jekyll site files
-_site/
+# =====================
+# Jekyll docs site
+# =====================
+docs/_site/
+docs/.jekyll-cache/
+docs/.bundle/
 
-# Ignore IDE files
+# =====================
+# Editor configs (optional shared policy)
+# =====================
 .vscode/
 .idea/
 *.iml
 
-# Ignore build and distribution files
+# =====================
+# Build outputs (non-CC tooling)
+# =====================
 dist/
 build/
 *.exe
@@ -45,10 +52,12 @@ build/
 *.o
 *.out
 
-# Ignore Python cache files
+# =====================
+# Python cache (only if needed)
+# =====================
 __pycache__/
-startup/08-monitor-status.lua
 
-#ignore windsurf rules
+# =====================
+# Windsurf local config
+# =====================
 .windsurf/
-
