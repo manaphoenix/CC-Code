@@ -110,6 +110,14 @@ local installProfile = {
 	{ src = "rootfs/types/inventory.lua", dest = "types/inventory.lua" },
 	{ src = "rootfs/types/energy_storage.lua", dest = "types/energy_storage.lua" },
 	{ src = "rootfs/types/fluid_storage.lua", dest = "types/fluid_storage.lua" },
+
+	-- projects
+	{ src = "projects/newapp/main.lua", dest = "apps/newapp/main.lua" },
+	{ src = "projects/newapp/filesystem.lua", dest = "apps/newapp/filesystem.lua" },
+	{ src = "projects/newapp/manifest.lua", dest = "apps/newapp/manifest.lua" },
+	{ src = "projects/newapp/render.lua", dest = "apps/newapp/render.lua" },
+	{ src = "projects/newapp/templates.lua", dest = "apps/newapp/templates.lua" },
+	{ src = "projects/newapp/util.lua", dest = "apps/newapp/util.lua" },
 }
 
 -- =========================
