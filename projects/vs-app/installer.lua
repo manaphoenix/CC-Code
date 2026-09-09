@@ -23,7 +23,6 @@ local programs = {
         folder = "vs-dashboard",
         files = {
             "main.lua",
-            "core.lua",
             "config.lua",
             "lib/peripherals.lua",
             "lib/status.lua",

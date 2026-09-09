@@ -1,7 +1,7 @@
 -- apps/tools/theme_picker.lua
 
 -- Load ThemeManager safely
-local ok, ThemeManager = pcall(dofile, "lib/theme_manager.lua")
+local ok, ThemeManager = pcall(dofile, "lib/theme-manager.lua")
 if not ok then
     print("Error: ThemeManager library not found.")
     return

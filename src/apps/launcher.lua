@@ -21,7 +21,8 @@ local apps = {}
 local buttons = {}
 
 local ledger = require(".lib.ledger")
-local input = require(".lib.input")
+-- TODO: input.lua was removed — falling back to raw os.pullEvent
+-- local input = require(".lib.input")
 
 local ALLOWED_RUNTIMES = {
 	app = true,
@@ -333,23 +334,25 @@ apps = loadApps()
 while true do
 	draw()
 
-	local event = input.pull()
+	-- TODO: replaced input.pull() with raw os.pullEvent() since input.lua was removed
+	local evName, p1, p2, p3 = os.pullEvent()
 
-	if event.type == "click" then
+	if evName == "mouse_click" then
+		local mx, my = p2, p3
 		for _, btn in ipairs(buttons) do
-			if event.x >= btn.x and event.x < btn.x + btn.w and event.y >= btn.y and event.y < btn.y + btn.h then
+			if mx >= btn.x and mx < btn.x + btn.w and my >= btn.y and my < btn.y + btn.h then
 				launch(btn)
 			end
 		end
-	elseif event.type == "key" then
-		if event.key == keys.q then
+	elseif evName == "key" then
+		if p1 == keys.q then
 			clearScreen()
 			ledger.write("Launcher exited")
 			sleep()
 			return
-		elseif event.key == keys.left then
+		elseif p1 == keys.left then
 			page = math.max(1, page - 1)
-		elseif event.key == keys.right then
+		elseif p1 == keys.right then
 			local maxPage = math.max(1, math.ceil(#apps / perPage))
 			page = math.min(maxPage, page + 1)
 		end

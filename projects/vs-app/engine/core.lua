@@ -1,7 +1,7 @@
 -- VS Engine Core Module
 -- This contains the main engine logic rewritten from the original vsEngine.lua
 
-local config = require("config.config")
+local config = require("config")
 local utils = require("lib.utils")
 
 local core = {}

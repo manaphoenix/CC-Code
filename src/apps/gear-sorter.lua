@@ -1,5 +1,5 @@
 ---@type parallelAction
-local actions = require("lib.parallelActions")
+local actions = require("lib.parallel-actions")
 
 ---@class inventoryItem
 ---@field name string

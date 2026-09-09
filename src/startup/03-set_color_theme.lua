@@ -16,7 +16,7 @@ local applyMonitors = cfg.applyColorThemeToMonitors ~= false
 local themeName = cfg.defaultTheme or "default"
 
 -- Load ThemeManager
-local ok, ThemeManager = pcall(dofile, "lib/theme_manager.lua")
+local ok, ThemeManager = pcall(dofile, "lib/theme-manager.lua")
 if not ok then
     print("Warning: ThemeManager missing, skipping theme setup")
     return
