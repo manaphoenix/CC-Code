@@ -41,6 +41,8 @@ docs/.bundle/
 .vscode/
 .idea/
 *.iml
+.meta/
+.luarc.json
 
 # =====================
 # Build outputs (non-CC tooling)

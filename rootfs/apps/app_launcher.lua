@@ -24,7 +24,7 @@ local ledger = require(".lib.ledger")
 local input = require(".lib.input")
 
 local ALLOWED_RUNTIMES = {
-    app = true
+	app = true,
 }
 
 -- =========================
@@ -41,49 +41,49 @@ local perPage = cols * rows
 -- =========================
 
 local function clamp(v, min, max)
-    return math.max(min, math.min(max, v))
+	return math.max(min, math.min(max, v))
 end
 
 local function center(w, text)
-    return math.floor((w - #text) / 2)
+	return math.floor((w - #text) / 2)
 end
 
 local function loadManifest(path)
-    local ok, result = pcall(dofile, path)
-    if ok and type(result) == "table" then
-        return result
-    end
-    return nil
+	local ok, result = pcall(dofile, path)
+	if ok and type(result) == "table" then
+		return result
+	end
+	return nil
 end
 
 local function loadRegistry()
-    local path = REGISTRY_PATH
+	local path = REGISTRY_PATH
 
-    if fs.exists(path) then
-        local ok, data = pcall(dofile, path)
-        if ok and type(data) == "table" then
-            return data
-        end
-    end
+	if fs.exists(path) then
+		local ok, data = pcall(dofile, path)
+		if ok and type(data) == "table" then
+			return data
+		end
+	end
 
-    return {}
+	return {}
 end
 
 local registry = loadRegistry()
 
 local function isTrusted(entryName, manifest)
-    local entry = registry[entryName]
+	local entry = registry[entryName]
 
-    if entry and entry.trusted then
-        return true
-    end
+	if entry and entry.trusted then
+		return true
+	end
 
-    -- only trust manifest if explicitly declared
-    if manifest and manifest.trusted == true then
-        return true
-    end
+	-- only trust manifest if explicitly declared
+	if manifest and manifest.trusted == true then
+		return true
+	end
 
-    return false
+	return false
 end
 
 -- =========================
@@ -91,71 +91,71 @@ end
 -- =========================
 
 local function loadApps()
-    local entries = fs.list(APP_DIR)
-    local result = {}
+	local entries = fs.list(APP_DIR)
+	local result = {}
 
-    for _, entry in ipairs(entries) do
-        local fullPath = fs.combine(APP_DIR, entry)
+	for _, entry in ipairs(entries) do
+		local fullPath = fs.combine(APP_DIR, entry)
 
-        if entry == SELF_NAME then
-            goto continue
-        end
+		if entry == SELF_NAME then
+			goto continue
+		end
 
-        -- =========================
-        -- FOLDER APPS (manifest system)
-        -- =========================
-        if fs.isDir(fullPath) then
-            local manifestPath = fs.combine(fullPath, "manifest.lua")
-            local mainPath = fs.combine(fullPath, "main.lua")
+		-- =========================
+		-- FOLDER APPS (manifest system)
+		-- =========================
+		if fs.isDir(fullPath) then
+			local manifestPath = fs.combine(fullPath, "manifest.lua")
+			local mainPath = fs.combine(fullPath, "main.lua")
 
-            if fs.exists(mainPath) then
-                local manifest = nil
+			if fs.exists(mainPath) then
+				local manifest = nil
 
-                if fs.exists(manifestPath) then
-                    manifest = loadManifest(manifestPath)
-                end
+				if fs.exists(manifestPath) then
+					manifest = loadManifest(manifestPath)
+				end
 
-                local runtime = (manifest and manifest.runtime) or "untrusted"
+				local runtime = (manifest and manifest.runtime) or "untrusted"
 
-                -- only filter IF manifest explicitly defines runtime
-                if (not manifest) or ALLOWED_RUNTIMES[runtime] then
-                    local trusted = isTrusted(entry, manifest)
+				-- only filter IF manifest explicitly defines runtime
+				if (not manifest) or ALLOWED_RUNTIMES[runtime] then
+					local trusted = isTrusted(entry, manifest)
 
-                    table.insert(result, {
-                        name = (manifest and (manifest.displayName or manifest.name)) or entry,
-                        path = mainPath,
-                        manifest = manifest,
-                        runtime = runtime,
-                        trusted = trusted,
-                        source = "folder"
-                    })
-                end
-            end
+					table.insert(result, {
+						name = (manifest and (manifest.displayName or manifest.name)) or entry,
+						path = mainPath,
+						manifest = manifest,
+						runtime = runtime,
+						trusted = trusted,
+						source = "folder",
+					})
+				end
+			end
 
-            -- =========================
-            -- FLAT LUA FILES (legacy tools like COSU editor)
-            -- =========================
-        elseif entry:match("%.lua$") then
-            local trusted = isTrusted(entry, nil)
+			-- =========================
+			-- FLAT LUA FILES (legacy tools like COSU editor)
+			-- =========================
+		elseif entry:match("%.lua$") then
+			local trusted = isTrusted(entry, nil)
 
-            table.insert(result, {
-                name = entry:gsub("%.lua$", ""):gsub("_", " "),
-                path = fullPath,
-                manifest = nil,
-                runtime = "script",
-                trusted = trusted,
-                source = "flat"
-            })
-        end
+			table.insert(result, {
+				name = entry:gsub("%.lua$", ""):gsub("_", " "),
+				path = fullPath,
+				manifest = nil,
+				runtime = "script",
+				trusted = trusted,
+				source = "flat",
+			})
+		end
 
-        ::continue::
-    end
+		::continue::
+	end
 
-    table.sort(result, function(a, b)
-        return a.name:lower() < b.name:lower()
-    end)
+	table.sort(result, function(a, b)
+		return a.name:lower() < b.name:lower()
+	end)
 
-    return result
+	return result
 end
 
 -- =========================
@@ -163,51 +163,51 @@ end
 -- =========================
 
 local function layout()
-    buttons = {}
+	buttons = {}
 
-    local sw, sh = term.getSize()
+	local sw, sh = term.getSize()
 
-    local winW = math.floor(sw * 0.8)
-    local winH = math.floor(sh * 0.8)
-    local winX = center(sw, "") + 1
-    local winY = center(sh, "") + 1
+	local winW = math.floor(sw * 0.8)
+	local winH = math.floor(sh * 0.8)
+	local winX = center(sw, "") + 1
+	local winY = center(sh, "") + 1
 
-    winX = math.floor((sw - winW) / 2)
-    winY = math.floor((sh - winH) / 2)
+	winX = math.floor((sw - winW) / 2)
+	winY = math.floor((sh - winH) / 2)
 
-    local pad = 2
+	local pad = 2
 
-    local cellW = math.floor((winW - (pad * (cols + 1))) / cols)
-    local cellH = 5
+	local cellW = math.floor((winW - (pad * (cols + 1))) / cols)
+	local cellH = 5
 
-    local start = (page - 1) * perPage + 1
-    local finish = math.min(#apps, page * perPage)
+	local start = (page - 1) * perPage + 1
+	local finish = math.min(#apps, page * perPage)
 
-    local index = 0
+	local index = 0
 
-    for i = start, finish do
-        local app = apps[i]
-        index = index + 1
+	for i = start, finish do
+		local app = apps[i]
+		index = index + 1
 
-        local col = (index - 1) % cols
-        local row = math.floor((index - 1) / cols)
+		local col = (index - 1) % cols
+		local row = math.floor((index - 1) / cols)
 
-        local x = winX + pad + col * (cellW + pad)
-        local y = winY + 3 + row * (cellH + pad)
+		local x = winX + pad + col * (cellW + pad)
+		local y = winY + 3 + row * (cellH + pad)
 
-        table.insert(buttons, {
-            app = app,
-            x = x,
-            y = y,
-            w = cellW,
-            h = cellH
-        })
-    end
+		table.insert(buttons, {
+			app = app,
+			x = x,
+			y = y,
+			w = cellW,
+			h = cellH,
+		})
+	end
 
-    local maxPage = math.max(1, math.ceil(#apps / perPage))
-    page = clamp(page, 1, maxPage)
+	local maxPage = math.max(1, math.ceil(#apps / perPage))
+	page = clamp(page, 1, maxPage)
 
-    return winX, winY, winW, winH, maxPage
+	return winX, winY, winW, winH, maxPage
 end
 
 -- =========================
@@ -215,85 +215,82 @@ end
 -- =========================
 
 local function drawBox(x, y, w, h, bg)
-    term.setBackgroundColor(bg)
+	term.setBackgroundColor(bg)
 
-    for dy = 0, h - 1 do
-        term.setCursorPos(x, y + dy)
-        write(string.rep(" ", w))
-    end
+	for dy = 0, h - 1 do
+		term.setCursorPos(x, y + dy)
+		write(string.rep(" ", w))
+	end
 end
 
 local function drawButton(btn, hovered)
-    -- =========================
-    -- TRUST VISUAL STATE
-    -- =========================
-    local trusted = btn.app.trusted ~= false
+	-- =========================
+	-- TRUST VISUAL STATE
+	-- =========================
+	local trusted = btn.app.trusted ~= false
 
-    local bg
-    local fg
+	local bg
+	local fg
 
-    if trusted then
-        bg = hovered and colors.gray or colors.lightGray
-        fg = colors.white
-    else
-        -- untrusted apps are visually "weaker"
-        bg = hovered and colors.black or colors.gray
-        fg = colors.lightGray
-    end
+	if trusted then
+		bg = hovered and colors.gray or colors.lightGray
+		fg = colors.white
+	else
+		-- untrusted apps are visually "weaker"
+		bg = hovered and colors.black or colors.gray
+		fg = colors.lightGray
+	end
 
-    drawBox(btn.x, btn.y, btn.w, btn.h, bg)
+	drawBox(btn.x, btn.y, btn.w, btn.h, bg)
 
-    term.setTextColor(fg)
+	term.setTextColor(fg)
 
-    -- =========================
-    -- LABEL (with trust marker)
-    -- =========================
-    local label = btn.app.name
+	-- =========================
+	-- LABEL (with trust marker)
+	-- =========================
+	local label = btn.app.name
 
-    if not trusted then
-        label = "? " .. label
-    end
+	if not trusted then
+		label = "? " .. label
+	end
 
-    if #label > btn.w - 2 then
-        label = label:sub(1, btn.w - 5) .. "..."
-    end
+	if #label > btn.w - 2 then
+		label = label:sub(1, btn.w - 5) .. "..."
+	end
 
-    -- =========================
-    -- CENTER TEXT
-    -- =========================
-    local lx = btn.x + math.floor((btn.w - #label) / 2)
-    local ly = btn.y + math.floor(btn.h / 2)
+	-- =========================
+	-- CENTER TEXT
+	-- =========================
+	local lx = btn.x + math.floor((btn.w - #label) / 2)
+	local ly = btn.y + math.floor(btn.h / 2)
 
-    term.setCursorPos(lx, ly)
-    write(label)
+	term.setCursorPos(lx, ly)
+	write(label)
 end
 
 local function draw(mx, my)
-    term.setBackgroundColor(colors.black)
-    term.clear()
+	term.setBackgroundColor(colors.black)
+	term.clear()
 
-    local sw, sh = term.getSize()
-    local winX, winY, winW, winH, maxPage = layout()
+	local sw, sh = term.getSize()
+	local winX, winY, winW, winH, maxPage = layout()
 
-    drawBox(winX, winY, winW, winH, colors.black)
+	drawBox(winX, winY, winW, winH, colors.black)
 
-    term.setTextColor(colors.white)
-    term.setCursorPos(winX + 2, winY + 1)
-    write("App Launcher")
+	term.setTextColor(colors.white)
+	term.setCursorPos(winX + 2, winY + 1)
+	write("App Launcher")
 
-    term.setCursorPos(winX + winW - 20, winY + 1)
-    write("Page " .. page .. "/" .. maxPage)
+	term.setCursorPos(winX + winW - 20, winY + 1)
+	write("Page " .. page .. "/" .. maxPage)
 
-    for _, btn in ipairs(buttons) do
-        local hovered =
-            mx and my and
-            mx >= btn.x and mx < btn.x + btn.w and
-            my >= btn.y and my < btn.y + btn.h
+	for _, btn in ipairs(buttons) do
+		local hovered = mx and my and mx >= btn.x and mx < btn.x + btn.w and my >= btn.y and my < btn.y + btn.h
 
-        drawButton(btn, hovered)
-    end
+		drawButton(btn, hovered)
+	end
 
-    term.setTextColor(colors.white)
+	term.setTextColor(colors.white)
 end
 
 -- =========================
@@ -301,30 +298,30 @@ end
 -- =========================
 
 local function clearScreen()
-    term.setBackgroundColor(colors.black)
-    term.setTextColor(colors.white)
-    term.clear()
-    term.setCursorPos(1, 1)
+	term.setBackgroundColor(colors.black)
+	term.setTextColor(colors.white)
+	term.clear()
+	term.setCursorPos(1, 1)
 end
 
 local function launch(btn)
-    clearScreen()
+	clearScreen()
 
-    ledger.write("Launching: " .. btn.app.name .. "...\n")
+	ledger.write("Launching: " .. btn.app.name .. "...\n")
 
-    if not btn.app.trusted then
-        ledger.write("Tip: Press T to trust this app")
-    end
+	if not btn.app.trusted then
+		ledger.write("Tip: Press T to trust this app")
+	end
 
-    shell.run(btn.app.path)
+	shell.run(btn.app.path)
 
-    clearScreen()
+	clearScreen()
 
-    ledger.write("App finished.")
-    ledger.write("Returning to launcher...")
-    ledger.write("\nPress any key to continue")
+	ledger.write("App finished.")
+	ledger.write("Returning to launcher...")
+	ledger.write("\nPress any key to continue")
 
-    os.pullEvent("key")
+	os.pullEvent("key")
 end
 
 -- =========================
@@ -334,28 +331,27 @@ end
 apps = loadApps()
 
 while true do
-    draw()
+	draw()
 
-    local event = input.pull()
+	local event = input.pull()
 
-    if event.type == "click" then
-        for _, btn in ipairs(buttons) do
-            if event.x >= btn.x and event.x < btn.x + btn.w and
-                event.y >= btn.y and event.y < btn.y + btn.h then
-                launch(btn)
-            end
-        end
-    elseif event.type == "key" then
-        if event.key == keys.q then
-            clearScreen()
-            ledger.write("Launcher exited")
-            sleep()
-            return
-        elseif event.key == keys.left then
-            page = math.max(1, page - 1)
-        elseif event.key == keys.right then
-            local maxPage = math.max(1, math.ceil(#apps / perPage))
-            page = math.min(maxPage, page + 1)
-        end
-    end
+	if event.type == "click" then
+		for _, btn in ipairs(buttons) do
+			if event.x >= btn.x and event.x < btn.x + btn.w and event.y >= btn.y and event.y < btn.y + btn.h then
+				launch(btn)
+			end
+		end
+	elseif event.type == "key" then
+		if event.key == keys.q then
+			clearScreen()
+			ledger.write("Launcher exited")
+			sleep()
+			return
+		elseif event.key == keys.left then
+			page = math.max(1, page - 1)
+		elseif event.key == keys.right then
+			local maxPage = math.max(1, math.ceil(#apps / perPage))
+			page = math.min(maxPage, page + 1)
+		end
+	end
 end
