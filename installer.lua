@@ -32,8 +32,10 @@ end
 local function writeFile(path, content)
 	ensureDir(fs.getDir(path))
 	local f = fs.open(path, "w")
-	f.write(content)
-	f.close()
+	if f then
+		f.write(content)
+		f.close()
+	end
 end
 
 local function get(url)
