@@ -1,26 +1,35 @@
 -- 04-set_aliases.lua
--- Thin UX layer over Resolver (no discovery, no filesystem logic)
+-- Registers shell aliases for installed apps (self-contained, no Resolver lib)
 
--- TODO: resolver.lua was removed — alias registration disabled for now
--- local Resolver = dofile("lib/resolver.lua")
---
--- local function aliasExists(name)
---     return shell.aliases()[name] ~= nil
--- end
---
--- local function toAlias(name)
---     return name
--- end
---
--- local function register(name)
---     local path = Resolver.resolve(name)
---
---     -- Trust Resolver as source of truth (no fs.exists check here)
---     if not aliasExists(name) then
---         shell.setAlias(toAlias(name), path)
---     end
--- end
---
--- for _, name in ipairs(Resolver.list()) do
---     register(name)
--- end
+local APP_DIR = "apps"
+local SELF_NAME = "launcher.lua"
+local SELF_FOLDER = "launcher"
+
+local function aliasExists(name)
+    return shell.aliases()[name] ~= nil
+end
+
+-- Resolve an apps/ entry to a runnable path
+-- Folder app  -> apps/<name>/main.lua
+-- Flat script -> apps/<name>.lua
+local function resolve(entry)
+    local fullPath = fs.combine(APP_DIR, entry)
+
+    if fs.isDir(fullPath) then
+        local mainPath = fs.combine(fullPath, "main.lua")
+        if fs.exists(mainPath) then
+            return entry, mainPath
+        end
+    else
+        return entry:gsub("%.lua$", ""), fullPath
+    end
+end
+
+for _, entry in ipairs(fs.list(APP_DIR)) do
+    if entry ~= SELF_NAME and entry ~= SELF_FOLDER then
+        local name, path = resolve(entry)
+        if name and path and not aliasExists(name) then
+            shell.setAlias(name, path)
+        end
+    end
+end
