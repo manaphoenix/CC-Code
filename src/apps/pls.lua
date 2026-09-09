@@ -137,10 +137,8 @@ if flags.inventory then
         print("Peripheral is not inventory-capable.")
     else
         local items = peripheral.call(side, "list")
-        local cx, cy = term.getCursorPos()
+        local _, cy = term.getCursorPos()
         local line = cy
-
-        local remainingSpace = my - cy
 
         local count = 0
         for _, _ in pairs(items) do
