@@ -7,7 +7,13 @@ local cfg = {}
 if fs.exists(cfgPath) then
     local file = fs.open(cfgPath, "r")
     if file then
-        cfg = textutils.unserialize(file.readAll()) or {}
+        local contents = file.readAll()
+        if contents then
+            local parsed = textutils.unserialize(contents)
+            if type(parsed) == "table" then
+                cfg = parsed
+            end
+        end
         file.close()
     end
 end
