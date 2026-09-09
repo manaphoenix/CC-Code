@@ -2,9 +2,9 @@
 --- Handles initialization and management of all hardware peripherals
 --- @class Peripherals
 --- @field config Config Configuration settings
---- @field statusMon Monitor? Status monitor peripheral
---- @field tuningMon Monitor? Tuning monitor peripheral
---- @field enderModem Modem? Ender modem peripheral
+--- @field statusMon ccTweaked.peripheral.Monitor? Status monitor peripheral
+--- @field tuningMon ccTweaked.peripheral.Monitor? Tuning monitor peripheral
+--- @field enderModem ccTweaked.peripheral.Modem? Ender modem peripheral
 
 local Peripherals = {}
 

@@ -159,7 +159,7 @@ end
 function Events:handleRedstoneEvent()
     if not self.locked then return false end
 
-    if rs.getInput("left") then
+    if redstone.getInput("left") then
         self.locked = false
         self.tuningState = 1
         self.display:drawMenu()

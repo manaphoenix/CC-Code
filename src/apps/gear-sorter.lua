@@ -1,3 +1,4 @@
+---@diagnostic disable: assign-type-mismatch, inject-field
 ---@type parallelAction
 local actions = require("lib.parallel-actions")
 
@@ -61,19 +62,28 @@ local silentFilter = {}
 
 if fs.exists("config/silentFilter.lua") then
     local file = fs.open("config/silentFilter.lua","r")
-    local data = file.readAll()
-    file.close()
-    silentFilter = textutils.unserialise(data)
+    if file then
+        local data = file.readAll()
+        file.close()
+        if data then
+---@diagnostic disable-next-line: cast-local-type
+            silentFilter = textutils.unserialise(data)
+        end
+    end
 else
     local file = fs.open("config/silentFilter.lua","w")
-    file.write(textutils.serialise(silentFilter))
-    file.close()
+    if file then
+        file.write(textutils.serialise(silentFilter))
+        file.close()
+    end
 end
 
----@type detailedItem[]
+---@type ccTweaked.peripheral.itemDetails
+---@diagnostic disable-next-line: missing-fields
 local detailItemList = {}
 
 local function buildDetailedItemList(invDevice)
+---@diagnostic disable-next-line: missing-fields
     detailItemList = {}
     for i = 1, invDevice.size() do
         actions.addAction(function()
@@ -86,8 +96,9 @@ local function buildDetailedItemList(invDevice)
     actions.execute()
 end
 
----@param item detailedItem
+---@param item ccTweaked.peripheral.itemDetails
 local function isInFilter(item)
+---@diagnostic disable-next-line: param-type-mismatch
     for _, filter in pairs(silentFilter) do
         if item.name == filter then
             return true
@@ -149,12 +160,15 @@ while true do
     elseif evName == "peripheral" then
         local peripheralName = ev[2]
         if peripheralName:match("backpack") then
+---@diagnostic disable-next-line: cast-local-type
             backpack = peripheral.wrap(peripheralName)
+---@diagnostic disable-next-line: param-type-mismatch
             backpack.name = peripheral.getName(backpack)
         end
     elseif evName == "peripheral_detach" then
         local peripheralName = ev[2]
         if peripheralName:match("backpack") then
+---@diagnostic disable-next-line: cast-local-type
             backpack = nil
         end
     end

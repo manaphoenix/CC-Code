@@ -1,8 +1,8 @@
 --- Display Module for VS Receiver Dashboard
 --- Handles all monitor drawing and UI rendering
 --- @class Display
---- @field statusMon Monitor Status monitor peripheral
---- @field tuningMon Monitor Tuning monitor peripheral
+--- @field statusMon ccTweaked.peripheral.Monitor Status monitor peripheral
+--- @field tuningMon ccTweaked.peripheral.Monitor Tuning monitor peripheral
 --- @field config Config Configuration settings
 --- @field termSize {width: number, height: number} Terminal dimensions
 --- @field tuningSize {width: number, height: number} Tuning monitor dimensions
@@ -56,7 +56,7 @@ function Display:init()
 end
 
 --- Write text to monitor with colors and move to next line
---- @param monitor Monitor Monitor to write to
+--- @param monitor ccTweaked.peripheral.Monitor Monitor to write to
 --- @param text string Text to write
 --- @param fg number Foreground color
 --- @param bg number Background color
@@ -70,7 +70,7 @@ local function writeToMonitor(monitor, text, fg, bg)
 end
 
 --- Write centered text to monitor
---- @param monitor Monitor Monitor to write to
+--- @param monitor ccTweaked.peripheral.Monitor Monitor to write to
 --- @param text string Text to write
 --- @param fg number Foreground color
 --- @param bg number Background color
