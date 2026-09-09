@@ -6,8 +6,10 @@ local cfg = {}
 
 if fs.exists(cfgPath) then
     local file = fs.open(cfgPath, "r")
-    cfg = textutils.unserialize(file.readAll()) or {}
-    file.close()
+    if file then
+        cfg = textutils.unserialize(file.readAll()) or {}
+        file.close()
+    end
 end
 
 -- Defaults (pure local interpretation)
