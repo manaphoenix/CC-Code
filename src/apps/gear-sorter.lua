@@ -25,21 +25,21 @@ local actions = require("lib.parallelActions")
 ---@field potionEffects? table
 ---@field tags table
 
----@type inventory
+---@type ccTweaked.peripheral.Inventory
 local outputBarrel = peripheral.wrap("sophisticatedstorage:barrel_4")
----@type inventory
+---@type ccTweaked.peripheral.Inventory
 local inputBarrel = peripheral.wrap("sophisticatedstorage:barrel_5")
----@type inventory
+---@type ccTweaked.peripheral.Inventory
 local backpack = peripheral.find("sophisticatedbackpacks:backpack")
----@type inventory
+---@type ccTweaked.peripheral.Inventory
 local bufferBarrel = peripheral.wrap("sophisticatedstorage:barrel_3")
----@type inventory
+---@type ccTweaked.peripheral.Inventory
 local apothSalvager = peripheral.find("apotheosis:salvaging_table")
----@type inventory
+---@type ccTweaked.peripheral.Inventory
 local silentBarrel = peripheral.wrap("sophisticatedstorage:barrel_1")
----@type inventory
+---@type ccTweaked.peripheral.Inventory
 local enchantmentBarrel = peripheral.wrap("sophisticatedstorage:barrel_0")
----@type inventory
+---@type ccTweaked.peripheral.Inventory
 local enchantmentLibrary = peripheral.find("apothic_enchanting:library")
 
 
