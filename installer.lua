@@ -88,31 +88,19 @@ local installProfile = {
 	-- libraries
 	{ src = "src/lib/blit-util.lua", dest = "lib/blit-util.lua" },
 	{ src = "src/lib/ledger.lua", dest = "lib/ledger.lua" },
-	{ src = "src/lib/cli.lua", dest = "lib/cli.lua" },
-	{ src = "src/lib/resolver.lua", dest = "lib/resolver.lua" },
 	{ src = "src/lib/theme-manager.lua", dest = "lib/theme-manager.lua" },
-	{ src = "src/lib/serializer.lua", dest = "lib/serializer.lua" },
 	{ src = "src/lib/unit-testing.lua", dest = "lib/unit-testing.lua" },
 	{ src = "src/lib/parallel-actions.lua", dest = "lib/parallel-actions.lua" },
 	{ src = "src/lib/simple-button.lua", dest = "lib/simple-button.lua" },
 
 	-- apps
 	{ src = "src/apps/launcher.lua", dest = "apps/launcher.lua" },
-	{ src = "src/apps/gfetch.lua", dest = "apps/gfetch.lua" },
 	{ src = "src/apps/theme-picker.lua", dest = "apps/theme-picker.lua" },
 
 	-- themes
 	{ src = "src/themes/default.lua", dest = "themes/default.lua" },
 	{ src = "src/themes/cyberdream.lua", dest = "themes/cyberdream.lua" },
 	{ src = "src/themes/2077.lua", dest = "themes/2077.lua" },
-
-	-- projects
-	{ src = "projects/newapp/main.lua", dest = "apps/newapp/main.lua" },
-	{ src = "projects/newapp/filesystem.lua", dest = "apps/newapp/filesystem.lua" },
-	{ src = "projects/newapp/manifest.lua", dest = "apps/newapp/manifest.lua" },
-	{ src = "projects/newapp/render.lua", dest = "apps/newapp/render.lua" },
-	{ src = "projects/newapp/templates.lua", dest = "apps/newapp/templates.lua" },
-	{ src = "projects/newapp/util.lua", dest = "apps/newapp/util.lua" },
 }
 
 -- =========================
