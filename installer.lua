@@ -1,4 +1,4 @@
--- installer.lua (v2 - rootfs aware installer)
+-- installer.lua (v3 - src aware installer)
 
 local repoUser = "manaphoenix"
 local repoName = "CC-Code"
@@ -79,37 +79,32 @@ end
 
 local installProfile = {
 	-- startup system
-	{ src = "rootfs/startup/01-folder_creation.lua", dest = "startup/01-folder_creation.lua" },
-	{ src = "rootfs/startup/02-config_creation.lua", dest = "startup/02-config_creation.lua" },
-	{ src = "rootfs/startup/03-set_color_theme.lua", dest = "startup/03-set_color_theme.lua" },
-	{ src = "rootfs/startup/04-set_aliases.lua", dest = "startup/04-set_aliases.lua" },
-	{ src = "rootfs/startup/05-setup_term.lua", dest = "startup/05-setup_term.lua" },
+	{ src = "src/startup/01-folder_creation.lua", dest = "startup/01-folder_creation.lua" },
+	{ src = "src/startup/02-config_creation.lua", dest = "startup/02-config_creation.lua" },
+	{ src = "src/startup/03-set_color_theme.lua", dest = "startup/03-set_color_theme.lua" },
+	{ src = "src/startup/04-set_aliases.lua", dest = "startup/04-set_aliases.lua" },
+	{ src = "src/startup/05-setup_term.lua", dest = "startup/05-setup_term.lua" },
 
 	-- libraries
-	{ src = "rootfs/lib/BlitUtil.lua", dest = "lib/BlitUtil.lua" },
-	{ src = "rootfs/lib/ledger.lua", dest = "lib/ledger.lua" },
-	{ src = "rootfs/lib/cli.lua", dest = "lib/cli.lua" },
-	{ src = "rootfs/lib/resolver.lua", dest = "lib/resolver.lua" },
-	{ src = "rootfs/lib/theme_manager.lua", dest = "lib/theme_manager.lua" },
-	{ src = "rootfs/lib/serializer.lua", dest = "lib/serializer.lua" },
-	{ src = "rootfs/lib/unitTesting.lua", dest = "lib/unitTesting.lua" },
-	{ src = "rootfs/lib/parallelActions.lua", dest = "lib/parallelActions.lua" },
-	{ src = "rootfs/lib/simpleButton.lua", dest = "lib/simpleButton.lua" },
+	{ src = "src/lib/blit-util.lua", dest = "lib/blit-util.lua" },
+	{ src = "src/lib/ledger.lua", dest = "lib/ledger.lua" },
+	{ src = "src/lib/cli.lua", dest = "lib/cli.lua" },
+	{ src = "src/lib/resolver.lua", dest = "lib/resolver.lua" },
+	{ src = "src/lib/theme-manager.lua", dest = "lib/theme-manager.lua" },
+	{ src = "src/lib/serializer.lua", dest = "lib/serializer.lua" },
+	{ src = "src/lib/unit-testing.lua", dest = "lib/unit-testing.lua" },
+	{ src = "src/lib/parallel-actions.lua", dest = "lib/parallel-actions.lua" },
+	{ src = "src/lib/simple-button.lua", dest = "lib/simple-button.lua" },
 
 	-- apps
-	{ src = "rootfs/apps/app_launcher.lua", dest = "apps/app_launcher.lua" },
-	{ src = "rootfs/apps/gfetch.lua", dest = "apps/gfetch.lua" },
-	{ src = "rootfs/apps/theme_picker.lua", dest = "apps/theme_picker.lua" },
+	{ src = "src/apps/launcher.lua", dest = "apps/launcher.lua" },
+	{ src = "src/apps/gfetch.lua", dest = "apps/gfetch.lua" },
+	{ src = "src/apps/theme-picker.lua", dest = "apps/theme-picker.lua" },
 
 	-- themes
-	{ src = "rootfs/themes/default.lua", dest = "themes/default.lua" },
-	{ src = "rootfs/themes/cyberdream.lua", dest = "themes/cyberdream.lua" },
-	{ src = "rootfs/themes/2077.lua", dest = "themes/2077.lua" },
-
-	-- types
-	{ src = "rootfs/types/inventory.lua", dest = "types/inventory.lua" },
-	{ src = "rootfs/types/energy_storage.lua", dest = "types/energy_storage.lua" },
-	{ src = "rootfs/types/fluid_storage.lua", dest = "types/fluid_storage.lua" },
+	{ src = "src/themes/default.lua", dest = "themes/default.lua" },
+	{ src = "src/themes/cyberdream.lua", dest = "themes/cyberdream.lua" },
+	{ src = "src/themes/2077.lua", dest = "themes/2077.lua" },
 
 	-- projects
 	{ src = "projects/newapp/main.lua", dest = "apps/newapp/main.lua" },

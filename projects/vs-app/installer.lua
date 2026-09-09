@@ -5,7 +5,7 @@
 --========================
 -- CONFIG
 --========================
-local github_base = "https://raw.githubusercontent.com/manaphoenix/CC_OC-Code/main/apps/vs-app"
+local github_base = "https://raw.githubusercontent.com/manaphoenix/CC-Code/main/projects/vs-app"
 local program_list = {}
 
 local programs = {
@@ -14,7 +14,7 @@ local programs = {
         files = {
             "main.lua",
             "core.lua",
-            "config/config.lua",
+            "config.lua",
             "lib/utils.lua",
             "startup.lua"
         }
