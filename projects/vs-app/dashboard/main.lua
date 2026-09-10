@@ -29,9 +29,9 @@ function VSReceiver.new()
     self.config = Config.getDefault()
 
     -- Validate configuration
-    local isValid, error = Config.validate(self.config)
+    local isValid, err = Config.validate(self.config)
     if not isValid then
-        error("Invalid configuration: " .. error)
+        error("Invalid configuration: " .. err)
     end
 
     -- Initialize managers

@@ -79,8 +79,10 @@ local function askStartup(folder)
             end
             local ok, err = pcall(function()
                 local file = fs.open("startup.lua", "w")
-                file.write("shell.run('" .. folder .. "/startup.lua')")
-                file.close()
+                if file then
+                    file.write("shell.run('" .. folder .. "/startup.lua')")
+                    file.close()
+                end
             end)
             if ok then
                 print("startup.lua created! Program will run on boot.")
