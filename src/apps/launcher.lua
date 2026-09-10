@@ -348,7 +348,7 @@ while true do
 		if p1 == keys.q then
 			clearScreen()
 			ledger.write("Launcher exited")
-			sleep()
+			sleep(0.05)
 			return
 		elseif p1 == keys.left then
 			page = math.max(1, page - 1)

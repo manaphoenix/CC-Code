@@ -16,10 +16,10 @@ if not peripheral.isPresent(MODEM_SIDE) then
     return
 end
 
----@type ccTweaked.peripheral.Inventory
+---@type ccTweaked.peripherals.Inventory
 ---@diagnostic disable-next-line: assign-type-mismatch
 local barrel = peripheral.wrap(INV_SIDE)
----@type ccTweaked.peripheral.Modem
+---@type ccTweaked.peripherals.Modem
 ---@diagnostic disable-next-line: assign-type-mismatch
 local modem = peripheral.wrap(MODEM_SIDE)
 

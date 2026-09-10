@@ -1,4 +1,4 @@
----@diagnostic disable: assign-type-mismatch, inject-field
+---@diagnostic disable: assign-type-mismatch, inject-field, param-type-mismatch
 ---@type parallelAction
 local actions = require("lib.parallel-actions")
 
@@ -26,21 +26,21 @@ local actions = require("lib.parallel-actions")
 ---@field potionEffects? table
 ---@field tags table
 
----@type ccTweaked.peripheral.Inventory
+---@type ccTweaked.peripherals.Inventory
 local outputBarrel = peripheral.wrap("sophisticatedstorage:barrel_4")
----@type ccTweaked.peripheral.Inventory
+---@type ccTweaked.peripherals.Inventory
 local inputBarrel = peripheral.wrap("sophisticatedstorage:barrel_5")
----@type ccTweaked.peripheral.Inventory
+---@type ccTweaked.peripherals.Inventory
 local backpack = peripheral.find("sophisticatedbackpacks:backpack")
----@type ccTweaked.peripheral.Inventory
+---@type ccTweaked.peripherals.Inventory
 local bufferBarrel = peripheral.wrap("sophisticatedstorage:barrel_3")
----@type ccTweaked.peripheral.Inventory
+---@type ccTweaked.peripherals.Inventory
 local apothSalvager = peripheral.find("apotheosis:salvaging_table")
----@type ccTweaked.peripheral.Inventory
+---@type ccTweaked.peripherals.Inventory
 local silentBarrel = peripheral.wrap("sophisticatedstorage:barrel_1")
----@type ccTweaked.peripheral.Inventory
+---@type ccTweaked.peripherals.Inventory
 local enchantmentBarrel = peripheral.wrap("sophisticatedstorage:barrel_0")
----@type ccTweaked.peripheral.Inventory
+---@type ccTweaked.peripherals.Inventory
 local enchantmentLibrary = peripheral.find("apothic_enchanting:library")
 
 
@@ -78,10 +78,9 @@ else
     end
 end
 
----@type ccTweaked.peripheral.itemDetails
----@diagnostic disable-next-line: missing-fields
 local detailItemList = {}
 
+---@param invDevice ccTweaked.peripherals.Inventory
 local function buildDetailedItemList(invDevice)
 ---@diagnostic disable-next-line: missing-fields
     detailItemList = {}
@@ -96,9 +95,8 @@ local function buildDetailedItemList(invDevice)
     actions.execute()
 end
 
----@param item ccTweaked.peripheral.itemDetails
+
 local function isInFilter(item)
----@diagnostic disable-next-line: param-type-mismatch
     for _, filter in pairs(silentFilter) do
         if item.name == filter then
             return true

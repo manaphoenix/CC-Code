@@ -81,8 +81,10 @@ function ThemeManager.downloadTheme(url, themeName)
 
     if not fs.exists(ThemeManager.themePath) then fs.makeDir(ThemeManager.themePath) end
     local file = fs.open(fs.combine(ThemeManager.themePath, themeName .. ".lua"), "w")
-    file.write(content)
-    file.close()
+    if file then
+        file.write(content)
+        file.close()
+    end
 end
 
 --- Download a theme directly from GitHub

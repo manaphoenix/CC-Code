@@ -34,15 +34,15 @@ Post.__index = Post
 ---@return Post
 function Post.new(text, lang)
     local self = setmetatable({}, Post)
-    self["$type"] = "app.bsky.feed.post"  -- Keep the required name for the API
+    self["$type"] = "app.bsky.feed.post"           -- Keep the required name for the API
     self.text = text
     self.createdAt = os.date("%Y-%m-%dT%H:%M:%SZ") -- stupid EmmyLua :(
-    self.langs = lang and {lang} or {"en-US"} -- default to English
+    self.langs = lang and { lang } or { "en-US" }  -- default to English
     return self
 end
 
 --- Make a POST request
----@param request request
+---@param request ccTweaked.http.Request
 ---@return ccTweaked.http.BinaryResponse|ccTweaked.http.Response|nil response, string error, ccTweaked.http.BinaryResponse|ccTweaked.http.Response|nil code
 local function makePostRequest(request)
     local response, err, code = http.post(request)
@@ -69,14 +69,16 @@ local function loginToBSKY(handle, password)
         return nil, err, code
     end
     local response = textutils.unserialiseJSON(loginAttempt.readAll())
-    local auth, refreshAuth = response["accessJwt"], response["refreshJwt"]
-    local repo = response["did"]
-    loginAttempt.close()
-    return {
-        authToken = auth,
-        refreshToken = refreshAuth,
-        did = repo
-    }
+    if response then
+        local auth, refreshAuth = response["accessJwt"], response["refreshJwt"]
+        local repo = response["did"]
+        loginAttempt.close()
+        return {
+            authToken = auth,
+            refreshToken = refreshAuth,
+            did = repo
+        }
+    end
 end
 
 --- Post to BSKY
@@ -113,7 +115,7 @@ local function refreshToken(loginData)
     if not refreshAttempt then
         return nil, err, code
     end
-    local respCode = {refreshAttempt.getResponseCode()}
+    local respCode = { refreshAttempt.getResponseCode() }
     refreshAttempt.close()
     return respCode
 end

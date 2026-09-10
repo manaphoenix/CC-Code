@@ -1,3 +1,4 @@
+---@type ap.peripheral.StorageBridge
 local me = peripheral.find("me_bridge")
 
 if not me then
@@ -166,6 +167,7 @@ end
 local function buildDetailItems(name)
     local inventory = me.getItems()
     local list = {}
+    if not inventory then return end
 
     for i = 1, #inventory do
         local item = inventory[i]
@@ -290,6 +292,8 @@ local function refreshItems()
 
     local inventory = me.getItems()
     local data = {}
+
+    if not inventory then return end
 
     for i = 1, #inventory do
         local item = inventory[i]
@@ -528,7 +532,7 @@ local function handleKey(key)
         wrapPage()
         syncSelectionToPage()
     elseif key == keys.t then
-        sleep()
+        sleep(0.05)
         setThreshold()
     elseif key == keys.enter then
         if viewMode == "group" and items[selected] and items[selected].unique > 1 then
@@ -588,7 +592,7 @@ local function handleKey(key)
         sortItems(allItems)
         rebuildView()
     elseif key == keys.slash then
-        sleep()
+        sleep(0.05)
         searching = true
         searchQuery = ""
     elseif key == keys.delete then

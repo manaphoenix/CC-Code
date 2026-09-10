@@ -246,8 +246,10 @@ if not cancelled then
     end
 
     local file = fs.open(path, "w")
-    file.write(output)
-    file.close()
+    if file then
+        file.write(output)
+        file.close()
+    end
 
     print("\nSaved theme to: " .. path)
 

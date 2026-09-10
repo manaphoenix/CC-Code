@@ -19,8 +19,10 @@ local cfg = _G.startupConfig or { defaultTheme = "default" }
 if not fs.exists(cfgPath) then
     if not fs.exists("config") then fs.makeDir("config") end
     local file = fs.open(cfgPath, "w")
-    file.write(textutils.serialize(cfg))
-    file.close()
+    if file then
+        file.write(textutils.serialize(cfg))
+        file.close()
+    end
 end
 
 -- List all installed themes with metadata
@@ -61,8 +63,10 @@ local selectedName = selected.filename
 -- Update config
 cfg.defaultTheme = selectedName
 local file = fs.open(cfgPath, "w")
-file.write(textutils.serialize(cfg))
-file.close()
+if file then
+    file.write(textutils.serialize(cfg))
+    file.close()
+end
 
 print("Theme '" .. (selected.meta.name or selectedName) .. "' applied and saved to startup.cfg!")
 
