@@ -10,10 +10,10 @@ local SCAN_RADIUS = 16 -- Scan radius in blocks (maximum: 16).
 
 ---@type Filter[]
 local FILTERS = {
-    {filter = "lootr", color=0x00CC00},
-    {filter = "trial_spawner",color=0xCC0000},
-    {filter = "minecraft:vault",color=0xCCCC00,state="!ominous"},
-    {filter = "minecraft:vault",color=0xCC00CC,state="ominous"}
+    { filter = "lootr",           color = 0x00CC00 },
+    { filter = "trial_spawner",   color = 0xCC0000 },
+    { filter = "minecraft:vault", color = 0xCCCC00, state = "!ominous" },
+    { filter = "minecraft:vault", color = 0xCC00CC, state = "ominous" }
 } -- String to search for in block IDs (e.g. "minecraft:chest").
 -- The entire block ID is searched, not just the portion after ":".
 
