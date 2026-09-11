@@ -6,6 +6,7 @@ return {
         name = "Default",
         author = "Chat-GPT",
         description = "Neutral, readable default theme",
+        version = 1.0
     },
     colors = {
         white     = 0xFFFFFF,

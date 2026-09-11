@@ -3,6 +3,7 @@ return {
         name = "CyberDream",
         author = "Manaphoenix",
         description = "A dark theme with a cyberpunk feel",
+        version = 1.0
     },
     colors = {
         white     = 0xffffff,

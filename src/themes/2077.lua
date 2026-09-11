@@ -3,6 +3,7 @@ return {
         author = "Orixus",
         name = "2077",
         description = "A glimpse into Night City",
+        version = 1.0
     },
     colors = {
         white = 0xc4b7a7,
