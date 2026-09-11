@@ -13,14 +13,14 @@
 ---@field w number
 ---@field h number
 
-local APP_DIR = "apps"
-local SELF_NAME = "app_launcher.lua"
+local APP_DIR = "apps/system"
+local SELF_NAME = "launcher.lua"
 local REGISTRY_PATH = fs.combine("data", "app_registry.lua")
 
 local apps = {}
 local buttons = {}
 
-local ledger = require(".lib.ledger")
+local ledger = require(".lib.core.ledger")
 -- TODO: input.lua was removed — falling back to raw os.pullEvent
 -- local input = require(".lib.input")
 
