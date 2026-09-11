@@ -13,7 +13,7 @@ term.setCursorPos(1, 1)
 
 -- Load current startup config
 local cfgPath = "config/startup.cfg"
-local cfg = _G.startupConfig or { defaultTheme = "default" }
+local cfg = { defaultTheme = "default" }
 
 -- Load or create config file if missing
 if not fs.exists(cfgPath) then
