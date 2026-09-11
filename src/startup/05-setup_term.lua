@@ -4,3 +4,5 @@
 -- Reset terminal state for clean session start
 term.clear()
 term.setCursorPos(1, 1)
+
+shell.execute("apps/system/launcher.lua")
