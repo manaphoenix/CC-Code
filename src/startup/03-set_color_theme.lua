@@ -1,43 +1,41 @@
 -- 03-set_color_theme.lua
 
--- Load config directly (no globals)
 local cfgPath = "config/startup.cfg"
 local cfg = {}
 
-if fs.exists(cfgPath) then
-    local file = fs.open(cfgPath, "r")
-    if file then
-        local contents = file.readAll()
-        if contents then
-            local parsed = textutils.unserialize(contents)
-            if type(parsed) == "table" then
-                cfg = parsed
-            end
-        end
-        file.close()
+local file = fs.open(cfgPath, "r")
+if file then
+    local parsed = textutils.unserialize(file.readAll())
+    file.close()
+
+    if type(parsed) == "table" then
+        cfg = parsed
     end
 end
 
--- Defaults (pure local interpretation)
 local applyTerms = cfg.applyColorThemeToTerms ~= false
 local applyMonitors = cfg.applyColorThemeToMonitors ~= false
 local themeName = cfg.defaultTheme or "default"
 
--- Load ThemeManager
 local ok, ThemeManager = pcall(dofile, "lib/theme-manager.lua")
-if not ok then
-    print("Warning: ThemeManager missing, skipping theme setup")
+if not ok or type(ThemeManager) ~= "table" then
+    print("Warning: ThemeManager missing or invalid; skipping theme setup.")
     return
 end
 
--- Apply to terminal
-if applyTerms then
-    ThemeManager.applyTheme(term.current(), themeName)
+local function apply(target)
+    local success, err = pcall(ThemeManager.applyTheme, target, themeName)
+    if not success then
+        print(("Warning: could not apply theme '%s': %s"):format(themeName, err))
+    end
 end
 
--- Apply to monitors
+if applyTerms then
+    apply(term.current())
+end
+
 if applyMonitors then
     for _, monitor in ipairs({ peripheral.find("monitor") }) do
-        ThemeManager.applyTheme(monitor, themeName)
+        apply(monitor)
     end
 end

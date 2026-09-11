@@ -1,26 +1,43 @@
 -- 01-folder_creation.lua
-
--- Folder layout
--- Ensures all required directories exist for the system
---
--- apps/       User-run programs
--- config/     User-editable configuration
--- data/       Persistent runtime state
--- lib/        Shared libraries and internal modules
--- logs/       Diagnostic output and execution logs
--- themes/     Theme files and configurations
+-- Creates the required filesystem layout.
 
 local folders = {
     "apps",
-    "config",
+    "apps/system", -- Built-in apps; distinguish from user-installed ones
+    "apps/user",   -- User apps
+
+    "config",      -- User-editable configuration
+
     "data",
+    "data/cache", -- Safely disposable generated data
+    "data/state", -- Persistent state to retain
+
     "lib",
+    "lib/core",   -- Internal system modules
+    "lib/vendor", -- Third-party libraries
+
     "logs",
-    "themes"
+    "logs/errors", -- errors and crash reports
+    "logs/app",    -- app specific logs
+
+    "themes",      -- Theme definitions
 }
 
-for _, name in ipairs(folders) do
-    if not fs.exists(name) then
-        fs.makeDir(name)
+local function ensureDirectory(path)
+    if fs.exists(path) then
+        if not fs.isDir(path) then
+            error(("Expected '%s' to be a directory, but it is a file."):format(path))
+        end
+        return false
     end
+
+    if not fs.makeDir(path) then
+        error(("Could not create directory '%s'."):format(path))
+    end
+
+    return true
+end
+
+for _, path in ipairs(folders) do
+    ensureDirectory(path)
 end
