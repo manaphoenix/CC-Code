@@ -24,18 +24,9 @@ local folders = {
 }
 
 local function ensureDirectory(path)
-    if fs.exists(path) then
-        if not fs.isDir(path) then
-            error(("Expected '%s' to be a directory, but it is a file."):format(path))
-        end
-        return false
+    if not fs.isDir(path) then
+        fs.makeDir(path)
     end
-
-    if not fs.makeDir(path) then
-        error(("Could not create directory '%s'."):format(path))
-    end
-
-    return true
 end
 
 for _, path in ipairs(folders) do
