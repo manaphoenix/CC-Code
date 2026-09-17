@@ -2,26 +2,21 @@
 local hash = require("lib.hash")
 
 -- == Peripherals == --
-local tokenInventory = assert(peripheral.wrap("sophisticatedstorage:barrel_11"), "Token Inventory not found")
-local outputInventory = assert(peripheral.wrap("sophisticatedstorage:barrel_13"), "Output Inventory not found")
-local provider = assert(peripheral.wrap("expandedae:exp_pattern_provider_1"), "Pattern Provider not found")
+local tokenInventory = assert(peripheral.wrap("sophisticatedstorage:barrel_15"), "Token Inventory not found")
+local bufferInventory = assert(peripheral.wrap("sophisticatedstorage:barrel_14"), "Buffer Inventory not found")
+local outputInventory = assert(peripheral.wrap("sophisticatedstorage:barrel_16"), "Output Inventory not found")
+local provider = assert(peripheral.wrap("expandedae:exp_pattern_provider_2"), "Pattern Provider not found")
 ---@type ap.peripheral.StorageBridge
 local bridge = assert(peripheral.find("me_bridge"), "ME Bridge not found")
 
 provider.name = peripheral.getName(provider)
-
--- == Annotation Metas == --
-
----@class recipe
----@field input string the input hash of the inputs for the recipe
----@field output string the nbt hash of the output token for the recipe
+outputInventory.name = peripheral.getName(outputInventory)
 
 -- == Variables == --
 local maxWidth, maxHeight = term.getSize()
 local tokenHash = hash.recipeFingerprint(tokenInventory.list()) -- used to track if the tokenInventory changes
 local running = true                                            -- to end the program
 
----@type recipe[]
 local recipes = {} -- known recipes
 
 -- == Utility Functions == --
@@ -29,27 +24,13 @@ local recipes = {} -- known recipes
 ---Returns what slot the token matching the nbthash is in.
 ---@param nbt string
 ---@return number
-local function getToken(nbt)
-    local inv = tokenInventory.list()
+local function getToken(nbt, inv)
     for slot, item in pairs(inv) do
         if item.nbt == nbt then
             return slot
         end
     end
     return -1
-end
-
----find the recipe based on its inputs
----@param hashstring string
----@return recipe|nil
-local function getRecipe(hashstring)
-    if #recipes == 0 then return end
-
-    for _, recipe in ipairs(recipes) do
-        if recipe.input == hashstring then
-            return recipe
-        end
-    end
 end
 
 ---set the title bar for the program
@@ -67,6 +48,14 @@ local function setTitle(txt)
     term.setTextColor(colors.white)
 end
 
+local function collapseTable(tab)
+    local out = {}
+    for _, v in pairs(tab) do
+        table.insert(out, v)
+    end
+    return out
+end
+
 local function buildInputTable(inputs)
     local out = {}
     for _, item in pairs(inputs) do
@@ -74,6 +63,20 @@ local function buildInputTable(inputs)
         table.insert(out, { name = inp.name, count = item.multiplier, nbt = inp.nbt })
     end
     return out
+end
+
+local function buildBufferTable(inputs)
+    local out = {}
+    for _, item in pairs(inputs) do
+        local key = item.name .. "|" .. (item.nbt or "")
+        if out[key] then
+            out[key].count = out[key].count + item.count
+        else
+            out[key] = {count=item.count,name=item.name}
+            if item.nbt then out[key].nbt = item.nbt end
+        end
+    end
+    return collapseTable(out)
 end
 
 -- == Helper Functions == --
@@ -84,17 +87,14 @@ local function buildRecipes()
     local pats = bridge.getPatterns()
     if pats == nil then return end
     local total = 0
+    local tokeninv = tokenInventory.list()
 
     for _, pattern in pairs(pats) do
         if pattern.patternType == "processing" and pattern.primaryOutput.nbt then
-            if getToken(pattern.primaryOutput.nbt) ~= -1 then
+            if getToken(pattern.primaryOutput.nbt,tokeninv) ~= -1 then
                 local inpTable = buildInputTable(pattern.inputs)
-                ---@type recipe
-                local recipe = {
-                    input = hash.recipeFingerprint(inpTable),
-                    output = pattern.primaryOutput.nbt
-                }
-                table.insert(recipes, recipe)
+                local inpHash = hash.recipeFingerprint(inpTable)
+                recipes[inpHash] = pattern.primaryOutput.nbt
                 total = total + 1
             end
         end
@@ -102,20 +102,36 @@ local function buildRecipes()
     print("Total recipes found: " .. total)
 end
 
+local function emptyBuffer()
+    repeat
+        local invlist = bufferInventory.list()
+        for slot, _ in pairs(invlist) do
+            bufferInventory.pushItems(outputInventory.name, slot)
+        end
+    until next(bufferInventory.list()) == nil
+end
+
 -- == Main == --
 
 local function main()
-    term.setCursorPos(1, 2)
+    term.setCursorPos(1, 3)
 
-    local outInv = outputInventory.list()
-    if #outInv > 0 then
-        local outHash = hash.recipeFingerprint(outInv)
-        local curRecipe = getRecipe(outHash)
+    local outInv = bufferInventory.list()
+    if next(outInv) == nil then
+        return
+    end
+        local outFilteredInv = buildBufferTable(outInv)
+        local outHash = hash.recipeFingerprint(outFilteredInv)
+        local curRecipe = recipes[outHash]
         if curRecipe then
-            local tokenSlot = getToken(curRecipe.output)
+            local tokeninv = tokenInventory.list()
+            local tokenSlot = getToken(curRecipe, tokeninv)
+            if tokenSlot == -1 then
+                return
+            end
+            emptyBuffer()
             tokenInventory.pushItems(provider.name, tokenSlot)
         end
-    end
 end
 
 -- == Initalization == --
@@ -133,11 +149,13 @@ while running do
     if ev == "key" and arg1 == keys.q then
         running = false
     elseif ev == "timer" then
-        local curTokenHash = hash.recipeFingerprint(tokenInventory.list())
+        local tokeninv = tokenInventory.list()
+        local curTokenHash = hash.recipeFingerprint(tokeninv)
         if curTokenHash == tokenHash then
             main()
         else
             buildRecipes()
+            tokenHash = curTokenHash
         end
         os.startTimer(1)
     end
