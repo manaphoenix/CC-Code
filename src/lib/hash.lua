@@ -230,15 +230,13 @@ end
 ---@class Ingredient
 ---@field name string
 ---@field count integer
----@field components table|nil
 
 ---@param ingredient Ingredient
 ---@return Ingredient
 local function normalizeIngredient(ingredient)
     return {
         name = ingredient.name,
-        count = ingredient.count,
-        components = ingredient.components or {},
+        count = ingredient.count
     }
 end
 
