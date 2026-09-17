@@ -81,9 +81,9 @@ end
 --- Builds the recipes table, built once per run, and automatically if the tokenInventory changes.
 local function buildRecipes()
     recipes = {}
-    local total = 0
     local pats = bridge.getPatterns()
     if pats == nil then return end
+    local total = 0
 
     for _, pattern in pairs(pats) do
         if pattern.patternType == "processing" and pattern.primaryOutput.nbt then
@@ -113,7 +113,7 @@ local function main()
         local curRecipe = getRecipe(outHash)
         if curRecipe then
             local tokenSlot = getToken(curRecipe.output)
-            tokenInventory.pushItems(provider.name,tokenSlot)
+            tokenInventory.pushItems(provider.name, tokenSlot)
         end
     end
 end
