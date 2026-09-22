@@ -103,7 +103,12 @@ local function createWriter(device)
         i = i + 3
       elseif str:sub(i, i + 1) == "{&" then
         local code = str:sub(i + 2, i + 2)
-        currentFg = (code == "r") and defaultFg or code
+        if code == "r" then
+          currentFg = defaultFg
+          currentBg = defaultBg
+        else
+          currentFg = code
+        end
         if str:sub(i + 3, i + 3) == "|" then
           local bgColor = str:sub(i + 4, i + 4)
           currentBg = (bgColor == "r") and defaultBg or bgColor

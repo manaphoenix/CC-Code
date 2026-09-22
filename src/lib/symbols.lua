@@ -91,149 +91,38 @@ local symbols = {
   glyph = glyph,
   code = glyph, -- Shorter spelling for: symbols.code["95"]
 
-  -- ASCII punctuation
-  space = glyph["20"], exclamation = glyph["21"], quote = glyph["22"],
-  hash = glyph["23"], dollar = glyph["24"], percent = glyph["25"],
-  ampersand = glyph["26"], apostrophe = glyph["27"], leftParen = glyph["28"],
-  rightParen = glyph["29"], asterisk = glyph["2A"], plus = glyph["2B"],
-  comma = glyph["2C"], minus = glyph["2D"], period = glyph["2E"], slash = glyph["2F"],
-  colon = glyph["3A"], semicolon = glyph["3B"], lessThan = glyph["3C"],
-  equals = glyph["3D"], greaterThan = glyph["3E"], question = glyph["3F"],
-  at = glyph["40"], leftBracket = glyph["5B"], backslash = glyph["5C"],
-  rightBracket = glyph["5D"], caret = glyph["5E"], underscore = glyph["5F"],
-  backtick = glyph["60"], leftBrace = glyph["7B"], pipe = glyph["7C"],
-  rightBrace = glyph["7D"], tilde = glyph["7E"],
-
-  -- UI-friendly aliases visible in the supplied monitor character sheet.
-  -- This is the divider glyph you chose for the launcher tab bar.
-  separator = glyph["95"],
-  solid = glyph["DB"],
-  checkerboard = glyph["B0"],
-  filledCircle = glyph["07"],
-  filledDiamond = glyph["04"],
+  -- UI-Symbols.
+  verticalDivider = glyph["7C"],
+  horizontalDivider = glyph["AD"],
+  solid = glyph["80"],
+  block = glyph["80"],
+  dot = glyph["07"],
+  diamond = glyph["04"],
+  heart = glyph["03"],
+  spade = glyph["06"],
+  club = glyph["05"],
   leftArrow = glyph["1B"],
   rightArrow = glyph["1A"],
   upArrow = glyph["18"],
   downArrow = glyph["19"],
+  blockArrowLeft = glyph["11"],
+  blockArrowRight = glyph["10"],
+  blockArrowUp = glyph["1E"],
+  blockArrowDown = glyph["1F"],
+
+  -- Box Drawing
+  checkerboard = glyph["7F"],
+  leftSide = glyph["95"],
+  rightSide = glyph["95"], -- inversion required
+  topLeftCorner = glyph["97"],
+  topHorizontal = glyph["83"],
+  bottomLeftCorner = glyph["8A"], -- inversion required
+  bottomHorizontal = glyph["8F"], -- inversion required
+  topRightCorner = glyph["94"], -- inversion required
+  bottomRightCorner = glyph["85"], -- inversion required
+  middleHorizontalBar = glyph["8C"]
+
 }
-
--- CP437-derived names. These are the glyphs normally useful for terminal UI.
--- Box-drawing names describe the line direction from the cell's centre.
-symbols.smile = glyph["01"]
-symbols.inverseSmile = glyph["02"]
-symbols.heart = glyph["03"]
-symbols.diamond = glyph["04"]
-symbols.club = glyph["05"]
-symbols.spade = glyph["06"]
-symbols.bullet = glyph["07"]
-symbols.inverseBullet = glyph["08"]
-symbols.circle = glyph["09"]
-symbols.inverseCircle = glyph["0A"]
-symbols.male = glyph["0B"]
-symbols.female = glyph["0C"]
-symbols.note = glyph["0D"]
-symbols.beamedNotes = glyph["0E"]
-symbols.sun = glyph["0F"]
-symbols.rightTriangle = glyph["10"]
-symbols.leftTriangle = glyph["11"]
-symbols.upDownArrow = glyph["12"]
-symbols.doubleExclamation = glyph["13"]
-symbols.paragraph = glyph["14"]
-symbols.section = glyph["15"]
-symbols.thickHorizontal = glyph["16"]
-symbols.upDownBaseArrow = glyph["17"]
-symbols.rightAngle = glyph["1C"]
-symbols.leftRightArrow = glyph["1D"]
-symbols.upTriangle = glyph["1E"]
-symbols.downTriangle = glyph["1F"]
-symbols.home = glyph["7F"]
-
-symbols.lightShade = glyph["B0"]
-symbols.mediumShade = glyph["B1"]
-symbols.darkShade = glyph["B2"]
-symbols.vertical = glyph["95"]
-symbols.teeLeft = glyph["B4"]
-symbols.doubleTeeLeft = glyph["B5"]
-symbols.doubleVerticalTeeLeft = glyph["B6"]
-symbols.doubleTopRight = glyph["B7"]
-symbols.topRightDouble = glyph["B8"]
-symbols.doubleTeeRight = glyph["B9"]
-symbols.doubleVertical = glyph["BA"]
-symbols.doubleTopRightCorner = glyph["BB"]
-symbols.doubleBottomRightCorner = glyph["BC"]
-symbols.doubleBottomLeftCorner = glyph["BD"]
-symbols.bottomLeftDouble = glyph["BE"]
-symbols.topRight = glyph["94"]
-symbols.bottomLeft = glyph["8A"]
-symbols.teeUp = glyph["C1"]
-symbols.teeDown = glyph["C2"]
-symbols.teeRight = glyph["C3"]
-symbols.horizontal = glyph["83"]
-symbols.horizontalBottom = glyph["8F"]
-symbols.cross = glyph["C5"]
-symbols.doubleTeeRight = glyph["C6"]
-symbols.verticalDoubleTeeRight = glyph["C7"]
-symbols.doubleBottomLeftCorner = glyph["C8"]
-symbols.doubleTopLeftCorner = glyph["C9"]
-symbols.doubleTeeUp = glyph["CA"]
-symbols.doubleTeeDown = glyph["CB"]
-symbols.doubleCross = glyph["CC"]
-symbols.doubleHorizontal = glyph["CD"]
-symbols.doubleCrossMixed = glyph["CE"]
-symbols.doubleTeeUpMixed = glyph["CF"]
-symbols.doubleTeeDownMixed = glyph["D0"]
-symbols.doubleTeeLeftMixed = glyph["D1"]
-symbols.doubleTeeRightMixed = glyph["D2"]
-symbols.bottomLeftMixed = glyph["D3"]
-symbols.topLeftMixed = glyph["D4"]
-symbols.topRightMixed = glyph["D5"]
-symbols.bottomRightMixed = glyph["D6"]
-symbols.crossMixed = glyph["D7"]
-symbols.crossDoubleMixed = glyph["D8"]
-symbols.bottomRight = glyph["85"]
-symbols.topLeft = glyph["97"]
-symbols.fullBlock = glyph["DB"]
-symbols.lowerHalfBlock = glyph["DC"]
-symbols.leftHalfBlock = glyph["DD"]
-symbols.rightHalfBlock = glyph["DE"]
-symbols.upperHalfBlock = glyph["DF"]
-
-symbols.alpha = glyph["E0"]
-symbols.beta = glyph["E1"]
-symbols.gamma = glyph["E2"]
-symbols.pi = glyph["E3"]
-symbols.sigma = glyph["E4"]
-symbols.mu = glyph["E6"]
-symbols.tau = glyph["E7"]
-symbols.phi = glyph["E8"]
-symbols.theta = glyph["E9"]
-symbols.omega = glyph["EA"]
-symbols.delta = glyph["EB"]
-symbols.infinity = glyph["EC"]
-symbols.emptySet = glyph["ED"]
-symbols.intersection = glyph["EE"]
-symbols.identical = glyph["F0"]
-symbols.plusMinus = glyph["F1"]
-symbols.greaterOrEqual = glyph["F2"]
-symbols.lessOrEqual = glyph["F3"]
-symbols.topIntegral = glyph["F4"]
-symbols.bottomIntegral = glyph["F5"]
-symbols.divide = glyph["F6"]
-symbols.approximately = glyph["F7"]
-symbols.degree = glyph["F8"]
-symbols.centerDot = glyph["F9"]
-symbols.middleDot = glyph["FA"]
-symbols.squareRoot = glyph["FB"]
-symbols.superscriptN = glyph["FC"]
-symbols.superscript2 = glyph["FD"]
-symbols.smallSquare = glyph["FE"]
-symbols.nonBreakingSpace = glyph["FF"]
-
--- Common casing/spelling alternatives, so UI code stays pleasant to write.
-symbols.left_arrow = symbols.leftArrow
-symbols.right_arrow = symbols.rightArrow
-symbols.up_arrow = symbols.upArrow
-symbols.down_arrow = symbols.downArrow
 
 ---@return Symbols
 return symbols
